@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -25,6 +25,7 @@ import {
 
 
 export default function Home() {
+  const STORAGE_KEY = "muscu_seances";
 
   const exercices = [
     {
@@ -61,7 +62,29 @@ export default function Home() {
   ]
 
   const [seance, setSeance] = useState<any[]>([]);
-  
+
+  // Charger les données depuis le localStorage au montage du composant
+  useEffect(() => {
+    try {
+      const storedSeances = localStorage.getItem(STORAGE_KEY);
+      if (storedSeances) {
+        const parsedSeances = JSON.parse(storedSeances);
+        setSeance(parsedSeances);
+      }
+    } catch (error) {
+      console.error("Erreur lors du chargement des séances:", error);
+    }
+  }, []);
+
+  // Sauvegarder les données dans le localStorage à chaque modification
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(seance));
+    } catch (error) {
+      console.error("Erreur lors de la sauvegarde des séances:", error);
+    }
+  }, [seance]);
+
   function handleSubmit(event: any) {
     event.preventDefault();
     const form = event.target;
@@ -71,6 +94,13 @@ export default function Home() {
 
     setSeance([...seance, data]);
     form.reset();
+  }
+
+  function handleClearSeance() {
+    if (confirm("Êtes-vous sûr de vouloir vider toute la séance ?")) {
+      setSeance([]);
+      localStorage.removeItem(STORAGE_KEY);
+    }
   }
 
   return (
@@ -116,8 +146,13 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="flex mt-4">
+        <div className="flex mt-4 gap-4">
           <Button type="submit">Ajouter</Button>
+          {seance.length > 0 && (
+            <Button type="button" variant="destructive" onClick={handleClearSeance}>
+              Vider la séance
+            </Button>
+          )}
         </div>
       </form>
 
