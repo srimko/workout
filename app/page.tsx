@@ -22,6 +22,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,  
+} from "@/components/ui/dialog"
 
 
 export default function Home() {
@@ -62,6 +70,8 @@ export default function Home() {
   ]
 
   const [seance, setSeance] = useState<any[]>([]);
+  const [openModal, setOpenModal] = useState<boolean>(false);
+  const [openErrorModal, setOpenErrorModal] = useState<boolean>(false);
 
   // Charger les données depuis le localStorage au montage du composant
   useEffect(() => {
@@ -89,18 +99,26 @@ export default function Home() {
     event.preventDefault();
     const form = event.target;
     const formData = new FormData(form);
+
+    if(!formData.get("exercice") || !formData.get("weight") || !formData.get("serie") || !formData.get("repetition")) {
+      setOpenModal(true);
+      return
+    }
     const data = Object.fromEntries(formData.entries());
-    console.log(data);
+    data.date = new Date().toLocaleString();
 
     setSeance([...seance, data]);
     form.reset();
   }
 
   function handleClearSeance() {
-    if (confirm("Êtes-vous sûr de vouloir vider toute la séance ?")) {
-      setSeance([]);
-      localStorage.removeItem(STORAGE_KEY);
-    }
+    setOpenErrorModal(true);
+  }
+
+  function emptySeance() {
+    setSeance([]);
+    localStorage.removeItem(STORAGE_KEY);
+    setOpenErrorModal(false);
   }
 
   return (
@@ -162,25 +180,55 @@ export default function Home() {
           <TableCaption>Séance</TableCaption>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-200 text-left">#</TableHead>
               <TableHead className="w-200 text-left">Machine/Exercice</TableHead>
               <TableHead className="w-200 text-left">Poids</TableHead>
               <TableHead className="w-200 text-left">Série</TableHead>
               <TableHead className="w-200 text-left">Répétition</TableHead>
+              <TableHead className="w-200 text-left">Date - heure</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             { seance.map((item, index) => (
               <TableRow key={index}>
+                <TableCell className="w-200 text-left">{index + 1}</TableCell>
                 <TableCell className="w-200 text-left">{item.exercice}</TableCell>
                 <TableCell className="w-200 text-left">{item.weight} kg</TableCell>
                 <TableCell className="w-200 text-left">{item.serie}</TableCell>
                 <TableCell className="w-200 text-left">{item.repetition}</TableCell>
+                <TableCell className="w-200 text-left">{item.date}</TableCell>
               </TableRow>
             )) }
           </TableBody>
         </Table>
       }
-      
+
+      <Dialog defaultOpen={false} open={openModal} onOpenChange={setOpenModal}>
+        {/* <DialogTrigger>Open</DialogTrigger> */}
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Erreur</DialogTitle>
+            <DialogDescription>
+              Veuillez remplir tous les champs du formulaire avant de soumettre.
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog defaultOpen={false} open={openErrorModal} onOpenChange={setOpenErrorModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Êtes-vous sûr de vouloir vider toute la séance ?</DialogTitle>
+            <DialogDescription>
+              Cette action est irréversible.
+            </DialogDescription>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setOpenErrorModal(false)}>Annuler</Button>
+              <Button variant="destructive" onClick={emptySeance}>Vider la séance</Button>
+            </DialogFooter>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>      
     </>
   );
 }
