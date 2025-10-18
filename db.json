@@ -1,0 +1,219 @@
+{
+  "profiles": [
+    {
+      "id": "u1",
+      "display_name": "Cédrick",
+      "birthday": "1992-05-14",
+      "height_cm": 178,
+      "weight_kg": 76.5,
+      "sex": "male",
+      "training_experience": "advanced",
+      "goals": ["hypertrophy", "strength"],
+      "injuries": ["knee"],
+      "dominant_hand": "right",
+      "created_at": "2025-10-01T10:00:00Z",
+      "updated_at": "2025-10-10T10:00:00Z"
+    },
+    {
+      "id": "u2",
+      "display_name": "Laura",
+      "birthday": "1995-03-22",
+      "height_cm": 164,
+      "weight_kg": 59.2,
+      "sex": "female",
+      "training_experience": "intermediate",
+      "goals": ["endurance", "toning"],
+      "injuries": [],
+      "dominant_hand": "left",
+      "created_at": "2025-09-15T10:00:00Z",
+      "updated_at": "2025-10-05T10:00:00Z"
+    }
+  ],
+
+  "exercises": [
+    {
+      "id": 1,
+      "name": "Développé couché",
+      "machine": "Banc plat",
+      "modality": "barbell",
+      "muscle_groups": ["chest", "triceps"],
+      "unilateral": false,
+      "created_by": "u1",
+      "created_at": "2025-09-20T12:00:00Z"
+    },
+    {
+      "id": 2,
+      "name": "Squat",
+      "machine": "Rack à squat",
+      "modality": "barbell",
+      "muscle_groups": ["legs", "glutes"],
+      "unilateral": false,
+      "created_by": "u1",
+      "created_at": "2025-09-20T12:00:00Z"
+    },
+    {
+      "id": 3,
+      "name": "Tirage vertical",
+      "machine": "Lat Pulldown",
+      "modality": "machine",
+      "muscle_groups": ["back", "biceps"],
+      "unilateral": false,
+      "created_by": "u1",
+      "created_at": "2025-09-20T12:00:00Z"
+    },
+    {
+      "id": 4,
+      "name": "Curl haltères",
+      "machine": "Libre",
+      "modality": "dumbbell",
+      "muscle_groups": ["biceps"],
+      "unilateral": true,
+      "created_by": "u1",
+      "created_at": "2025-09-20T12:00:00Z"
+    }
+  ],
+
+  "workouts": [
+    {
+      "id": 101,
+      "user_id": "u1",
+      "started_at": "2025-10-10T18:05:00Z",
+      "ended_at": "2025-10-10T19:10:00Z",
+      "title": "Pectoraux / Triceps",
+      "notes": "Bonne séance, progression sur le développé couché"
+    },
+    {
+      "id": 102,
+      "user_id": "u1",
+      "started_at": "2025-10-13T18:10:00Z",
+      "ended_at": "2025-10-13T19:05:00Z",
+      "title": "Jambes",
+      "notes": "Squat plus lourd, légère fatigue"
+    },
+    {
+      "id": 103,
+      "user_id": "u2",
+      "started_at": "2025-10-12T17:00:00Z",
+      "ended_at": "2025-10-12T17:45:00Z",
+      "title": "Dos / Biceps",
+      "notes": "Bonne amplitude sur les tirages"
+    }
+  ],
+
+  "sets": [
+    {
+      "id": 1001,
+      "workout_id": 101,
+      "exercise_id": 1,
+      "performed_at": "2025-10-10T18:10:00Z",
+      "weight": 80,
+      "reps": 8,
+      "rpe": 8.5,
+      "side": null,
+      "tempo": "2-1-1",
+      "notes": ""
+    },
+    {
+      "id": 1002,
+      "workout_id": 101,
+      "exercise_id": 1,
+      "performed_at": "2025-10-10T18:15:00Z",
+      "weight": 85,
+      "reps": 6,
+      "rpe": 9,
+      "side": null,
+      "tempo": "2-1-1",
+      "notes": "difficile"
+    },
+    {
+      "id": 1003,
+      "workout_id": 102,
+      "exercise_id": 2,
+      "performed_at": "2025-10-13T18:15:00Z",
+      "weight": 110,
+      "reps": 8,
+      "rpe": 8,
+      "side": null,
+      "tempo": "3-1-1",
+      "notes": ""
+    },
+    {
+      "id": 1004,
+      "workout_id": 102,
+      "exercise_id": 2,
+      "performed_at": "2025-10-13T18:25:00Z",
+      "weight": 115,
+      "reps": 6,
+      "rpe": 8.5,
+      "side": null,
+      "tempo": "3-1-1",
+      "notes": ""
+    },
+    {
+      "id": 1005,
+      "workout_id": 103,
+      "exercise_id": 3,
+      "performed_at": "2025-10-12T17:10:00Z",
+      "weight": 45,
+      "reps": 10,
+      "rpe": 7,
+      "side": null,
+      "tempo": "2-1-2",
+      "notes": ""
+    },
+    {
+      "id": 1006,
+      "workout_id": 103,
+      "exercise_id": 4,
+      "performed_at": "2025-10-12T17:25:00Z",
+      "weight": 10,
+      "reps": 12,
+      "rpe": 7.5,
+      "side": "left",
+      "tempo": "2-0-2",
+      "notes": ""
+    },
+    {
+      "id": 1007,
+      "workout_id": 103,
+      "exercise_id": 4,
+      "performed_at": "2025-10-12T17:28:00Z",
+      "weight": 10,
+      "reps": 12,
+      "rpe": 7.5,
+      "side": "right",
+      "tempo": "2-0-2",
+      "notes": ""
+    }
+  ],
+
+  "personal_records": [
+    {
+      "id": 201,
+      "user_id": "u1",
+      "exercise_id": 1,
+      "metric": "weight",
+      "value": 85,
+      "set_id": 1002,
+      "achieved_at": "2025-10-10T18:15:00Z"
+    },
+    {
+      "id": 202,
+      "user_id": "u1",
+      "exercise_id": 2,
+      "metric": "weight",
+      "value": 115,
+      "set_id": 1004,
+      "achieved_at": "2025-10-13T18:25:00Z"
+    },
+    {
+      "id": 203,
+      "user_id": "u2",
+      "exercise_id": 4,
+      "metric": "reps",
+      "value": 12,
+      "set_id": 1007,
+      "achieved_at": "2025-10-12T17:28:00Z"
+    }
+  ]
+}
