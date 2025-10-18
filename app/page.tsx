@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -30,6 +30,11 @@ import {
   DialogTitle,
   DialogFooter,  
 } from "@/components/ui/dialog"
+import { profilesApi } from "@/lib/api/profiles";
+import { workoutsApi } from "@/lib/api/workouts";
+import { setsApi } from "@/lib/api/sets";
+import { exercisesApi } from "@/lib/api/exercises";
+import { Profile, Workout, Set, Exercise } from "@/lib/types";
 
 
 export default function Home() {
@@ -72,6 +77,26 @@ export default function Home() {
   const [seance, setSeance] = useState<any[]>([]);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openErrorModal, setOpenErrorModal] = useState<boolean>(false);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [curentProfiles, setCurrentProfile] = useState<Profile>();
+  const [currentSets, setCurrentSets] = useState<Set[] | undefined>();
+  const [selectedWorkoutId, setSelectedWorkoutId] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [workouts, setWorkouts] = useState<Workout[]>([]);
+
+  useEffect(() => {
+    async function fetchProfilesApi() {
+      try {
+        const data = await profilesApi.getAll()
+        setProfiles(data);
+      } catch (error) {
+        console.log("Erreur lors de la récupération des profils :", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProfilesApi();
+  }, [])
 
   // Charger les données depuis le localStorage au montage du composant
   useEffect(() => {
@@ -95,6 +120,66 @@ export default function Home() {
     }
   }, [seance]);
 
+  useEffect(() => {
+    async function getUserWorkouts(profileId: string) {
+      try {
+        const workouts = await workoutsApi.getByUserId(profileId);
+        console.log("Workouts pour le profil", profileId, ":", workouts);
+        setWorkouts(workouts);
+      } catch (error) {
+        console.log("Erreur lors de la récupération des workouts :", error);
+      }
+    }
+
+    if(!curentProfiles) return
+    getUserWorkouts(curentProfiles.id);
+  }, [curentProfiles]);
+
+  // useEffect pour charger les sets quand un workout est sélectionné
+  useEffect(() => {
+    async function fetchWorkoutSets() {
+      if (!selectedWorkoutId) return;
+
+      try {
+        console.log("Chargement des sets pour le workout ID :", selectedWorkoutId);
+
+        // Récupérer toutes les séries du workout
+        const sets: Set[] = await setsApi.getByWorkoutId(selectedWorkoutId);
+        console.log("Détails du workout :", sets);
+
+        // Récupérer les noms des exercices pour chaque série
+        const setsWithExerciseNames = await Promise.all(
+          sets.map(async (set: Set) => {
+            try {
+              const exercise: Exercise = await exercisesApi.getById(set.exercise_id);
+              console.log("Exercice pour le set ID", set.id, ":", exercise.name);
+              return {
+                ...set,
+                exercise_name: exercise.name
+              };
+            } catch (error) {
+              console.log("Erreur lors de la récupération de l'exercice :", error);
+              return set;
+            }
+          })
+        );
+
+        console.log("Sets mis à jour avec les noms d'exercice :", setsWithExerciseNames);
+        setCurrentSets(setsWithExerciseNames);
+      } catch (error) {
+        console.log("Erreur lors de la récupération des détails du workout :", error);
+      }
+    }
+
+    fetchWorkoutSets();
+  }, [selectedWorkoutId]);
+
+  function handleChange(value: string) {
+    console.log("Profile sélectionné :", value);
+    const profile = JSON.parse(value) as Profile;
+    setCurrentProfile(profile);
+  }
+
   function handleSubmit(event: any) {
     event.preventDefault();
     const form = event.target;
@@ -115,6 +200,11 @@ export default function Home() {
     setOpenErrorModal(true);
   }
 
+  function handleSeeMoreClick(workoutId: number) {
+    console.log("Voir plus pour le workout ID :", workoutId);
+    setSelectedWorkoutId(workoutId);
+  }
+
   function emptySeance() {
     setSeance([]);
     localStorage.removeItem(STORAGE_KEY);
@@ -127,6 +217,24 @@ export default function Home() {
         className="flex flex-col justify-center py-2 max-w-2xl m-auto"
         onSubmit={handleSubmit}
       >
+        <div className="grid w-full items-center gap-3 mb-4">
+          <Label htmlFor="profile">Profile</Label>
+          <Select name="profile" onValueChange={handleChange}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select an profile" />
+            </SelectTrigger>
+            <SelectContent>
+              {
+                profiles.map((profile, index) => (
+                  <SelectGroup key={profile.id}>
+                    <SelectItem key={profile.id} value={JSON.stringify(profile)}>{profile.display_name}</SelectItem>
+                  </SelectGroup>
+                ))
+              }
+            </SelectContent>
+          </Select>
+        </div>
+
         <div className="grid w-full items-center gap-3 mb-4">
           <Label htmlFor="exercice">Exercice</Label>
           <Select name="exercice">
@@ -173,6 +281,58 @@ export default function Home() {
           )}
         </div>
       </form>
+
+      {
+        workouts.length > 0 && 
+        <div className="flex flex-col justify-center py-2 max-w-2xl m-auto">
+          <h2 className="text-2xl font-bold mb-4">Workouts { curentProfiles?.display_name } :</h2>
+          <ul>
+            {workouts.map((workout) => (
+              <li key={workout.id} className="flex justify-between mb-2">
+                <strong>{workout.title}</strong> - Commencé à : {new Date(workout.started_at).toLocaleString()} <Button variant="link" onClick={() => {handleSeeMoreClick(workout.id)}}>Voir plus</Button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+      }
+
+      {
+        currentSets && currentSets.length > 0 && (
+          <div className="flex flex-col justify-center py-2 max-w-2xl m-auto mt-8">
+            <h2 className="text-2xl font-bold mb-4">Détails de la séance</h2>
+            <Table>
+              <TableCaption>Séries effectuées</TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-left">#</TableHead>
+                  <TableHead className="text-left">Exercice</TableHead>
+                  <TableHead className="text-left">Poids (kg)</TableHead>
+                  <TableHead className="text-left">Répétitions</TableHead>
+                  <TableHead className="text-left">RPE</TableHead>
+                  <TableHead className="text-left">Tempo</TableHead>
+                  <TableHead className="text-left">Notes</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {currentSets.map((set, index) => (
+                  <TableRow key={set.id}>
+                    <TableCell className="text-left">{index + 1}</TableCell>
+                    <TableCell className="text-left">
+                      {(set as any).exercise_name || `Exercice #${set.exercise_id}`}
+                    </TableCell>
+                    <TableCell className="text-left">{set.weight}</TableCell>
+                    <TableCell className="text-left">{set.reps}</TableCell>
+                    <TableCell className="text-left">{set.rpe}</TableCell>
+                    <TableCell className="text-left">{set.tempo}</TableCell>
+                    <TableCell className="text-left">{set.notes || '-'}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )
+      }
 
       {
         seance.length > 0 &&
