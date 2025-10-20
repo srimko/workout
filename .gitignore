@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Markdown files
+MODAL_GUIDE.md
+REFACTORING_EXAMPLE
+START_HERE.md
+STRUCTURE.md
+**/*.md

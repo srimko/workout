@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, use } from "react";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -22,67 +21,29 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,  
-} from "@/components/ui/dialog"
+import { AlertModal } from "@/components/modals/AlertModal";
+import { SetModal } from "@/components/modals/SetModal";
 import { profilesApi } from "@/lib/api/profiles";
 import { workoutsApi } from "@/lib/api/workouts";
 import { setsApi } from "@/lib/api/sets";
 import { exercisesApi } from "@/lib/api/exercises";
 import { Profile, Workout, Set, Exercise } from "@/lib/types";
 
+import { useModal } from "@/lib/hooks/useModal";
+
 
 export default function Home() {
-  const STORAGE_KEY = "muscu_seances";
+  const alertModal = useModal();
+  const setModal = useModal();
 
-  const exercices = [
-    {
-      bodyPart: "Pectoraux",
-      excercices: [
-        "Banc",
-        "Banc incliné",
-        "Fly machine",
-      ]
-    },
-    {
-      bodyPart: "Dos",
-      excercices: [
-        "Tirage horizontal",
-        "Tirage vertical",
-        "Tirage assité un bras",
-      ]
-    },
-    {
-      bodyPart: "Épaules",
-      excercices: [
-        "Shoulder press machine",
-        "Oiseau debout avec poids/haltères",
-      ]
-    },
-    {
-      bodyPart: "Biceps",
-      excercices: [
-        "Curl biceps assis à la machine",
-        "Curl haltère incliné",
-        "Curl biceps sur mur",
-      ]
-    },
-  ]
-
-  const [seance, setSeance] = useState<any[]>([]);
-  const [openModal, setOpenModal] = useState<boolean>(false);
-  const [openErrorModal, setOpenErrorModal] = useState<boolean>(false);
   const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [curentProfiles, setCurrentProfile] = useState<Profile>();
+  const [curentProfile, setCurrentProfile] = useState<Profile>();
   const [currentSets, setCurrentSets] = useState<Set[] | undefined>();
   const [selectedWorkoutId, setSelectedWorkoutId] = useState<number | null>(null);
+  const [currentWorkout, setCurrentWorkout] = useState<Workout | null>(null);
   const [loading, setLoading] = useState(true);
   const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [exercises, setExercises] = useState<Exercise[]>([]);
 
   useEffect(() => {
     async function fetchProfilesApi() {
@@ -98,27 +59,19 @@ export default function Home() {
     fetchProfilesApi();
   }, [])
 
-  // Charger les données depuis le localStorage au montage du composant
+  // Charger tous les exercices depuis l'API
   useEffect(() => {
-    try {
-      const storedSeances = localStorage.getItem(STORAGE_KEY);
-      if (storedSeances) {
-        const parsedSeances = JSON.parse(storedSeances);
-        setSeance(parsedSeances);
+    async function fetchExercises() {
+      try {
+        const data = await exercisesApi.getAll();
+        console.log("Exercices chargés :", data);
+        setExercises(data);
+      } catch (error) {
+        console.log("Erreur lors de la récupération des exercices :", error);
       }
-    } catch (error) {
-      console.error("Erreur lors du chargement des séances:", error);
     }
+    fetchExercises();
   }, []);
-
-  // Sauvegarder les données dans le localStorage à chaque modification
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(seance));
-    } catch (error) {
-      console.error("Erreur lors de la sauvegarde des séances:", error);
-    }
-  }, [seance]);
 
   useEffect(() => {
     async function getUserWorkouts(profileId: string) {
@@ -131,9 +84,9 @@ export default function Home() {
       }
     }
 
-    if(!curentProfiles) return
-    getUserWorkouts(curentProfiles.id);
-  }, [curentProfiles]);
+    if(!curentProfile) return
+    getUserWorkouts(curentProfile.id);
+  }, [curentProfile]);
 
   // useEffect pour charger les sets quand un workout est sélectionné
   useEffect(() => {
@@ -180,24 +133,89 @@ export default function Home() {
     setCurrentProfile(profile);
   }
 
-  function handleSubmit(event: any) {
+  async function handleSubmit(event: any) {
     event.preventDefault();
     const form = event.target;
     const formData = new FormData(form);
 
     if(!formData.get("exercice") || !formData.get("weight") || !formData.get("serie") || !formData.get("repetition")) {
-      setOpenModal(true);
+      alertModal.open();
       return
     }
-    const data = Object.fromEntries(formData.entries());
-    data.date = new Date().toLocaleString();
 
-    setSeance([...seance, data]);
-    form.reset();
-  }
+    if (!curentProfile) {
+      console.error("Aucun profil sélectionné");
+      return;
+    }
 
-  function handleClearSeance() {
-    setOpenErrorModal(true);
+    try {
+      const exerciseId = parseInt(formData.get("exercice") as string);
+      const weight = parseFloat(formData.get("weight") as string);
+      const serie = parseInt(formData.get("serie") as string);
+      const repetition = parseInt(formData.get("repetition") as string);
+
+      // 1. Vérifier s'il existe un workout actif, sinon en créer un
+      let workout = currentWorkout;
+      if (!workout) {
+        const now = new Date().toISOString();
+        workout = await workoutsApi.create({
+          user_id: curentProfile.id,
+          started_at: now,
+          ended_at: now,
+          title: `Séance du ${new Date().toLocaleDateString()}`,
+          notes: ""
+        });
+        setCurrentWorkout(workout);
+        setSelectedWorkoutId(workout.id);
+      }
+
+      // 2. Trouver l'exercice correspondant dans l'API
+      const exercise = exercises.find(ex => ex.id === exerciseId);
+      if (!exercise) {
+        console.error("Exercice non trouvé dans l'API:", exerciseId);
+        return;
+      }
+
+      // 3. Créer le set
+      const now = new Date().toISOString();
+      await setsApi.create({
+        exercice_name: exercise.name,
+        workout_id: workout.id,
+        exercise_id: exercise.id,
+        performed_at: now,
+        weight: weight,
+        reps: repetition,
+        rpe: 0,
+        side: null,
+        tempo: "",
+        notes: `Série ${serie}`
+      });
+
+      // 4. Rafraîchir les sets du workout actif
+      const updatedSets = await setsApi.getByWorkoutId(workout.id);
+      const setsWithExerciseNames = await Promise.all(
+        updatedSets.map(async (set: Set) => {
+          try {
+            const ex: Exercise = await exercisesApi.getById(set.exercise_id);
+            return {
+              ...set,
+              exercise_name: ex.name
+            };
+          } catch (error) {
+            return set;
+          }
+        })
+      );
+      setCurrentSets(setsWithExerciseNames);
+
+      // 5. Rafraîchir la liste des workouts
+      const updatedWorkouts = await workoutsApi.getByUserId(curentProfile.id);
+      setWorkouts(updatedWorkouts);
+
+      form.reset();
+    } catch (error) {
+      console.error("Erreur lors de l'ajout de l'exercice :", error);
+    }
   }
 
   function handleSeeMoreClick(workoutId: number) {
@@ -205,10 +223,8 @@ export default function Home() {
     setSelectedWorkoutId(workoutId);
   }
 
-  function emptySeance() {
-    setSeance([]);
-    localStorage.removeItem(STORAGE_KEY);
-    setOpenErrorModal(false);
+  function handleSetClick() {
+    setModal.open();
   }
 
   return (
@@ -234,58 +250,17 @@ export default function Home() {
             </SelectContent>
           </Select>
         </div>
-
-        <div className="grid w-full items-center gap-3 mb-4">
-          <Label htmlFor="exercice">Exercice</Label>
-          <Select name="exercice">
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select an exercice" />
-            </SelectTrigger>
-            <SelectContent>
-              {
-                exercices.map((exercice, index) => (
-                  <SelectGroup key={exercice.bodyPart}>
-                    <SelectLabel>{exercice.bodyPart}</SelectLabel>
-                    {exercice.excercices.map((name) => (
-                      <SelectItem key={name} value={name}>{name}</SelectItem>
-                    ))}
-                  </SelectGroup>
-                ))
-              }
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex justify-between w-full gap-6">
-          <div className="grid w-full items-center gap-3 mb-4">
-            <Label htmlFor="weight">Poids (kg)</Label>
-            <Input type="number" name="weight" min="2.5" step="1.25"/>
-          </div>
-          <div className="grid w-full items-center gap-3 mb-4">
-            <Label htmlFor="serie">Série</Label>
-            <Input type="number" name="serie" min="1"/>
-          </div>
-
-          <div className="grid w-full items-center gap-3 mb-4">
-            <Label htmlFor="repetition">Répétitions</Label>
-            <Input type="number" name="repetition" min="1"/>
-          </div>
-        </div>
-
-        <div className="flex mt-4 gap-4">
-          <Button type="submit">Ajouter</Button>
-          {seance.length > 0 && (
-            <Button type="button" variant="destructive" onClick={handleClearSeance}>
-              Vider la séance
-            </Button>
-          )}
-        </div>
       </form>
+      
+
+      <div className="flex flex-col justify-center py-2 max-w-2xl m-auto">
+        <Button onClick={handleSetClick}>Ajouter une série</Button>
+      </div>
 
       {
         workouts.length > 0 && 
         <div className="flex flex-col justify-center py-2 max-w-2xl m-auto">
-          <h2 className="text-2xl font-bold mb-4">Workouts { curentProfiles?.display_name } :</h2>
+          <h2 className="text-2xl font-bold mb-4">Workouts { curentProfile?.display_name } :</h2>
           <ul>
             {workouts.map((workout) => (
               <li key={workout.id} className="flex justify-between mb-2">
@@ -309,9 +284,6 @@ export default function Home() {
                   <TableHead className="text-left">Exercice</TableHead>
                   <TableHead className="text-left">Poids (kg)</TableHead>
                   <TableHead className="text-left">Répétitions</TableHead>
-                  <TableHead className="text-left">RPE</TableHead>
-                  <TableHead className="text-left">Tempo</TableHead>
-                  <TableHead className="text-left">Notes</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -322,10 +294,7 @@ export default function Home() {
                       {(set as any).exercise_name || `Exercice #${set.exercise_id}`}
                     </TableCell>
                     <TableCell className="text-left">{set.weight}</TableCell>
-                    <TableCell className="text-left">{set.reps}</TableCell>
-                    <TableCell className="text-left">{set.rpe}</TableCell>
-                    <TableCell className="text-left">{set.tempo}</TableCell>
-                    <TableCell className="text-left">{set.notes || '-'}</TableCell>
+                    <TableCell className="text-left">{set.repetition}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -334,61 +303,66 @@ export default function Home() {
         )
       }
 
-      {
-        seance.length > 0 &&
-        <Table className="flex flex-col justify-center py-2 max-w-2xl m-auto">
-          <TableCaption>Séance</TableCaption>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-200 text-left">#</TableHead>
-              <TableHead className="w-200 text-left">Machine/Exercice</TableHead>
-              <TableHead className="w-200 text-left">Poids</TableHead>
-              <TableHead className="w-200 text-left">Série</TableHead>
-              <TableHead className="w-200 text-left">Répétition</TableHead>
-              <TableHead className="w-200 text-left">Date - heure</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            { seance.map((item, index) => (
-              <TableRow key={index}>
-                <TableCell className="w-200 text-left">{index + 1}</TableCell>
-                <TableCell className="w-200 text-left">{item.exercice}</TableCell>
-                <TableCell className="w-200 text-left">{item.weight} kg</TableCell>
-                <TableCell className="w-200 text-left">{item.serie}</TableCell>
-                <TableCell className="w-200 text-left">{item.repetition}</TableCell>
-                <TableCell className="w-200 text-left">{item.date}</TableCell>
-              </TableRow>
-            )) }
-          </TableBody>
-        </Table>
-      }
+      <AlertModal
+        {...alertModal}
+        title="Erreur"
+        description="Veuillez remplir tous les champs du formulaire avant de soumettre."
+      />
+      
+      <SetModal
+        {...setModal}
+        title="Ajouter une série"
+        description="Ajotuer une nouvelle série à votre workout en cours."
+        profile={curentProfile}
+        onConfirm={async (data) => {
+          if(!curentProfile) {
+            console.error('Aucun profil sélectionné')
+            return
+          }
 
-      <Dialog defaultOpen={false} open={openModal} onOpenChange={setOpenModal}>
-        {/* <DialogTrigger>Open</DialogTrigger> */}
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Erreur</DialogTitle>
-            <DialogDescription>
-              Veuillez remplir tous les champs du formulaire avant de soumettre.
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+          let workout = currentWorkout;
+          if (!workout) {
+              const now = new Date().toISOString();
+              workout = await workoutsApi.create({
+                  user_id: curentProfile.id,
+                  started_at: now,
+                  ended_at: now,
+                  title: `Séance du ${new Date().toLocaleDateString()}`,
+                  notes: ""
+              });
+              setCurrentWorkout(workout);
+              setSelectedWorkoutId(workout.id);
+          }
 
-      <Dialog defaultOpen={false} open={openErrorModal} onOpenChange={setOpenErrorModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Êtes-vous sûr de vouloir vider toute la séance ?</DialogTitle>
-            <DialogDescription>
-              Cette action est irréversible.
-            </DialogDescription>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setOpenErrorModal(false)}>Annuler</Button>
-              <Button variant="destructive" onClick={emptySeance}>Vider la séance</Button>
-            </DialogFooter>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>      
+          const now = new Date().toISOString();
+          await setsApi.create({
+              workout_id: workout.id,
+              exercise_id: data.exerciceId,
+              performed_at: now,
+              weight: data.weight,
+              repetition: data.repetition,
+          });
+
+          const updatedSets = await setsApi.getByWorkoutId(workout.id);
+          const setsWithExerciseNames = await Promise.all(
+              updatedSets.map(async (set: Set) => {
+                  try {
+                      const ex: Exercise = await
+                      exercisesApi.getById(set.exercise_id);
+                      return { ...set, exercise_name: ex.name };
+                  } catch (error) {
+                      return set;
+                  }
+              })
+          );
+          setCurrentSets(setsWithExerciseNames);
+          
+          const updatedWorkouts = await
+          workoutsApi.getByUserId(curentProfile.id);
+          setWorkouts(updatedWorkouts);
+        }}
+        exercises={exercises}
+      />
     </>
   );
 }

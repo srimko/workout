@@ -17,11 +17,6 @@ export interface Exercise {
   id: number;
   name: string;
   machine: string;
-  modality: "barbell" | "dumbbell" | "machine";
-  muscle_groups: string[];
-  unilateral: boolean;
-  created_by: string;
-  created_at: string;
 }
 
 export interface Workout {
@@ -35,16 +30,11 @@ export interface Workout {
 
 export interface Set {
   id: number;
-  exercice_name: string;
   workout_id: number;
   exercise_id: number;
   performed_at: string;
   weight: number;
-  reps: number;
-  rpe: number;
-  side: "left" | "right" | null;
-  tempo: string;
-  notes: string;
+  repetition: number;
 }
 
 export interface PersonalRecord {
