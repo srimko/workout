@@ -25,11 +25,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased dark`}
       >
-        <Navigation />
-        {children}
+        <main className="p-8">
+          <Navigation />
+          {children}
+        </main>
       </body>
     </html>
   );

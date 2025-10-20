@@ -71,7 +71,7 @@ export default function UserPage() {
   }
 
   return (
-    <div className="container mx-auto py-10 px-4 max-w-4xl">
+    <div className="container mx-auto py-10 max-w-4xl">
       <div className="mb-6">
         <Link href="/users">
           <Button variant="ghost">← Retour aux profils</Button>

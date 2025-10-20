@@ -7,7 +7,6 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { profilesApi } from "@/lib/api/profiles";
 import { Profile } from "@/lib/types";
@@ -34,7 +33,7 @@ export default function UsersPage() {
 
     return (
         <section className="py-32">
-            <div className="px-0 md:px-8">
+            <div className="px-0 md:px-2">
                 <div className="flex flex-col">
                     {profiles.map((profile) => (
                         <div className="flex justify-between gap-4 px-4 py-5 md:grid-cols-4" key={profile.id}>
