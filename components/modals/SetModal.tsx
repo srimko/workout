@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button"
 
 import { Profile, Exercise } from "@/lib/types";
+// import { useWhyDidYouUpdate } from "@/lib/hooks/useWhyDidYouUpdate";
 
 export interface SetModalProps {
     isOpen: boolean;
@@ -42,6 +43,7 @@ export interface SetModalProps {
 }
 
 export function SetModal({ isOpen, close, title, description, profile, onConfirm, onCancel, confirmText = 'Confirmer', cancelText = 'Annuler', variant = 'default', exercises}: SetModalProps) {
+    // useWhyDidYouUpdate('SetModal', { isOpen, close, title, description, profile, onConfirm, onCancel, confirmText, cancelText, variant, exercises});
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
         exerciceId: '',
