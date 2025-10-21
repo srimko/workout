@@ -7,7 +7,7 @@ import { useWhyDidYouUpdate } from '@/lib/hooks/useWhyDidYouUpdate';
 
 interface ListWorkoutProps {
     workouts: Workout[];
-    onSelectWorkout: (workoutId: number) => void;
+    onSelectWorkout: (workoutId: string) => void;
 }
 
 export const ListWorkout = memo(function ListWorout({ workouts, onSelectWorkout }:ListWorkoutProps ) {
