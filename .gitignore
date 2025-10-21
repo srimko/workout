@@ -46,3 +46,7 @@ REFACTORING_EXAMPLE
 START_HERE.md
 STRUCTURE.md
 **/*.md
+
+# Migration
+
+supabase/migrations
