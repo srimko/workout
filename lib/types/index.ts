@@ -20,21 +20,23 @@ export interface Exercise {
 }
 
 export interface Workout {
-  id: number;
-  user_id: string;
+  id: string;
+  profile_id: string;
   started_at: string;
-  ended_at: string;
+  ended_at: string | null;
   title: string;
-  notes: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Set {
-  id: number;
-  workout_id: number;
+  id: string;
+  workout_id: string;
   exercise_id: number;
-  performed_at: string;
   weight: number;
   repetition: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface PersonalRecord {
