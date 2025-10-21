@@ -2,7 +2,6 @@
 
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { profilesApi } from '@/lib/api/profiles'
 import { Profile } from '@/lib/types'
 import {
   Card,
@@ -20,27 +19,30 @@ import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import Link from 'next/link'
 
+import { createClient } from "@/utils/supabase/client"
+
 export default function UserPage() {
   const params = useParams()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
 
+  const supabase = createClient()
+  
   useEffect(() => {
-    async function fetchProfile() {
+    async function getUser() {
       try {
-        const data = await profilesApi.getById(params.id as string)
+        const { data } = await supabase.from('profiles').select().single()
+        console.log(data)
         setProfile(data)
       } catch (error) {
-        console.error('Erreur lors de la récupération du profil:', error)
+        console.error('Erreur lors de la récupération du profile:', error)
       } finally {
         setLoading(false)
       }
     }
 
-    if (params.id) {
-      fetchProfile()
-    }
-  }, [params.id])
+    getUser()
+  }, [])
 
   if (loading) {
     return (

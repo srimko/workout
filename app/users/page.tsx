@@ -8,20 +8,21 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar"
 import { ArrowRight } from "lucide-react";
-import { profilesApi } from "@/lib/api/profiles";
 import { Profile } from "@/lib/types";
 import Link from "next/link";
+import { createClient } from "@/utils/supabase/client"
 
 export default function UsersPage() {
 
     const [profiles, setProfiles] = useState<Profile[]>([]);
+    const supabase = createClient()
 
     useEffect(() => {
         const fetchProfiles = async () => {
             try {
-                const profiles = await profilesApi.getAll();
-                console.log("Fetched profiles:", profiles);
-                setProfiles(profiles);
+                const { data } = await supabase.from('profiles').select('*');
+                console.log("Fetched profiles:", data);
+                setProfiles(data || []);
             }
             catch (error) {
                 console.error("Error fetching profiles:", error);
