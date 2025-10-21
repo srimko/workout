@@ -21,6 +21,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button"
 
 import { Profile, Exercise } from "@/lib/types";
+import { Card } from "../ui/card";
+import { Badge } from "../ui/badge";
 // import { useWhyDidYouUpdate } from "@/lib/hooks/useWhyDidYouUpdate";
 
 export interface SetModalProps {
@@ -46,15 +48,29 @@ export function SetModal({ isOpen, close, title, description, profile, onConfirm
     // useWhyDidYouUpdate('SetModal', { isOpen, close, title, description, profile, onConfirm, onCancel, confirmText, cancelText, variant, exercises});
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
-        exerciceId: '',
-        weight: '',
+        exerciceId: exercises.length > 0 ? exercises[0].id.toString() : '',
+        weight: '30',
         serie: '',
         repetition: ''
     })
+    const [weightStep, setWeightStep] = useState(5)
+    const weights = [1.25, 2.5, 5, 10, 20]
 
     const handleConfirm = async () => {
-        if (!formData.exerciceId || !formData.weight || !formData.serie || !formData.repetition) {
-            alert("Veuillez remplir tous les champs")
+        console.log("🔍 DEBUG - formData:", formData)
+        console.log("🔍 Validation:", {
+            exerciceId: !formData.exerciceId ? "❌ VIDE" : "✅ OK",
+            weight: !formData.weight ? "❌ VIDE" : "✅ OK",
+            serie: !formData.serie ? "❌ VIDE" : "✅ OK",
+            repetition: !formData.repetition ? "❌ VIDE" : "✅ OK"
+        })
+
+        if (!formData.exerciceId) {
+            alert("Veuillez sélectionner un exercice")
+            return
+        }
+        if (!formData.weight || !formData.serie || !formData.repetition) {
+            alert("Veuillez remplir tous les champs (poids, série, répétitions)")
             return
         }
 
@@ -62,7 +78,7 @@ export function SetModal({ isOpen, close, title, description, profile, onConfirm
 
         await onConfirm({
             exerciceId: parseInt(formData.exerciceId),
-            weight: parseInt(formData.weight),
+            weight: parseFloat(formData.weight),
             serie: parseInt(formData.serie),
             repetition: parseInt(formData.repetition),
         })
@@ -71,12 +87,24 @@ export function SetModal({ isOpen, close, title, description, profile, onConfirm
 
         setFormData({
             exerciceId: '',
-            weight: '',
+            weight: '30',
             serie: '',
             repetition: '',
         })
 
         close()
+    }
+
+    const handleClick = (symbol:string) => {
+        const currentWeight = parseFloat(formData.weight) || 30
+        let weight = 0
+        if(symbol === 'minus') {
+            weight = currentWeight - weightStep
+        } else {
+            weight = currentWeight + weightStep
+        }
+
+        setFormData({...formData, weight: weight.toString()})
     }
 
     return (
@@ -122,6 +150,31 @@ export function SetModal({ isOpen, close, title, description, profile, onConfirm
                                 <Label htmlFor="repetition">Répétitions</Label>
                                 <Input type="number" name="repetition" min="1" value={formData.repetition} onChange={(e) => setFormData({...formData, repetition: e.target.value})}/>
                             </div>
+                        </div>
+
+                        <div>
+                            <div className="flex gap-4 justify-center m-8">
+                                <span
+                                    className="flex justify-center items-center px-8 text-2xl border rounded-full cursor-pointer hover:bg-gray-100"
+                                    onClick={ () => handleClick('minus')}
+                                >-</span>
+                                <div className="p-6 border rounded-lg bg-gray-300 text-black font-bold text-2xl">{ formData.weight }</div>
+                                <span
+                                    className="flex justify-center items-center px-8 text-2xl border rounded-full cursor-pointer hover:bg-gray-100"
+                                    onClick={ () => handleClick('plus')}
+                                >+</span>
+                            </div>
+                            <ul className="flex justify-center gap-3">
+                                {
+                                    weights.map((weight, index) => (
+                                        <li
+                                            key={ index }
+                                            className={`text-sm text-white p-2 rounded-2xl cursor-pointer transition-colors ${weightStep === weight ? 'bg-blue-600' : 'bg-gray-500 hover:bg-gray-600'}`}
+                                            onClick={() => setWeightStep(weight)}
+                                        >{ weight } Kg</li>
+                                    ))
+                                }
+                            </ul>
                         </div>
                     </div>
                 </form>
