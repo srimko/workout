@@ -8,49 +8,42 @@ import { SetModal } from "@/components/modals/SetModal";
 import { SelectProfile } from "@/components/SelectProfile";
 import { ListWorkout } from "@/components/List/ListWorkout";
 import { TableWorkout } from "@/components/Table/TableWorkout";
-import { profilesApi } from "@/lib/api/profiles";
-import { workoutsApi } from "@/lib/api/workouts";
-import { setsApi } from "@/lib/api/sets";
-import { exercisesApi } from "@/lib/api/exercises";
 import { Profile, Workout, Set, Exercise } from "@/lib/types";
+import { createClient } from "@/utils/supabase/client";
 
 import { useModal } from "@/lib/hooks/useModal";
 
 export default function Home() {
+  const supabase = createClient();
   const alertModal = useModal();
   const setModal = useModal();
 
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [currentProfile, setCurrentProfile] = useState<Profile>();
   const [currentSets, setCurrentSets] = useState<Set[] | undefined>();
-  const [selectedWorkoutId, setSelectedWorkoutId] = useState<number | null>(null);
-  const [currentWorkout, setCurrentWorkout] = useState<Workout | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [selectedWorkoutId, setSelectedWorkoutId] = useState<string | null>(null);
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [exercises, setExercises] = useState<Exercise[]>([]);
-  const [someState, setSomeState] = useState(0);
 
   useEffect(() => {
     async function fetchProfilesApi() {
       try {
-        const data = await profilesApi.getAll()
-        setProfiles(data);
+        const { data } = await supabase.from('profiles').select('*');
+        setProfiles(data || []);
       } catch (error) {
         console.log("Erreur lors de la récupération des profils :", error);
-      } finally {
-        setLoading(false);
       }
     }
     fetchProfilesApi();
   }, [])
 
-  // Charger tous les exercices depuis l'API
+  // Charger tous les exercices depuis Supabase
   useEffect(() => {
     async function fetchExercises() {
       try {
-        const data = await exercisesApi.getAll();
+        const { data } = await supabase.from('exercises').select('*');
         console.log("Exercices chargés :", data);
-        setExercises(data);
+        setExercises(data || []);
       } catch (error) {
         console.log("Erreur lors de la récupération des exercices :", error);
       }
@@ -61,9 +54,9 @@ export default function Home() {
   useEffect(() => {
     async function getUserWorkouts(profileId: string) {
       try {
-        const workouts = await workoutsApi.getByUserId(profileId);
-        console.log("Workouts pour le profil", profileId, ":", workouts);
-        setWorkouts(workouts);
+        const { data } = await supabase.from('workouts').select('*').eq('profile_id', profileId);
+        console.log("Workouts pour le profil", profileId, ":", data);
+        setWorkouts(data || []);
       } catch (error) {
         console.log("Erreur lors de la récupération des workouts :", error);
       }
@@ -90,11 +83,11 @@ export default function Home() {
   }, [selectedWorkoutId]);
 
     // Fonction pour rafraîchir les sets d'un workout avec les noms d'exercices
-  const refreshWorkoutSets = useCallback(async (workoutId: number) => {
+  const refreshWorkoutSets = useCallback(async (workoutId: string) => {
     try {
-      const sets = await setsApi.getByWorkoutId(workoutId);
+      const { data: sets } = await supabase.from('sets').select('*').eq('workout_id', workoutId);
 
-      const setsWithExerciseNames = sets.map((set: Set) => {
+      const setsWithExerciseNames = (sets || []).map((set: Set) => {
         const exercise = exercises.find(ex => ex.id === set.exercise_id);
         return {
           ...set,
@@ -111,17 +104,17 @@ export default function Home() {
   }, [exercises])
 
   // Fonction pour obtenir ou créer le workout du jour
-  const getOrCreateTodayWorkout = useCallback(async (userId: string): Promise<Workout> => {
+  const getOrCreateTodayWorkout = useCallback(async (profileId: string): Promise<Workout> => {
     try {
-      // Récupérer tous les workouts de l'utilisateur
-      const userWorkouts = await workoutsApi.getByUserId(userId);
+      // Récupérer tous les workouts du profil
+      const { data: userWorkouts } = await supabase.from('workouts').select('*').eq('profile_id', profileId);
 
       // Date du jour à 00:00:00
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
       // Chercher un workout créé aujourd'hui
-      const todayWorkout = userWorkouts.find((workout) => {
+      const todayWorkout = (userWorkouts || []).find((workout) => {
         const workoutDate = new Date(workout.started_at);
         workoutDate.setHours(0, 0, 0, 0);
         return workoutDate.getTime() === today.getTime();
@@ -135,21 +128,21 @@ export default function Home() {
 
       // Sinon, créer un nouveau workout
       const now = new Date().toISOString();
-      const newWorkout = await workoutsApi.create({
-        user_id: userId,
+      const { data: newWorkout, error } = await supabase.from('workouts').insert({
+        profile_id: profileId,
         started_at: now,
         ended_at: now,
-        title: `Séance du ${new Date().toLocaleDateString()}`,
-        notes: ""
-      });
+        title: `Séance du ${new Date().toLocaleDateString()}`
+      }).select().single();
+
+      if (error) throw error;
 
       console.log("Nouveau workout créé:", newWorkout);
-      setCurrentWorkout(newWorkout);
       setSelectedWorkoutId(newWorkout.id);
 
       // Rafraîchir la liste des workouts
-      const updatedWorkouts = await workoutsApi.getByUserId(userId);
-      setWorkouts(updatedWorkouts);
+      const { data: updatedWorkouts } = await supabase.from('workouts').select('*').eq('profile_id', profileId);
+      setWorkouts(updatedWorkouts || []);
 
       return newWorkout;
     } catch (error) {
@@ -164,7 +157,7 @@ export default function Home() {
     setCurrentProfile(profile);
   }, [])
 
-  const handleSeeMoreClick = useCallback((workoutId: number) => {
+  const handleSeeMoreClick = useCallback((workoutId: string) => {
     console.log("Voir plus pour le workout ID :", workoutId);
     setSelectedWorkoutId(workoutId);
   }, [])
@@ -176,7 +169,7 @@ export default function Home() {
 
   const handleSubmit = useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const form = event.target;
+    const form = event.currentTarget;
     const formData = new FormData(form);
 
     if(!formData.get("exercice") || !formData.get("weight") || !formData.get("serie") || !formData.get("repetition")) {
@@ -192,7 +185,6 @@ export default function Home() {
     try {
       const exerciseId = parseInt(formData.get("exercice") as string);
       const weight = parseFloat(formData.get("weight") as string);
-      const serie = parseInt(formData.get("serie") as string);
       const repetition = parseInt(formData.get("repetition") as string);
 
       // 1. Obtenir ou créer le workout du jour
@@ -206,25 +198,19 @@ export default function Home() {
       }
 
       // 3. Créer le set
-      const now = new Date().toISOString();
-      await setsApi.create({
+      await supabase.from('sets').insert({
         workout_id: workout.id,
         exercise_id: exercise.id,
-        performed_at: now,
         weight: weight,
-        reps: repetition,
-        rpe: 0,
-        side: null,
-        tempo: "",
-        notes: `Série ${serie}`
+        repetition: repetition
       });
 
       // 4. Rafraîchir les sets du workout actif
       await refreshWorkoutSets(workout.id);
 
       // 5. Rafraîchir la liste des workouts
-      const updatedWorkouts = await workoutsApi.getByUserId(currentProfile.id);
-      setWorkouts(updatedWorkouts);
+      const { data: updatedWorkouts } = await supabase.from('workouts').select('*').eq('profile_id', currentProfile.id);
+      setWorkouts(updatedWorkouts || []);
 
       form.reset();
     } catch (error) {
@@ -266,20 +252,17 @@ export default function Home() {
           // Obtenir ou créer le workout du jour
           const workout = await getOrCreateTodayWorkout(currentProfile.id);
 
-          const now = new Date().toISOString();
-          await setsApi.create({
+          await supabase.from('sets').insert({
               workout_id: workout.id,
               exercise_id: data.exerciceId,
-              performed_at: now,
               weight: data.weight,
               repetition: data.repetition,
           });
 
           await refreshWorkoutSets(workout.id);
-          
-          const updatedWorkouts = await
-          workoutsApi.getByUserId(currentProfile.id);
-          setWorkouts(updatedWorkouts);
+
+          const { data: updatedWorkouts } = await supabase.from('workouts').select('*').eq('profile_id', currentProfile.id);
+          setWorkouts(updatedWorkouts || []);
         }}
         exercises={exercises}
       />
