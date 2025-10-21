@@ -33,7 +33,7 @@ export function Navigation() {
                     <Link href="/users">Users</Link>
                 </NavigationMenuLink>
                 <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                    <Link href="/exercices">Exercices</Link>
+                    <Link href="/exercises">Exercises</Link>
                 </NavigationMenuLink>
                 <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
                     <button onClick={handleLogout}>Logout</button>
