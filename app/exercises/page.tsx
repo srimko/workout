@@ -1,11 +1,11 @@
 import { createClient } from '@/utils/supabase/server';
 
-export default async function Exercices() {
+export default async function Exercises() {
     const supabase = await createClient();
 
     // Récupérer des données depuis Supabase
     const { data, error } = await supabase
-        .from('exercices')
+        .from('exercises')
         .select('*');
 
     console.log(data)
@@ -16,8 +16,8 @@ export default async function Exercices() {
 
     return <div>
         <ul>
-            {data && data.map((exercice, index) => (
-                <li key={ index }>{exercice.name}</li>
+            {data && data.map((exercise, index) => (
+                <li key={ index }>{exercise.name}</li>
             ))}
         </ul>
     </div>
