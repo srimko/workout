@@ -20,7 +20,7 @@ export const ListWorkout = memo(function ListWorout({ workouts, onSelectWorkout 
                     <ul>
                         {workouts.map((workout) => (
                         <li key={workout.id} className="flex justify-between mb-2">
-                            <strong>{workout.title}</strong> - Commencé à : {new Date(workout.started_at).toLocaleString()} 
+                            <strong>{workout.title}</strong>{new Date(workout.started_at).toLocaleString()} 
                             <Button variant="link" onClick={() => {onSelectWorkout(workout.id)}}>Voir plus</Button>
                         </li>
                         ))}
