@@ -50,3 +50,5 @@ STRUCTURE.md
 # Migration
 
 supabase/migrations
+
+export/
