@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -16,14 +16,25 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs"
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button"
 
 import { Profile, Exercise } from "@/lib/types";
-import { Card } from "../ui/card";
-import { Badge } from "../ui/badge";
-// import { useWhyDidYouUpdate } from "@/lib/hooks/useWhyDidYouUpdate";
+import { SelectExercise } from "./components/SelectExercise";
+import { SerieDisplay } from '@/components/modals/components/SerieDisplay'
+import { SerieSelector } from '@/components/modals/components/SerieSelector'
+import { WeightDisplay } from '@/components/modals/components/WeightDisplay'
+import { WeightSelector } from '@/components/modals/components/WeightSelector'
+import { RepSelector } from '@/components/modals/components/RepSelector'
+import { RepDisplay } from '@/components/modals/components/RepDisplay'
 
 export interface SetModalProps {
     isOpen: boolean;
@@ -45,7 +56,6 @@ export interface SetModalProps {
 }
 
 export function SetModal({ isOpen, close, title, description, profile, onConfirm, onCancel, confirmText = 'Confirmer', cancelText = 'Annuler', variant = 'default', exercises}: SetModalProps) {
-    // useWhyDidYouUpdate('SetModal', { isOpen, close, title, description, profile, onConfirm, onCancel, confirmText, cancelText, variant, exercises});
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
         exerciceId: exercises.length > 0 ? exercises[0].id.toString() : '',
@@ -53,18 +63,9 @@ export function SetModal({ isOpen, close, title, description, profile, onConfirm
         serie: '',
         repetition: ''
     })
-    const [weightStep, setWeightStep] = useState(5)
-    const weights = [1.25, 2.5, 5, 10, 20]
+    
 
     const handleConfirm = async () => {
-        console.log("🔍 DEBUG - formData:", formData)
-        console.log("🔍 Validation:", {
-            exerciceId: !formData.exerciceId ? "❌ VIDE" : "✅ OK",
-            weight: !formData.weight ? "❌ VIDE" : "✅ OK",
-            serie: !formData.serie ? "❌ VIDE" : "✅ OK",
-            repetition: !formData.repetition ? "❌ VIDE" : "✅ OK"
-        })
-
         if (!formData.exerciceId) {
             alert("Veuillez sélectionner un exercice")
             return
@@ -95,17 +96,21 @@ export function SetModal({ isOpen, close, title, description, profile, onConfirm
         close()
     }
 
-    const handleClick = (symbol:string) => {
-        const currentWeight = parseFloat(formData.weight) || 30
-        let weight = 0
-        if(symbol === 'minus') {
-            weight = currentWeight - weightStep
-        } else {
-            weight = currentWeight + weightStep
-        }
+    const handleExerciseChange = useCallback((exerciceId: string) => {
+         setFormData(prev => ({...prev, exerciceId}))
+    }, [])
 
-        setFormData({...formData, weight: weight.toString()})
-    }
+    const handleWeightChange = useCallback((weight: string) => {
+        setFormData(prev => ({...prev, weight}))
+    }, [])
+
+    const handleSerieChange = useCallback((serie: string) => {
+        setFormData(prev => ({...prev, serie}))
+    }, [])
+
+    const handleRepetitionChange = useCallback((repetition: string) => {
+        setFormData(prev => ({...prev, repetition}))
+    }, [])
 
     return (
         <Dialog open={isOpen} onOpenChange={close}>
@@ -119,63 +124,58 @@ export function SetModal({ isOpen, close, title, description, profile, onConfirm
                 <form className="flex flex-col justify-center py-2 max-w-2xl m-auto">      
                     <div className="grid w-full items-center gap-3 mb-4">
                         <Label htmlFor="exercice">Exercice</Label>
-                        <Select 
-                            name="exercice"
-                            value={formData.exerciceId}
-                            onValueChange={(value) => setFormData({...formData, exerciceId: value})}
-                        >
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select an exercice" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                { exercises.map(exercise => (
-                                    <SelectItem key={ exercise.id.toString() } value={ exercise.id.toString() }>
-                                        { exercise.name } - { exercise.machine }
-                                    </SelectItem>
-                                )) }
-                            </SelectContent>
-                        </Select>
+                        <SelectExercise exercises={ exercises } exerciseId={ formData.exerciceId } onExerciseChange={ handleExerciseChange }/>
 
                         <div className="flex justify-between w-full gap-6">
-                            <div className="grid w-full items-center gap-3 mb-4">
-                                <Label htmlFor="weight">Poids (kg)</Label>
-                                <Input type="number" name="weight" min="2.5" step="1.25" value={formData.weight} onChange={(e) => setFormData({...formData, weight: e.target.value})} />
-                            </div>
-                            <div className="grid w-full items-center gap-3 mb-4">
-                                <Label htmlFor="serie">Série</Label>
-                                <Input type="number" name="serie" min="1" value={formData.serie} onChange={(e) => setFormData({...formData, serie: e.target.value})}/>
-                            </div>
-
-                            <div className="grid w-full items-center gap-3 mb-4">
-                                <Label htmlFor="repetition">Répétitions</Label>
-                                <Input type="number" name="repetition" min="1" value={formData.repetition} onChange={(e) => setFormData({...formData, repetition: e.target.value})}/>
-                            </div>
+                            <WeightDisplay weight={ formData.weight } />
+                            <SerieDisplay serie={ formData.serie } />
+                            <RepDisplay rep={ formData.repetition } />
                         </div>
 
-                        <div>
-                            <div className="flex gap-4 justify-center m-8">
-                                <span
-                                    className="flex justify-center items-center px-8 text-2xl border rounded-full cursor-pointer hover:bg-gray-100"
-                                    onClick={ () => handleClick('minus')}
-                                >-</span>
-                                <div className="p-6 border rounded-lg bg-gray-300 text-black font-bold text-2xl">{ formData.weight }</div>
-                                <span
-                                    className="flex justify-center items-center px-8 text-2xl border rounded-full cursor-pointer hover:bg-gray-100"
-                                    onClick={ () => handleClick('plus')}
-                                >+</span>
-                            </div>
-                            <ul className="flex justify-center gap-3">
-                                {
-                                    weights.map((weight, index) => (
-                                        <li
-                                            key={ index }
-                                            className={`text-sm text-white p-2 rounded-2xl cursor-pointer transition-colors ${weightStep === weight ? 'bg-blue-600' : 'bg-gray-500 hover:bg-gray-600'}`}
-                                            onClick={() => setWeightStep(weight)}
-                                        >{ weight } Kg</li>
-                                    ))
-                                }
-                            </ul>
-                        </div>
+                        {/* Tabs pour sélectionner poids, série, répétitions */}
+                        <Tabs defaultValue="weight" className="w-full">
+                            <TabsList className="grid w-full grid-cols-3">
+                                <TabsTrigger value="weight">Poids</TabsTrigger>
+                                <TabsTrigger value="serie">Série</TabsTrigger>
+                                <TabsTrigger value="repetition">Répétitions</TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="weight" className="mt-4">
+                                <div>
+                                    <h3 className="text-center font-semibold mb-4 text-lg">
+                                        Sélectionner le poids
+                                    </h3>
+                                    <WeightSelector
+                                        weight={formData.weight}
+                                        onWeightChange={handleWeightChange}
+                                    />
+                                </div>
+                            </TabsContent>
+
+                            <TabsContent value="serie" className="mt-4">
+                                <div className="p-4">
+                                    <h3 className="text-center font-semibold mb-4 text-lg">
+                                        Sélectionner la série
+                                    </h3>
+                                    <SerieSelector
+                                        serie={formData.serie}
+                                        onSerieChange={handleSerieChange}
+                                    />
+                                </div>
+                            </TabsContent>
+
+                            <TabsContent value="repetition" className="mt-4">
+                                <div className="p-4">
+                                    <h3 className="text-center font-semibold mb-4 text-lg">
+                                        Nombre de répétitions
+                                    </h3>
+                                    <RepSelector
+                                        rep={formData.repetition}
+                                        onRepChange={handleRepetitionChange}
+                                    />
+                                </div>
+                            </TabsContent>
+                        </Tabs>
                     </div>
                 </form>
                 <DialogFooter>
