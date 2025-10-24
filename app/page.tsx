@@ -13,6 +13,8 @@ import { createClient } from "@/utils/supabase/client";
 
 import { useModal } from "@/lib/hooks/useModal";
 
+import { DrawerExercise } from "@/components/Drawers/components/DrawerExercise";
+
 export default function Home() {
   const supabase = createClient();
   const alertModal = useModal();
@@ -162,11 +164,6 @@ export default function Home() {
     setSelectedWorkoutId(workoutId);
   }, [])
 
-  const handleSetClick = useCallback(() => {
-    setModal.open();
-  }, [])
-
-
   const handleSubmit = useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = event.currentTarget;
@@ -222,11 +219,7 @@ export default function Home() {
     <>
       <SelectProfile profiles={profiles} onSubmit={handleSubmit} onValueChange={handleChange} />
 
-      <div className="flex flex-col justify-center py-2 max-w-2xl m-auto">
-        <Button onClick={handleSetClick} disabled={!currentProfile}>
-          Ajouter une série
-        </Button>
-      </div>
+      <DrawerExercise />
 
       <ListWorkout workouts={workouts} onSelectWorkout={handleSeeMoreClick}/>
 
