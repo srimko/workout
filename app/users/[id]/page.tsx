@@ -1,23 +1,13 @@
-'use client'
+"use client"
 
-import { useParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { Profile } from '@/lib/types'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
+import Link from "next/link"
+import { useParams } from "next/navigation"
+import { useEffect, useState } from "react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import Link from 'next/link'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import type { Profile } from "@/lib/types"
 
 import { createClient } from "@/utils/supabase/client"
 
@@ -27,15 +17,15 @@ export default function UserPage() {
   const [loading, setLoading] = useState(true)
 
   const supabase = createClient()
-  
+
   useEffect(() => {
     async function getUser() {
       try {
-        const { data } = await supabase.from('profiles').select().single()
+        const { data } = await supabase.from("profiles").select().single()
         console.log(data)
         setProfile(data)
       } catch (error) {
-        console.error('Erreur lors de la récupération du profile:', error)
+        console.error("Erreur lors de la récupération du profile:", error)
       } finally {
         setLoading(false)
       }
@@ -65,9 +55,9 @@ export default function UserPage() {
 
   const getInitials = (name: string) => {
     return name
-      .split(' ')
-      .map(word => word[0])
-      .join('')
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
       .toUpperCase()
       .slice(0, 2)
   }
@@ -84,12 +74,16 @@ export default function UserPage() {
         <CardHeader>
           <div className="flex items-center gap-4">
             <Avatar className="h-20 w-20">
-              <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${profile.display_name}`} />
+              <AvatarImage
+                src={`https://api.dicebear.com/7.x/initials/svg?seed=${profile.display_name}`}
+              />
               <AvatarFallback>{getInitials(profile.display_name)}</AvatarFallback>
             </Avatar>
             <div>
               <CardTitle className="text-3xl">{profile.display_name}</CardTitle>
-              <CardDescription>Membre depuis {new Date(profile.created_at).toLocaleDateString()}</CardDescription>
+              <CardDescription>
+                Membre depuis {new Date(profile.created_at).toLocaleDateString()}
+              </CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -103,7 +97,7 @@ export default function UserPage() {
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Sexe</p>
-                <p className="font-medium">{profile.sex === 'male' ? 'Homme' : 'Femme'}</p>
+                <p className="font-medium">{profile.sex === "male" ? "Homme" : "Femme"}</p>
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Taille</p>
@@ -115,7 +109,9 @@ export default function UserPage() {
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Main dominante</p>
-                <p className="font-medium">{profile.dominant_hand === 'right' ? 'Droite' : 'Gauche'}</p>
+                <p className="font-medium">
+                  {profile.dominant_hand === "right" ? "Droite" : "Gauche"}
+                </p>
               </div>
             </div>
           </div>
@@ -128,9 +124,9 @@ export default function UserPage() {
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Niveau d'expérience</p>
                 <p className="font-medium">
-                  {profile.training_experience === 'beginner' && 'Débutant'}
-                  {profile.training_experience === 'intermediate' && 'Intermédiaire'}
-                  {profile.training_experience === 'advanced' && 'Avancé'}
+                  {profile.training_experience === "beginner" && "Débutant"}
+                  {profile.training_experience === "intermediate" && "Intermédiaire"}
+                  {profile.training_experience === "advanced" && "Avancé"}
                 </p>
               </div>
             </div>

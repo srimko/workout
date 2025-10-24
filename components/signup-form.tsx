@@ -1,29 +1,15 @@
-'use client';
+"use client"
 
-import { useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { createClient } from "@/utils/supabase/client"
-import { cn } from "@/lib/utils"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils"
+import { createClient } from "@/utils/supabase/client"
 
-export function SignUp({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+export function SignUp({ className, ...props }: React.ComponentProps<"div">) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [error, setError] = useState<string | null>(null)
@@ -35,12 +21,12 @@ export function SignUp({
     setError(null)
 
     const formData = new FormData(event.currentTarget)
-    const email = formData.get('email') as string
-    const password = formData.get('password') as string
-    const confirmPassword = formData.get('confirmPassword') as string
+    const email = formData.get("email") as string
+    const password = formData.get("password") as string
+    const confirmPassword = formData.get("confirmPassword") as string
 
-    if(password !== confirmPassword) {
-      setError('Les mots de passe ne sont pas identiques')
+    if (password !== confirmPassword) {
+      setError("Les mots de passe ne sont pas identiques")
       setLoading(false)
       return
     }
@@ -59,7 +45,7 @@ export function SignUp({
     }
 
     // Redirect vers la page d'origine ou vers /
-    const redirectTo = searchParams.get('redirectTo') || '/'
+    const redirectTo = searchParams.get("redirectTo") || "/"
     router.push(redirectTo)
     router.refresh()
   }
@@ -76,11 +62,7 @@ export function SignUp({
         <CardContent>
           <form onSubmit={handleSubmit}>
             <FieldGroup>
-              {error && (
-                <div className="text-sm text-red-500 mb-4">
-                  {error}
-                </div>
-              )}
+              {error && <div className="text-sm text-red-500 mb-4">{error}</div>}
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
@@ -96,13 +78,7 @@ export function SignUp({
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
                 </div>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  disabled={loading}
-                />
+                <Input id="password" name="password" type="password" required disabled={loading} />
               </Field>
               <Field>
                 <div className="flex items-center">
@@ -118,7 +94,7 @@ export function SignUp({
               </Field>
               <Field>
                 <Button type="submit" disabled={loading}>
-                  {loading ? 'Loading...' : 'Login'}
+                  {loading ? "Loading..." : "Login"}
                 </Button>
                 <FieldDescription className="text-center">
                   Don&apos;t have an account? <a href="#">Sign up</a>

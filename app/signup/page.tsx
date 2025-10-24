@@ -1,4 +1,4 @@
-'use client';
+"use client"
 
 import { Suspense } from "react"
 import { SignUp } from "@/components/signup-form"

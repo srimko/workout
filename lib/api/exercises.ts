@@ -1,43 +1,40 @@
-import { createClient } from '@/utils/supabase/server';
-import { Category, Exercise, ExerciseWithCategory } from '@/lib/types';
+import type { Category, Exercise, ExerciseWithCategory } from "@/lib/types"
+import { createClient } from "@/utils/supabase/server"
 
 /**
  * Get all categories
  */
 export async function getCategories(): Promise<Category[]> {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
-  const { data, error } = await supabase
-    .from('categories')
-    .select('*')
-    .order('name');
+  const { data, error } = await supabase.from("categories").select("*").order("name")
 
   if (error) {
-    console.error('Error fetching categories:', error);
-    throw new Error(`Failed to fetch categories: ${error.message}`);
+    console.error("Error fetching categories:", error)
+    throw new Error(`Failed to fetch categories: ${error.message}`)
   }
 
-  return data || [];
+  return data || []
 }
 
 /**
  * Get a single category by ID
  */
 export async function getCategoryById(categoryId: string): Promise<Category | null> {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   const { data, error } = await supabase
-    .from('categories')
-    .select('*')
-    .eq('id', categoryId)
-    .single();
+    .from("categories")
+    .select("*")
+    .eq("id", categoryId)
+    .single()
 
   if (error) {
-    console.error('Error fetching category:', error);
-    return null;
+    console.error("Error fetching category:", error)
+    return null
   }
 
-  return data;
+  return data
 }
 
 /**
@@ -45,25 +42,22 @@ export async function getCategoryById(categoryId: string): Promise<Category | nu
  * @param activeOnly - If true, only return active exercises
  */
 export async function getExercises(activeOnly: boolean = false): Promise<Exercise[]> {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
-  let query = supabase
-    .from('exercises')
-    .select('*')
-    .order('title');
+  let query = supabase.from("exercises").select("*").order("title")
 
   if (activeOnly) {
-    query = query.eq('is_active', true);
+    query = query.eq("is_active", true)
   }
 
-  const { data, error } = await query;
+  const { data, error } = await query
 
   if (error) {
-    console.error('Error fetching exercises:', error);
-    throw new Error(`Failed to fetch exercises: ${error.message}`);
+    console.error("Error fetching exercises:", error)
+    throw new Error(`Failed to fetch exercises: ${error.message}`)
   }
 
-  return data || [];
+  return data || []
 }
 
 /**
@@ -71,30 +65,30 @@ export async function getExercises(activeOnly: boolean = false): Promise<Exercis
  * @param activeOnly - If true, only return active exercises
  */
 export async function getExercisesWithCategory(
-  activeOnly: boolean = false
+  activeOnly: boolean = false,
 ): Promise<ExerciseWithCategory[]> {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   let query = supabase
-    .from('exercises')
+    .from("exercises")
     .select(`
       *,
       category:categories(*)
     `)
-    .order('title');
+    .order("title")
 
   if (activeOnly) {
-    query = query.eq('is_active', true);
+    query = query.eq("is_active", true)
   }
 
-  const { data, error } = await query;
+  const { data, error } = await query
 
   if (error) {
-    console.error('Error fetching exercises with category:', error);
-    throw new Error(`Failed to fetch exercises with category: ${error.message}`);
+    console.error("Error fetching exercises with category:", error)
+    throw new Error(`Failed to fetch exercises with category: ${error.message}`)
   }
 
-  return data || [];
+  return data || []
 }
 
 /**
@@ -104,71 +98,63 @@ export async function getExercisesWithCategory(
  */
 export async function getExercisesByCategory(
   categoryId: string,
-  activeOnly: boolean = false
+  activeOnly: boolean = false,
 ): Promise<Exercise[]> {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
-  let query = supabase
-    .from('exercises')
-    .select('*')
-    .eq('category_id', categoryId)
-    .order('title');
+  let query = supabase.from("exercises").select("*").eq("category_id", categoryId).order("title")
 
   if (activeOnly) {
-    query = query.eq('is_active', true);
+    query = query.eq("is_active", true)
   }
 
-  const { data, error } = await query;
+  const { data, error } = await query
 
   if (error) {
-    console.error('Error fetching exercises by category:', error);
-    throw new Error(`Failed to fetch exercises by category: ${error.message}`);
+    console.error("Error fetching exercises by category:", error)
+    throw new Error(`Failed to fetch exercises by category: ${error.message}`)
   }
 
-  return data || [];
+  return data || []
 }
 
 /**
  * Get a single exercise by ID
  */
 export async function getExerciseById(exerciseId: number): Promise<Exercise | null> {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
-  const { data, error } = await supabase
-    .from('exercises')
-    .select('*')
-    .eq('id', exerciseId)
-    .single();
+  const { data, error } = await supabase.from("exercises").select("*").eq("id", exerciseId).single()
 
   if (error) {
-    console.error('Error fetching exercise:', error);
-    return null;
+    console.error("Error fetching exercise:", error)
+    return null
   }
 
-  return data;
+  return data
 }
 
 /**
  * Get a single exercise by ID with its category information
  */
 export async function getExerciseByIdWithCategory(
-  exerciseId: number
+  exerciseId: number,
 ): Promise<ExerciseWithCategory | null> {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   const { data, error } = await supabase
-    .from('exercises')
+    .from("exercises")
     .select(`
       *,
       category:categories(*)
     `)
-    .eq('id', exerciseId)
-    .single();
+    .eq("id", exerciseId)
+    .single()
 
   if (error) {
-    console.error('Error fetching exercise with category:', error);
-    return null;
+    console.error("Error fetching exercise with category:", error)
+    return null
   }
 
-  return data;
+  return data
 }
