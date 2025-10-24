@@ -63,7 +63,6 @@ export function SetModal({ isOpen, close, title, description, profile, onConfirm
         serie: '',
         repetition: ''
     })
-    
 
     const handleConfirm = async () => {
         if (!formData.exerciceId) {
@@ -179,7 +178,7 @@ export function SetModal({ isOpen, close, title, description, profile, onConfirm
                     </div>
                 </form>
                 <DialogFooter>
-                    <Button onClick={ handleConfirm }>{isLoading ? "Chargement..." : confirmText}</Button>
+                    <Button onClick={ handleConfirm } disabled={ isLoading }>{isLoading ? "Chargement..." : confirmText}</Button>
                     <Button onClick={() => onCancel ? onCancel() : close()} variant="outline" >{ cancelText }</Button>
                 </DialogFooter>
             </DialogContent>
