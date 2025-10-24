@@ -13,10 +13,27 @@ export interface Profile {
   updated_at: string;
 }
 
+export interface Category {
+  id: string;
+  name: string;
+  image: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Exercise {
   id: number;
-  name: string;
-  machine: string;
+  title: string;
+  category_id: string;
+  image: string;
+  description: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ExerciseWithCategory extends Exercise {
+  category: Category;
 }
 
 export interface Workout {
