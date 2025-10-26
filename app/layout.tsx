@@ -1,7 +1,9 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
+import { AppSidebar } from "@/components/app-sidebar"
 import { Navigation } from "@/components/navigation"
 import { Toaster } from "@/components/ui/toaster"
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { createClient } from "@/utils/supabase/server"
 import "./globals.css"
 
@@ -40,10 +42,15 @@ export default async function RootLayout({
         />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased dark`}>
-        <main className="p-4">
-          {user && <Navigation />}
-          {children}
-        </main>
+        <SidebarProvider>
+          <AppSidebar />
+          <SidebarInset>
+            <div className="p-4">
+              {user && <Navigation />}
+              {children}
+            </div>
+          </SidebarInset>
+        </SidebarProvider>
         <Toaster />
       </body>
     </html>
