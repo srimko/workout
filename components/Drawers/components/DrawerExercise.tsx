@@ -37,7 +37,7 @@ export function DrawerExercise() {
       description: "Sélection un exercice",
       component: DrawerSelectExercise,
       props: {
-        weight: formData.weight,
+        repetition: formData.repetition,
         onSelectExercise: handleExerciseChange,
       },
       fieldKey: "exercise",
@@ -72,8 +72,8 @@ export function DrawerExercise() {
     },
   ]
 
-  const CurrentComponent = steps[step].component
-  const currentProps = steps[step].props
+  const CurrentComponent = steps[step].component as any
+  const currentProps = steps[step].props as any
 
   function handleExerciseChange(exercise: string) {
     console.log("handleExerciseChange", exercise)
@@ -94,7 +94,12 @@ export function DrawerExercise() {
     setFormData({ ...formData, repetition })
   }
 
-  function formatExerciseDisplay(formData) {
+  function formatExerciseDisplay(formData: {
+    exercise: string
+    weight: number
+    serie: number
+    repetition: number
+  }) {
     const { exercise, weight, serie, repetition } = formData
 
     let display = ""

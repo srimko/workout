@@ -40,6 +40,7 @@ export function DrawerSelectExercise({ repetition, onSelectExercise }: DrawerSel
       <div>
         <div className="p-4 border-b">
           <button
+            type="button"
             onClick={handleBackToCategories}
             className="text-sm text-gray-600 hover:text-gray-900"
           >
@@ -87,15 +88,15 @@ export function DrawerSelectExercise({ repetition, onSelectExercise }: DrawerSel
 
   // Affichage des catégories
   return (
-    <div className="p-2">
+    <div className="grid grid-cols-2 gap-4 p-4">
       {categories.map((category) => (
-        <div key={category.id} className="mb-2">
+        <div key={category.id} className="">
           <Card
             onClick={() => handleSelectCategory(category.id)}
             className="cursor-pointer hover:shadow-md transition-shadow"
           >
             <CardContent className="p-4">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 flex-col">
                 <div className="relative w-16 h-16 flex-shrink-0">
                   <Image
                     src={category.image}

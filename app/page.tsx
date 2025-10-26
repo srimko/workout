@@ -92,7 +92,7 @@ export default function Home() {
           const exercise = exercises.find((ex) => ex.id === set.exercise_id)
           return {
             ...set,
-            exercise_name: exercise?.name || `Exercice #${set.exercise_id}`,
+            exercise_name: exercise?.title || `Exercice #${set.exercise_id}`,
           }
         })
 
@@ -239,7 +239,7 @@ export default function Home() {
 
   return (
     <>
-      <SelectProfile profiles={profiles} onSubmit={handleSubmit} onValueChange={handleChange} />
+      {/* <SelectProfile profiles={profiles} onSubmit={handleSubmit} onValueChange={handleChange} /> */}
 
       <DrawerExercise />
 
