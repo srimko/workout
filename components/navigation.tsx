@@ -11,6 +11,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
+import { SidebarTrigger } from "@/components/ui/sidebar"
 import { createClient } from "@/utils/supabase/client"
 
 export function Navigation() {
@@ -24,8 +25,10 @@ export function Navigation() {
   }
 
   return (
-    <NavigationMenu className="flex justify-center m-auto">
-      <NavigationMenuList className="flex-wrap">
+    <div className="flex items-center gap-2">
+      <SidebarTrigger className="md:hidden" />
+      <NavigationMenu className="flex justify-center m-auto flex-1">
+        <NavigationMenuList className="flex-wrap">
         <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
           <Link href="/">Home</Link>
         </NavigationMenuLink>
@@ -40,5 +43,6 @@ export function Navigation() {
         </NavigationMenuLink>
       </NavigationMenuList>
     </NavigationMenu>
+    </div>
   )
 }
