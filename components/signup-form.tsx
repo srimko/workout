@@ -36,18 +36,39 @@ export function SignUp({ className, ...props }: React.ComponentProps<"div">) {
     const { data, error } = await supabase.auth.signUp({
       email: email,
       password: password,
+      options: {
+        data: {
+          display_name: email.split("@")[0],
+        },
+      },
     })
 
     if (error) {
+      console.error("Signup error:", error)
       setError(error.message)
       setLoading(false)
       return
     }
 
-    // Redirect vers la page d'origine ou vers /
-    const redirectTo = searchParams.get("redirectTo") || "/"
-    router.push(redirectTo)
-    router.refresh()
+    // Vérifier si l'email doit être confirmé
+    if (data?.user && !data.session) {
+      setError(
+        "Inscription réussie ! Veuillez vérifier votre email pour confirmer votre compte. (En mode local, vous pouvez vous connecter directement)"
+      )
+      setLoading(false)
+      // En local, rediriger vers login après 3 secondes
+      setTimeout(() => {
+        router.push("/login")
+      }, 3000)
+      return
+    }
+
+    // Si session créée directement (email confirmé désactivé), rediriger
+    if (data?.session) {
+      const redirectTo = searchParams.get("redirectTo") || "/"
+      router.push(redirectTo)
+      router.refresh()
+    }
   }
 
   return (
