@@ -1,4 +1,6 @@
-import type { Workout } from "@/lib/types"
+import "server-only"
+
+import type { Workout, WorkoutWithSets } from "@/lib/types"
 import { createClient } from "@/utils/supabase/server"
 
 /**
@@ -167,6 +169,44 @@ export async function getAllWorkouts(): Promise<Workout[]> {
 
   if (error) {
     console.error("Error fetching workouts:", error)
+    return []
+  }
+
+  return data || []
+}
+
+/**
+ * Get all workouts for the current user with their sets (including exercise info)
+ */
+export async function getAllWorkoutsWithSets(): Promise<WorkoutWithSets[]> {
+  const profileId = await getCurrentProfileId()
+  if (!profileId) return []
+
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from("workouts")
+    .select(`
+      *,
+      sets:sets(
+        id,
+        weight,
+        repetition,
+        created_at,
+        updated_at,
+        exercise:exercises(
+          id,
+          title,
+          image,
+          category:categories(*)
+        )
+      )
+    `)
+    .eq("profile_id", profileId)
+    .order("started_at", { ascending: false })
+
+  if (error) {
+    console.error("Error fetching workouts with sets:", error)
     return []
   }
 

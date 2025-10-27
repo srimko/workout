@@ -1,3 +1,5 @@
+import "server-only"
+
 import type { Set } from "@/lib/types"
 import { createClient } from "@/utils/supabase/server"
 import { getExercises } from "./exercises"

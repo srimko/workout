@@ -1,4 +1,6 @@
-import type { Category, Exercise, ExerciseWithCategory } from "@/lib/types"
+import "server-only"
+
+import type { Category, Exercise, ExerciseWithCategory, ExerciseWithSets } from "@/lib/types"
 import { createClient } from "@/utils/supabase/server"
 
 /**
@@ -157,4 +159,30 @@ export async function getExerciseByIdWithCategory(
   }
 
   return data
+}
+
+/**
+ * Get all exercises from a workout with their sets
+ * @param workoutId - The workout ID
+ */
+export async function getExercisesWithSetsByWorkout(
+  workoutId: string,
+): Promise<ExerciseWithSets[]> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from("exercises")
+    .select(`
+      *,
+      sets:sets(id, weight, repetition, created_at, updated_at)
+    `)
+    .eq("sets.workout_id", workoutId)
+    .order("title")
+
+  if (error) {
+    console.error("Error fetching exercises with sets:", error)
+    throw new Error(`Failed to fetch exercises with sets: ${error.message}`)
+  }
+
+  return data || []
 }
