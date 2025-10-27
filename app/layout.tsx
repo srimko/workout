@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { AppSidebar } from "@/components/app-sidebar"
-import { Navigation } from "@/components/navigation"
+import { AppHeader } from "@/components/app-header"
 import { Toaster } from "@/components/ui/toaster"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { createClient } from "@/utils/supabase/server"
@@ -45,10 +45,10 @@ export default async function RootLayout({
         <SidebarProvider>
           <AppSidebar />
           <SidebarInset>
-            <div className="p-4">
-              {user && <Navigation />}
+            {user && <AppHeader />}
+            <main className="p-4">
               {children}
-            </div>
+            </main>
           </SidebarInset>
         </SidebarProvider>
         <Toaster />

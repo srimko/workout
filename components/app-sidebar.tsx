@@ -1,8 +1,9 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Dumbbell, Users, Library, Settings } from "lucide-react"
+import { usePathname, useRouter } from "next/navigation"
+import { Dumbbell, User, Library, LogOut } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -17,9 +18,11 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar"
+import { createClient } from "@/utils/supabase/client"
 
-const items = [
+const getItems = (profileId?: string) => [
   {
     title: "Workout",
     items: [
@@ -39,9 +42,9 @@ const items = [
     title: "Management",
     items: [
       {
-        title: "Users",
-        url: "/users",
-        icon: Users,
+        title: "Profile",
+        url: profileId ? `/users/${profileId}` : "/",
+        icon: User,
       },
     ],
   },
@@ -49,6 +52,47 @@ const items = [
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+  const { setOpenMobile, isMobile } = useSidebar()
+  const [profileId, setProfileId] = useState<string | null>(null)
+
+  useEffect(() => {
+    const getProfileId = async () => {
+      const supabase = createClient()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("auth_id", user.id)
+          .single()
+
+        if (profile) {
+          setProfileId(profile.id)
+        }
+      }
+    }
+
+    getProfileId()
+  }, [])
+
+  const items = getItems(profileId || undefined)
+
+  const handleLogout = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push("/login")
+    router.refresh()
+  }
+
+  const handleLinkClick = () => {
+    if (isMobile) {
+      setOpenMobile(false)
+    }
+  }
 
   return (
     <Sidebar>
@@ -77,7 +121,7 @@ export function AppSidebar() {
                   return (
                     <SidebarMenuItem key={item.url}>
                       <SidebarMenuButton asChild isActive={isActive}>
-                        <Link href={item.url}>
+                        <Link href={item.url} onClick={handleLinkClick}>
                           <Icon className="h-4 w-4" />
                           <span>{item.title}</span>
                         </Link>
@@ -95,10 +139,10 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link href="/settings">
-                <Settings className="h-4 w-4" />
-                <span>Settings</span>
-              </Link>
+              <button onClick={handleLogout} className="w-full justify-start">
+                <LogOut className="h-4 w-4" />
+                <span>Logout</span>
+              </button>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
