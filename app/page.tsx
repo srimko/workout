@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from "react"
 import { DrawerExercise } from "@/components/Drawers/components/DrawerExercise"
 import { ListWorkout } from "@/components/List/ListWorkout"
 import { AlertModal } from "@/components/modals/AlertModal"
-import { SetModal } from "@/components/modals/SetModal"
 import { SelectProfile } from "@/components/SelectProfile"
 import { TableWorkout } from "@/components/Table/TableWorkout"
 import { Button } from "@/components/ui/button"
@@ -16,7 +15,6 @@ import { createClient } from "@/utils/supabase/client"
 export default function Home() {
   const supabase = createClient()
   const alertModal = useModal()
-  const setModal = useModal()
 
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [currentProfile, setCurrentProfile] = useState<Profile>()
@@ -251,38 +249,6 @@ export default function Home() {
         {...alertModal}
         title="Erreur"
         description="Veuillez remplir tous les champs du formulaire avant de soumettre."
-      />
-
-      <SetModal
-        {...setModal}
-        title="Ajouter une série"
-        description="Ajotuer une nouvelle série à votre workout en cours."
-        profile={currentProfile}
-        onConfirm={async (data) => {
-          if (!currentProfile) {
-            console.error("Aucun profil sélectionné")
-            return
-          }
-
-          // Obtenir ou créer le workout du jour
-          const workout = await getOrCreateTodayWorkout(currentProfile.id)
-
-          await supabase.from("sets").insert({
-            workout_id: workout.id,
-            exercise_id: data.exerciceId,
-            weight: data.weight,
-            repetition: data.repetition,
-          })
-
-          await refreshWorkoutSets(workout.id)
-
-          const { data: updatedWorkouts } = await supabase
-            .from("workouts")
-            .select("*")
-            .eq("profile_id", currentProfile.id)
-          setWorkouts(updatedWorkouts || [])
-        }}
-        exercises={exercises}
       />
     </>
   )
