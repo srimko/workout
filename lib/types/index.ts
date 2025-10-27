@@ -36,6 +36,23 @@ export interface ExerciseWithCategory extends Exercise {
   category: Category
 }
 
+export interface ExerciseWithSets extends Exercise {
+  sets: Set[]
+}
+
+export interface SetWithExercise extends Omit<Set, "exercise_id"> {
+  exercise: {
+    id: number
+    title: string
+    image: string
+    category: Category
+  }
+}
+
+export interface WorkoutWithSets extends Workout {
+  sets: SetWithExercise[]
+}
+
 export interface Workout {
   id: string
   profile_id: string
