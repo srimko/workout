@@ -32,6 +32,11 @@ const getItems = (profileId?: string) => [
         icon: Dumbbell,
       },
       {
+        title: "Workouts",
+        url: "/workouts",
+        icon: Library,
+      },
+      {
         title: "Exercises",
         url: "/exercises",
         icon: Library,
