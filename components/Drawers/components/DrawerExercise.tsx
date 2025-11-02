@@ -154,11 +154,9 @@ export function DrawerExercise() {
 
   return (
     <Drawer open={open} onOpenChange={setOpen}>
-      <div className="flex flex-col justify-center py-2 max-w-2xl m-auto">
-        <DrawerTrigger asChild>
-          <Button variant="outline">Ajouter mon exercice</Button>
-        </DrawerTrigger>
-      </div>
+      <DrawerTrigger asChild>
+        <Button>Ajouter mon exercice</Button>
+      </DrawerTrigger>
       <DrawerContent>
         <div className="mx-auto w-full max-w-sm">
           <DrawerHeader>

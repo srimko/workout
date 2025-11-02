@@ -8,9 +8,18 @@ import { AlertModal } from "@/components/modals/AlertModal"
 import { SelectProfile } from "@/components/SelectProfile"
 import { TableWorkout } from "@/components/Table/TableWorkout"
 import { Button } from "@/components/ui/button"
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 import { useModal } from "@/lib/hooks/useModal"
 import type { Exercise, Profile, Set, Workout } from "@/lib/types"
 import { createClient } from "@/utils/supabase/client"
+import { Dumbbell } from "lucide-react"
 
 export default function Home() {
   const supabase = createClient()
@@ -239,7 +248,20 @@ export default function Home() {
     <>
       {/* <SelectProfile profiles={profiles} onSubmit={handleSubmit} onValueChange={handleChange} /> */}
 
-      <DrawerExercise />
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <Dumbbell />
+          </EmptyMedia>
+          <EmptyTitle>Commencez votre entraînement</EmptyTitle>
+          <EmptyDescription>
+            Ajoutez votre premier exercice pour démarrer votre séance de musculation
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <DrawerExercise />
+        </EmptyContent>
+      </Empty>
 
       <ListWorkout workouts={workouts} onSelectWorkout={handleSeeMoreClick} />
 
