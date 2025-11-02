@@ -116,27 +116,7 @@ async function getOrCreateTodayWorkout(supabase: ReturnType<typeof createClient>
 
   if (!profile) throw new Error("Profile not found")
 
-  // Check for active workout (unfinished)
-  const { data: activeWorkout, error: activeError } = await supabase
-    .from("workouts")
-    .select("*")
-    .eq("profile_id", profile.id)
-    .is("ended_at", null)
-    .order("started_at", { ascending: false })
-    .limit(1)
-    .maybeSingle()
-
-  console.log("[getOrCreateTodayWorkout] Active workout check:", {
-    activeWorkout,
-    activeError,
-  })
-
-  if (activeWorkout) {
-    console.log("[getOrCreateTodayWorkout] Using active workout:", activeWorkout.id)
-    return activeWorkout
-  }
-
-  // Check for today's workout
+  // Check for today's workout only (ignore old workouts)
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
@@ -145,6 +125,7 @@ async function getOrCreateTodayWorkout(supabase: ReturnType<typeof createClient>
     .select("*")
     .eq("profile_id", profile.id)
     .gte("started_at", today.toISOString())
+    .is("ended_at", null) // Only get unfinished workouts
     .order("started_at", { ascending: false })
     .limit(1)
     .maybeSingle()
