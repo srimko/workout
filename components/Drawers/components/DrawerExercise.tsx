@@ -19,7 +19,11 @@ import {
 import { useToast } from "@/hooks/use-toast"
 import { useCreateSet } from "@/lib/hooks/useSets"
 
-export function DrawerExercise() {
+interface DrawerExerciseProps {
+  onSetCreated?: () => void
+}
+
+export function DrawerExercise({ onSetCreated }: DrawerExerciseProps = {}) {
   const [step, setStep] = useState(0)
   const [formData, setFormData] = useState({
     exercise: "",
@@ -196,6 +200,8 @@ export function DrawerExercise() {
                           description: `${formData.serie} série(s) de ${formData.repetition} répétitions à ${formData.weight}kg ajoutée(s)`,
                         })
                         handleResetForm()
+                        // Appeler le callback pour rafraîchir les données
+                        onSetCreated?.()
                       } else {
                         // Check for error details
                         const errorMsg = error?.message || "Certains sets n'ont pas pu être créés"
