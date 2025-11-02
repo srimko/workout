@@ -69,7 +69,7 @@ export function DrawerSelectExercise({ repetition, onSelectExercise }: DrawerSel
                   <CardContent className="flex-col p-2">
                     <div className="relative w-full h-32">
                       <Image
-                        src={exercise.image}
+                        src={`/exercises/${exercise.image}`}
                         alt={exercise.title}
                         fill
                         className="object-cover rounded"

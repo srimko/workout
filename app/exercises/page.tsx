@@ -16,7 +16,12 @@ export default async function Exercises() {
             className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
           >
             <div className="relative w-full h-48">
-              <Image src={exercise.image} alt={exercise.title} fill className="object-cover" />
+              <Image
+                src={`/exercises/${exercise.image}`}
+                alt={exercise.title}
+                fill
+                className="object-cover"
+              />
             </div>
             <div className="p-4">
               <h2 className="text-xl font-semibold mb-2">{exercise.title}</h2>
