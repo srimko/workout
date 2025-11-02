@@ -46,9 +46,7 @@ export default async function RootLayout({
           <AppSidebar />
           <SidebarInset>
             {user && <AppHeader />}
-            <div className="p-4 flex-1 min-h-0">
-              {children}
-            </div>
+            <div className="p-4 flex items-center h-full">{children}</div>
           </SidebarInset>
         </SidebarProvider>
         <Toaster />
