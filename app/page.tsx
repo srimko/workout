@@ -1,11 +1,8 @@
 "use client"
 
-import type React from "react"
 import { useCallback, useEffect, useState } from "react"
 import { DrawerExercise } from "@/components/Drawers/components/DrawerExercise"
-import { ListWorkout } from "@/components/List/ListWorkout"
 import { AlertModal } from "@/components/modals/AlertModal"
-import { SelectProfile } from "@/components/SelectProfile"
 import { TableWorkout } from "@/components/Table/TableWorkout"
 import { Button } from "@/components/ui/button"
 import {
@@ -21,28 +18,17 @@ import type { Exercise, Profile, Set, Workout } from "@/lib/types"
 import { createClient } from "@/utils/supabase/client"
 import { Dumbbell } from "lucide-react"
 
+type WorkoutStatus = "none" | "created" | "in_progress" | "completed"
+
 export default function Home() {
   const supabase = createClient()
   const alertModal = useModal()
 
-  const [profiles, setProfiles] = useState<Profile[]>([])
-  const [currentProfile, setCurrentProfile] = useState<Profile>()
+  const [workoutStatus, setWorkoutStatus] = useState<WorkoutStatus>("none")
   const [currentSets, setCurrentSets] = useState<Set[] | undefined>()
-  const [selectedWorkoutId, setSelectedWorkoutId] = useState<string | null>(null)
-  const [workouts, setWorkouts] = useState<Workout[]>([])
+  const [currentWorkout, setCurrentWorkout] = useState<Workout | null>(null)
+  const [currentProfile, setCurrentProfile] = useState<Profile | null>(null)
   const [exercises, setExercises] = useState<Exercise[]>([])
-
-  useEffect(() => {
-    async function fetchProfilesApi() {
-      try {
-        const { data } = await supabase.from("profiles").select("*")
-        setProfiles(data || [])
-      } catch (error) {
-        console.log("Erreur lors de la récupération des profils :", error)
-      }
-    }
-    fetchProfilesApi()
-  }, [])
 
   // Charger tous les exercices depuis Supabase
   useEffect(() => {
@@ -58,36 +44,97 @@ export default function Home() {
     fetchExercises()
   }, [])
 
+  // Charger automatiquement le workout du jour au démarrage
   useEffect(() => {
-    async function getUserWorkouts(profileId: string) {
+    async function initializeTodayWorkout() {
       try {
-        const { data } = await supabase.from("workouts").select("*").eq("profile_id", profileId)
-        console.log("Workouts pour le profil", profileId, ":", data)
-        setWorkouts(data || [])
+        // Récupérer l'utilisateur connecté
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+        if (!user) {
+          console.log("Aucun utilisateur connecté")
+          return
+        }
+
+        // Récupérer le profil de l'utilisateur
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("auth_id", user.id)
+          .single()
+
+        if (!profile) {
+          console.log("Profil non trouvé")
+          return
+        }
+
+        setCurrentProfile(profile)
+
+        // Préparer la date du jour
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+
+        // Récupérer tous les workouts de l'utilisateur
+        const { data: userWorkouts } = await supabase
+          .from("workouts")
+          .select("*")
+          .eq("profile_id", profile.id)
+          .order("started_at", { ascending: false })
+
+        // Auto-clôturer les workouts d'autres jours non terminés
+        const workoutsToClose = (userWorkouts || []).filter((w) => {
+          if (w.ended_at !== null) return false
+          const workoutDate = new Date(w.started_at)
+          workoutDate.setHours(0, 0, 0, 0)
+          return workoutDate.getTime() !== today.getTime()
+        })
+
+        for (const workout of workoutsToClose) {
+          const workoutDate = new Date(workout.started_at)
+          workoutDate.setHours(23, 59, 59, 999)
+          await supabase
+            .from("workouts")
+            .update({ ended_at: workoutDate.toISOString() })
+            .eq("id", workout.id)
+          console.log(`Workout ${workout.id} auto-clôturé`)
+        }
+
+        // Chercher le workout du jour uniquement
+        const todayWorkout = (userWorkouts || []).find((w) => {
+          const workoutDate = new Date(w.started_at)
+          workoutDate.setHours(0, 0, 0, 0)
+          return workoutDate.getTime() === today.getTime()
+        })
+
+        if (todayWorkout) {
+          setCurrentWorkout(todayWorkout)
+
+          // Charger les sets du workout
+          const { data: sets } = await supabase.from("sets").select("*").eq("workout_id", todayWorkout.id)
+
+          // Déterminer le statut
+          if (todayWorkout.ended_at !== null) {
+            setWorkoutStatus("completed")
+          } else if (sets && sets.length > 0) {
+            setWorkoutStatus("in_progress")
+          } else {
+            setWorkoutStatus("created")
+          }
+
+          await refreshWorkoutSets(todayWorkout.id)
+        } else {
+          // Aucun workout du jour
+          setWorkoutStatus("none")
+        }
       } catch (error) {
-        console.log("Erreur lors de la récupération des workouts :", error)
+        console.error("Erreur lors de l'initialisation du workout du jour:", error)
       }
     }
 
-    if (!currentProfile) return
-    getUserWorkouts(currentProfile.id)
-  }, [currentProfile])
-
-  // useEffect pour charger les sets quand un workout est sélectionné
-  useEffect(() => {
-    async function fetchWorkoutSets() {
-      if (!selectedWorkoutId) return
-
-      try {
-        console.log("Chargement des sets pour le workout ID :", selectedWorkoutId)
-        await refreshWorkoutSets(selectedWorkoutId)
-      } catch (error) {
-        console.log("Erreur lors de la récupération des détails du workout :", error)
-      }
-    }
-
-    fetchWorkoutSets()
-  }, [selectedWorkoutId])
+    initializeTodayWorkout()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Fonction pour rafraîchir les sets d'un workout avec les noms d'exercices
   const refreshWorkoutSets = useCallback(
@@ -113,165 +160,178 @@ export default function Home() {
     [exercises],
   )
 
-  // Fonction pour obtenir ou créer le workout du jour
-  const getOrCreateTodayWorkout = useCallback(async (profileId: string): Promise<Workout> => {
+
+  // Fonction pour démarrer un nouveau workout
+  const startWorkout = useCallback(async () => {
+    if (!currentProfile) return
+
     try {
-      // Récupérer tous les workouts du profil
-      const { data: userWorkouts } = await supabase
-        .from("workouts")
-        .select("*")
-        .eq("profile_id", profileId)
-
-      // Date du jour à 00:00:00
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-
-      // Chercher un workout créé aujourd'hui
-      const todayWorkout = (userWorkouts || []).find((workout) => {
-        const workoutDate = new Date(workout.started_at)
-        workoutDate.setHours(0, 0, 0, 0)
-        return workoutDate.getTime() === today.getTime()
-      })
-
-      // Si un workout existe déjà aujourd'hui, le retourner
-      if (todayWorkout) {
-        console.log("Workout du jour trouvé:", todayWorkout)
-        return todayWorkout
-      }
-
-      // Sinon, créer un nouveau workout
-      const now = new Date().toISOString()
       const { data: newWorkout, error } = await supabase
         .from("workouts")
         .insert({
-          profile_id: profileId,
-          started_at: now,
-          ended_at: now,
-          title: `Séance du ${new Date().toLocaleDateString()}`,
+          profile_id: currentProfile.id,
+          title: `Séance du ${new Date().toLocaleDateString("fr-FR")}`,
+          started_at: new Date().toISOString(),
         })
         .select()
         .single()
 
       if (error) throw error
 
-      console.log("Nouveau workout créé:", newWorkout)
-      setSelectedWorkoutId(newWorkout.id)
-
-      // Rafraîchir la liste des workouts
-      const { data: updatedWorkouts } = await supabase
-        .from("workouts")
-        .select("*")
-        .eq("profile_id", profileId)
-      setWorkouts(updatedWorkouts || [])
-
-      return newWorkout
+      setCurrentWorkout(newWorkout)
+      setCurrentSets([])
+      setWorkoutStatus("created")
     } catch (error) {
-      console.error("Erreur lors de la récupération/création du workout:", error)
-      throw error
+      console.error("Erreur lors de la création du workout:", error)
     }
-  }, [])
+  }, [currentProfile, supabase])
 
-  const handleChange = useCallback((value: string) => {
-    console.log("Profile sélectionné :", value)
-    const profile = JSON.parse(value) as Profile
-    setCurrentProfile(profile)
-  }, [])
+  // Fonction pour terminer le workout
+  const endWorkout = useCallback(async () => {
+    if (!currentWorkout) return
 
-  const handleSeeMoreClick = useCallback((workoutId: string) => {
-    console.log("Voir plus pour le workout ID :", workoutId)
-    setSelectedWorkoutId(workoutId)
-  }, [])
+    try {
+      const { error } = await supabase
+        .from("workouts")
+        .update({ ended_at: new Date().toISOString() })
+        .eq("id", currentWorkout.id)
 
-  const handleSubmit = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault()
-      const form = event.currentTarget
-      const formData = new FormData(form)
+      if (error) throw error
 
-      if (
-        !formData.get("exercice") ||
-        !formData.get("weight") ||
-        !formData.get("serie") ||
-        !formData.get("repetition")
-      ) {
-        alertModal.open()
-        return
+      setWorkoutStatus("completed")
+      setCurrentWorkout({ ...currentWorkout, ended_at: new Date().toISOString() })
+    } catch (error) {
+      console.error("Erreur lors de la clôture du workout:", error)
+    }
+  }, [currentWorkout, supabase])
+
+  // Fonction pour rafraîchir les sets après création
+  const handleSetCreated = useCallback(async () => {
+    if (currentWorkout) {
+      await refreshWorkoutSets(currentWorkout.id)
+      // Mettre à jour le statut si c'était le premier set
+      if (workoutStatus === "created") {
+        setWorkoutStatus("in_progress")
       }
+    }
+  }, [currentWorkout, workoutStatus, refreshWorkoutSets])
 
-      if (!currentProfile) {
-        console.error("Aucun profil sélectionné")
-        return
-      }
+  // Vue 1 : Aucun workout du jour
+  if (workoutStatus === "none") {
+    return (
+      <>
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Dumbbell />
+            </EmptyMedia>
+            <EmptyTitle>Commencez votre séance</EmptyTitle>
+            <EmptyDescription>
+              Créez un nouveau workout pour commencer votre entraînement d'aujourd'hui
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button onClick={startWorkout}>Commencer le workout</Button>
+          </EmptyContent>
+        </Empty>
 
-      try {
-        const exerciseId = parseInt(formData.get("exercice") as string)
-        const weight = parseFloat(formData.get("weight") as string)
-        const repetition = parseInt(formData.get("repetition") as string)
+        <AlertModal
+          {...alertModal}
+          title="Erreur"
+          description="Veuillez remplir tous les champs du formulaire avant de soumettre."
+        />
+      </>
+    )
+  }
 
-        // 1. Obtenir ou créer le workout du jour
-        const workout = await getOrCreateTodayWorkout(currentProfile.id)
+  // Vue 2 : Workout créé mais aucun exercice
+  if (workoutStatus === "created") {
+    return (
+      <>
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Dumbbell />
+            </EmptyMedia>
+            <EmptyTitle>Ajoutez votre premier exercice</EmptyTitle>
+            <EmptyDescription>
+              Commencez votre entraînement en ajoutant un exercice
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <div className="flex flex-col gap-3">
+              <DrawerExercise onSetCreated={handleSetCreated} />
+              <Button variant="outline" onClick={endWorkout}>
+                Terminer le workout
+              </Button>
+            </div>
+          </EmptyContent>
+        </Empty>
 
-        // 2. Trouver l'exercice correspondant dans l'API
-        const exercise = exercises.find((ex) => ex.id === exerciseId)
-        if (!exercise) {
-          console.error("Exercice non trouvé dans l'API:", exerciseId)
-          return
-        }
+        <AlertModal
+          {...alertModal}
+          title="Erreur"
+          description="Veuillez remplir tous les champs du formulaire avant de soumettre."
+        />
+      </>
+    )
+  }
 
-        // 3. Créer le set
-        await supabase.from("sets").insert({
-          workout_id: workout.id,
-          exercise_id: exercise.id,
-          weight: weight,
-          repetition: repetition,
-        })
+  // Vue 3 : Workout en cours avec exercices
+  if (workoutStatus === "in_progress") {
+    return (
+      <>
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold">Ma séance du jour</h1>
+            <div className="flex gap-2">
+              <DrawerExercise onSetCreated={handleSetCreated} />
+              <Button variant="destructive" onClick={endWorkout}>
+                Terminer le workout
+              </Button>
+            </div>
+          </div>
 
-        // 4. Rafraîchir les sets du workout actif
-        await refreshWorkoutSets(workout.id)
+          <TableWorkout sets={currentSets} workoutTitle={currentWorkout?.title} />
+        </div>
 
-        // 5. Rafraîchir la liste des workouts
-        const { data: updatedWorkouts } = await supabase
-          .from("workouts")
-          .select("*")
-          .eq("profile_id", currentProfile.id)
-        setWorkouts(updatedWorkouts || [])
+        <AlertModal
+          {...alertModal}
+          title="Erreur"
+          description="Veuillez remplir tous les champs du formulaire avant de soumettre."
+        />
+      </>
+    )
+  }
 
-        form.reset()
-      } catch (error) {
-        console.error("Erreur lors de l'ajout de l'exercice :", error)
-      }
-    },
-    [currentProfile, exercises, getOrCreateTodayWorkout, refreshWorkoutSets],
-  )
+  // Vue 4 : Workout terminé
+  if (workoutStatus === "completed") {
+    return (
+      <>
+        <div className="space-y-6">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold">Séance terminée</h1>
+              <span className="px-3 py-1 text-sm bg-green-100 text-green-800 rounded-full">
+                Complété
+              </span>
+            </div>
+            {currentWorkout?.title && (
+              <p className="text-muted-foreground">{currentWorkout.title}</p>
+            )}
+          </div>
 
-  return (
-    <>
-      {/* <SelectProfile profiles={profiles} onSubmit={handleSubmit} onValueChange={handleChange} /> */}
+          <TableWorkout sets={currentSets} workoutTitle={currentWorkout?.title} />
+        </div>
 
-      <Empty>
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <Dumbbell />
-          </EmptyMedia>
-          <EmptyTitle>Commencez votre entraînement</EmptyTitle>
-          <EmptyDescription>
-            Ajoutez votre premier exercice pour démarrer votre séance de musculation
-          </EmptyDescription>
-        </EmptyHeader>
-        <EmptyContent>
-          <DrawerExercise />
-        </EmptyContent>
-      </Empty>
+        <AlertModal
+          {...alertModal}
+          title="Erreur"
+          description="Veuillez remplir tous les champs du formulaire avant de soumettre."
+        />
+      </>
+    )
+  }
 
-      <ListWorkout workouts={workouts} onSelectWorkout={handleSeeMoreClick} />
-
-      <TableWorkout sets={currentSets} />
-
-      <AlertModal
-        {...alertModal}
-        title="Erreur"
-        description="Veuillez remplir tous les champs du formulaire avant de soumettre."
-      />
-    </>
-  )
+  return null
 }
