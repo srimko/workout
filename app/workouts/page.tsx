@@ -9,12 +9,19 @@ import Image from "next/image"
 export default function WorkoutPage() {
   const [workouts, setWorkouts] = useState<WorkoutWithSets[]>([])
   const [loading, setLoading] = useState(true)
+  const [exercisesCount, setExercisesCount] = useState({})
+  const [totalWeight, setTotalWeight] = useState(0)
+  const [totalRep, setTotalRep] = useState(0)
 
   useEffect(() => {
     async function loadWorkouts() {
       try {
         const data = await getAllWorkoutsWithSets()
+        console.log("data", data)
         setWorkouts(data)
+        getAllExercices(data[0].sets)
+        getTotalWeight(data[0].sets)
+        getTotalRep(data[0].sets)
       } catch (error) {
         console.error("Error loading workouts:", error)
       } finally {
@@ -24,6 +31,23 @@ export default function WorkoutPage() {
 
     loadWorkouts()
   }, [])
+
+  function getAllExercices(sets) {
+    sets.map((set) => {
+      exercisesCount[set.exercise.category.id] = (exercisesCount[set.exercise.category.id] || 0) + 1
+      setExercisesCount(exercisesCount)
+    })
+  }
+
+  function getTotalWeight(sets) {
+    const total = sets.reduce((sum, set) => sum + set.weight, 0)
+    setTotalWeight(total)
+  }
+
+  function getTotalRep(sets) {
+    const total = sets.reduce((sum, set) => sum + set.repetition, 0)
+    setTotalRep(total)
+  }
 
   if (loading) {
     return (
@@ -36,7 +60,7 @@ export default function WorkoutPage() {
 
   if (workouts.length === 0) {
     return (
-      <section className="p-6">
+      <section>
         <h2 className="text-2xl font-bold mb-6">Workouts</h2>
         <p className="text-muted-foreground">Aucun workout trouvé</p>
       </section>
@@ -44,7 +68,7 @@ export default function WorkoutPage() {
   }
 
   return (
-    <section className="p-6">
+    <section>
       <h2 className="text-2xl font-bold mb-6">Workouts</h2>
 
       <div className="space-y-6">
@@ -62,51 +86,15 @@ export default function WorkoutPage() {
               {workout.sets.length === 0 ? (
                 <p className="text-muted-foreground">Aucun set pour ce workout</p>
               ) : (
-                <div className="space-y-4">
-                  {workout.sets.map((set) => (
-                    <div
-                      key={set.id}
-                      className="flex flex-col md:flex-row gap-4 p-4 rounded-lg border border-border hover:bg-accent transition-colors"
-                    >
-                      {/* Image de l'exercice */}
-                      <div className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-muted relative">
-                        <Image
-                          src={set.exercise.image}
-                          alt={set.exercise.title}
-                          fill
-                          sizes="80px"
-                          className="object-cover"
-                        />
-                      </div>
-
-                      {/* Infos de l'exercice */}
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg">{set.exercise.title}</h3>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          {set.exercise.category.name}
-                        </p>
-                        <div className="flex gap-4">
-                          <div>
-                            <p className="text-xs text-muted-foreground">Poids</p>
-                            <p className="font-medium">{set.weight} kg</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground">Répétitions</p>
-                            <p className="font-medium">{set.repetition} reps</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground">Heure</p>
-                            <p className="font-medium text-sm">
-                              {new Date(set.created_at).toLocaleTimeString("fr-FR", {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                <div>
+                  <div className="space-y-4">{workout.sets.length} Séries</div>
+                  {Object.entries(exercisesCount).map((exerciseCategory, index) => (
+                    <p key={index}>
+                      {exerciseCategory[1]} séries de {exerciseCategory[0]}
+                    </p>
                   ))}
+                  <p>Total {totalWeight} kg</p>
+                  <p>Total {totalRep} répétions</p>
                 </div>
               )}
             </CardContent>
