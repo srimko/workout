@@ -52,3 +52,6 @@ STRUCTURE.md
 # supabase/migrations
 
 export/
+
+# Scripts
+scripts/
