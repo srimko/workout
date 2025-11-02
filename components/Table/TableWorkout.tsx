@@ -16,14 +16,17 @@ import type { Set } from "@/lib/types"
 
 export interface TableWorkoutProps {
   sets?: Set[]
+  workoutTitle?: string
 }
 
-export const TableWorkout = memo(function TableWorkout({ sets }: TableWorkoutProps) {
+export const TableWorkout = memo(function TableWorkout({ sets, workoutTitle }: TableWorkoutProps) {
   return (
     sets &&
     sets.length > 0 && (
       <div className="flex flex-col justify-center py-2 max-w-2xl m-auto mt-8">
-        <h2 className="text-2xl font-bold mb-4">Détails de la séance</h2>
+        <h2 className="text-2xl font-bold mb-4">
+          Détails de la séance{workoutTitle && ` - ${workoutTitle}`}
+        </h2>
         <Table>
           <TableCaption>Séries effectuées</TableCaption>
           <TableHeader>
