@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useState } from "react"
 import { DrawerExercise } from "@/components/Drawers/components/DrawerExercise"
 import { AlertModal } from "@/components/modals/AlertModal"
-import { TableWorkout } from "@/components/Table/TableWorkout"
+import { WorkoutCardList } from "@/components/Cards/WorkoutCardList"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import {
   Empty,
   EmptyContent,
@@ -16,7 +17,8 @@ import {
 import { useModal } from "@/lib/hooks/useModal"
 import type { Exercise, Profile, Set, Workout } from "@/lib/types"
 import { createClient } from "@/utils/supabase/client"
-import { Dumbbell } from "lucide-react"
+import { Dumbbell, Plus } from "lucide-react"
+import type { SetWithExerciseName } from "@/components/Cards/WorkoutCard"
 
 type WorkoutStatus = "none" | "created" | "in_progress" | "completed"
 
@@ -29,6 +31,8 @@ export default function Home() {
   const [currentWorkout, setCurrentWorkout] = useState<Workout | null>(null)
   const [currentProfile, setCurrentProfile] = useState<Profile | null>(null)
   const [exercises, setExercises] = useState<Exercise[]>([])
+  const [editingSet, setEditingSet] = useState<SetWithExerciseName | null>(null)
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   // Charger tous les exercices depuis Supabase
   useEffect(() => {
@@ -111,7 +115,10 @@ export default function Home() {
           setCurrentWorkout(todayWorkout)
 
           // Charger les sets du workout
-          const { data: sets } = await supabase.from("sets").select("*").eq("workout_id", todayWorkout.id)
+          const { data: sets } = await supabase
+            .from("sets")
+            .select("*")
+            .eq("workout_id", todayWorkout.id)
 
           // Déterminer le statut
           if (todayWorkout.ended_at !== null) {
@@ -157,9 +164,8 @@ export default function Home() {
         return []
       }
     },
-    [exercises],
+    [exercises, supabase],
   )
-
 
   // Fonction pour démarrer un nouveau workout
   const startWorkout = useCallback(async () => {
@@ -215,6 +221,29 @@ export default function Home() {
       }
     }
   }, [currentWorkout, workoutStatus, refreshWorkoutSets])
+
+  // Fonction pour gérer l'édition d'un set
+  const handleEditSet = useCallback((set: SetWithExerciseName) => {
+    setEditingSet(set)
+    setDrawerOpen(true)
+  }, [])
+
+  // Fonction pour rafraîchir les sets après modification
+  const handleSetUpdated = useCallback(async () => {
+    if (currentWorkout) {
+      await refreshWorkoutSets(currentWorkout.id)
+    }
+    setEditingSet(null)
+    setDrawerOpen(false)
+  }, [currentWorkout, refreshWorkoutSets])
+
+  // Fonction pour gérer la fermeture du drawer
+  const handleDrawerOpenChange = useCallback((open: boolean) => {
+    setDrawerOpen(open)
+    if (!open) {
+      setEditingSet(null)
+    }
+  }, [])
 
   // Vue 1 : Aucun workout du jour
   if (workoutStatus === "none") {
@@ -281,18 +310,56 @@ export default function Home() {
   if (workoutStatus === "in_progress") {
     return (
       <>
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Ma séance du jour</h1>
-            <div className="flex gap-2">
-              <DrawerExercise onSetCreated={handleSetCreated} />
-              <Button variant="destructive" onClick={endWorkout}>
-                Terminer le workout
-              </Button>
+        <div className="relative min-h-screen bg-background">
+          {/* Header sticky */}
+          <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm pt-4 pb-3 px-4 border-b border-border/50">
+            <div className="flex items-center justify-between gap-4">
+              <h1 className="text-2xl font-bold">Ma séance</h1>
+              <Badge variant="outline">En cours</Badge>
             </div>
           </div>
 
-          <TableWorkout sets={currentSets} workoutTitle={currentWorkout?.title} />
+          {/* Contenu principal - cartes */}
+          <div className="px-4">
+            <WorkoutCardList
+              sets={currentSets}
+              onEditSet={handleEditSet}
+              workoutTitle={currentWorkout?.title}
+            />
+          </div>
+
+          {/* FAB - Ajouter exercice */}
+          <div className="fixed bottom-20 right-4 z-50">
+            <DrawerExercise
+              onSetCreated={handleSetCreated}
+              editMode={!!editingSet}
+              setToEdit={editingSet || undefined}
+              onSetUpdated={handleSetUpdated}
+              open={drawerOpen}
+              onOpenChange={handleDrawerOpenChange}
+              trigger={
+                <Button
+                  size="lg"
+                  className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl active:scale-95 transition-all"
+                >
+                  <Plus className="h-6 w-6" />
+                  <span className="sr-only">Ajouter exercice</span>
+                </Button>
+              }
+              showTrigger={!editingSet}
+            />
+          </div>
+
+          {/* Bottom bar - Terminer workout */}
+          <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-background border-t border-border/50 backdrop-blur-sm safe-area-inset-bottom">
+            <Button
+              variant="destructive"
+              className="w-full h-12 text-base"
+              onClick={endWorkout}
+            >
+              Terminer le workout
+            </Button>
+          </div>
         </div>
 
         <AlertModal
@@ -308,20 +375,22 @@ export default function Home() {
   if (workoutStatus === "completed") {
     return (
       <>
-        <div className="space-y-6">
-          <div className="flex flex-col gap-2">
+        <div className="relative min-h-screen bg-background">
+          {/* Header sticky */}
+          <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm pt-4 pb-3 px-4 border-b border-border/50">
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold">Séance terminée</h1>
-              <span className="px-3 py-1 text-sm bg-green-100 text-green-800 rounded-full">
-                Complété
-              </span>
+              <Badge className="bg-green-100 text-green-800">Complété</Badge>
             </div>
-            {currentWorkout?.title && (
-              <p className="text-muted-foreground">{currentWorkout.title}</p>
-            )}
           </div>
 
-          <TableWorkout sets={currentSets} workoutTitle={currentWorkout?.title} />
+          {/* Contenu principal - cartes */}
+          <div className="px-4">
+            <WorkoutCardList
+              sets={currentSets}
+              workoutTitle={currentWorkout?.title}
+            />
+          </div>
         </div>
 
         <AlertModal

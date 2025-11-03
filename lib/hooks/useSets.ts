@@ -91,6 +91,59 @@ export function useCreateSet() {
 }
 
 /**
+ * Hook to update a set (client-side)
+ */
+export function useUpdateSet() {
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [lastError, setLastError] = useState<Error | null>(null)
+
+  const updateSet = async (
+    setId: string,
+    weight: number,
+    repetition: number,
+  ): Promise<Set | null> => {
+    setIsUpdating(true)
+    setLastError(null)
+
+    try {
+      console.log("[useUpdateSet] Updating set:", {
+        setId,
+        weight,
+        repetition,
+      })
+
+      const supabase = createClient()
+
+      const { data: set, error: updateError } = await supabase
+        .from("sets")
+        .update({
+          weight,
+          repetition,
+        })
+        .eq("id", setId)
+        .select()
+        .single()
+
+      console.log("[useUpdateSet] Update result:", { set, updateError })
+
+      if (updateError) throw updateError
+
+      console.log("[useUpdateSet] Success! Set updated:", set)
+      setIsUpdating(false)
+      return set
+    } catch (err) {
+      console.error("[useUpdateSet] Error updating set:", err)
+      const errObj = err instanceof Error ? err : new Error("Unknown error")
+      setLastError(errObj)
+      setIsUpdating(false)
+      return null
+    }
+  }
+
+  return { updateSet, loading: isUpdating, error: lastError }
+}
+
+/**
  * Helper function to get or create today's workout (client-side)
  */
 async function getOrCreateTodayWorkout(supabase: ReturnType<typeof createClient>) {

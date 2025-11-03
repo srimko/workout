@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { DrawerReps } from "@/components/Drawers/components/DrawerReps"
 import { DrawerSelectExercise } from "@/components/Drawers/components/DrawerSelectExercise"
 import { DrawerSerie } from "@/components/Drawers/components/DrawerSerie"
@@ -17,13 +17,37 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer"
 import { useToast } from "@/hooks/use-toast"
-import { useCreateSet } from "@/lib/hooks/useSets"
+import { useCreateSet, useUpdateSet } from "@/lib/hooks/useSets"
+import type { Set } from "@/lib/types"
+
+interface SetToEdit extends Set {
+  exercise_name: string
+}
 
 interface DrawerExerciseProps {
   onSetCreated?: () => void
+  // Props pour le mode édition
+  editMode?: boolean
+  setToEdit?: SetToEdit
+  onSetUpdated?: () => void
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  // Props pour customiser le trigger
+  trigger?: React.ReactNode
+  showTrigger?: boolean
 }
 
-export function DrawerExercise({ onSetCreated }: DrawerExerciseProps = {}) {
+export function DrawerExercise({
+  onSetCreated,
+  editMode = false,
+  setToEdit,
+  onSetUpdated,
+  open: controlledOpen,
+  onOpenChange,
+  trigger,
+  showTrigger = true,
+}: DrawerExerciseProps = {}) {
+  const [internalOpen, setInternalOpen] = useState(false)
   const [step, setStep] = useState(0)
   const [formData, setFormData] = useState({
     exercise: "",
@@ -31,50 +55,97 @@ export function DrawerExercise({ onSetCreated }: DrawerExerciseProps = {}) {
     serie: 0,
     repetition: 0,
   })
-  const [open, setOpen] = useState(false)
-  const { createSet, loading: isLoading, error } = useCreateSet()
+
+  const { createSet, loading: isCreating, error: createError } = useCreateSet()
+  const { updateSet, loading: isUpdating, error: updateError } = useUpdateSet()
   const { toast } = useToast()
 
-  const steps = [
-    {
-      title: "Exercice",
-      description: "Sélection un exercice",
-      component: DrawerSelectExercise,
-      props: {
-        repetition: formData.repetition,
-        onSelectExercise: handleExerciseChange,
-      },
-      fieldKey: "exercise",
-      isValid: () => formData.exercise !== "",
-    },
-    {
-      title: "Poids kg",
-      description: "Ajotuer du poids",
-      component: DrawerWeight,
-      props: { weight: formData.weight, onWeightChange: handleWeightChange },
-      fieldKey: "weight",
-      isValid: () => formData.weight > 0,
-    },
-    {
-      title: "Serie",
-      description: "Ajotuer la serie",
-      component: DrawerSerie,
-      props: { serie: formData.serie, onSerieChange: handleSerieChange },
-      fieldKey: "serie",
-      isValid: () => formData.serie > 0,
-    },
-    {
-      title: "Répétitions",
-      description: "Ajotuer le nombre de répétition",
-      component: DrawerReps,
-      props: {
-        repetition: formData.repetition,
-        onRepetitionChange: handleRepetionChange,
-      },
-      fieldKey: "repetition",
-      isValid: () => formData.repetition > 0,
-    },
-  ]
+  // Gérer l'état open de manière contrôlée ou non-contrôlée
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen
+  const setOpen = onOpenChange || setInternalOpen
+  const isLoading = editMode ? isUpdating : isCreating
+  const error = editMode ? updateError : createError
+
+  // Pré-remplir le formulaire en mode édition
+  useEffect(() => {
+    if (editMode && setToEdit && open) {
+      setFormData({
+        exercise: setToEdit.exercise_name,
+        weight: setToEdit.weight,
+        serie: 1, // Toujours 1 en mode édition
+        repetition: setToEdit.repetition,
+      })
+      // En mode édition, on commence au slide du poids (skip exercice)
+      setStep(0)
+    } else if (!editMode && !open) {
+      // Reset en mode création quand le drawer se ferme
+      setStep(0)
+    }
+  }, [editMode, setToEdit, open])
+
+  // En mode édition, on skip les slides "Exercice" et "Serie"
+  const steps = editMode
+    ? [
+        {
+          title: "Poids kg",
+          description: "Modifier le poids",
+          component: DrawerWeight,
+          props: { weight: formData.weight, onWeightChange: handleWeightChange },
+          fieldKey: "weight",
+          isValid: () => formData.weight > 0,
+        },
+        {
+          title: "Répétitions",
+          description: "Modifier le nombre de répétitions",
+          component: DrawerReps,
+          props: {
+            repetition: formData.repetition,
+            onRepetitionChange: handleRepetionChange,
+          },
+          fieldKey: "repetition",
+          isValid: () => formData.repetition > 0,
+        },
+      ]
+    : [
+        {
+          title: "Exercice",
+          description: "Sélection un exercice",
+          component: DrawerSelectExercise,
+          props: {
+            repetition: formData.repetition,
+            onSelectExercise: handleExerciseChange,
+          },
+          fieldKey: "exercise",
+          isValid: () => formData.exercise !== "",
+        },
+        {
+          title: "Poids kg",
+          description: "Ajouter du poids",
+          component: DrawerWeight,
+          props: { weight: formData.weight, onWeightChange: handleWeightChange },
+          fieldKey: "weight",
+          isValid: () => formData.weight > 0,
+        },
+        {
+          title: "Serie",
+          description: "Ajouter la serie",
+          component: DrawerSerie,
+          props: { serie: formData.serie, onSerieChange: handleSerieChange },
+          fieldKey: "serie",
+          isValid: () => formData.serie > 0,
+        },
+        {
+          title: "Répétitions",
+          description: "Ajouter le nombre de répétitions",
+          component: DrawerReps,
+          props: {
+            repetition: formData.repetition,
+            onRepetitionChange: handleRepetionChange,
+          },
+          fieldKey: "repetition",
+          isValid: () => formData.repetition > 0,
+        },
+      ]
 
   const CurrentComponent = steps[step].component as any
   const currentProps = steps[step].props as any
@@ -158,13 +229,17 @@ export function DrawerExercise({ onSetCreated }: DrawerExerciseProps = {}) {
 
   return (
     <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>
-        <Button>Ajouter mon exercice</Button>
-      </DrawerTrigger>
+      {!editMode && showTrigger && (
+        <DrawerTrigger asChild>
+          {trigger || <Button>Ajouter mon exercice</Button>}
+        </DrawerTrigger>
+      )}
       <DrawerContent>
         <div className="mx-auto w-full max-w-sm">
           <DrawerHeader>
-            <DrawerTitle>{steps[step].title}</DrawerTitle>
+            <DrawerTitle>
+              {editMode ? `Modifier - ${setToEdit?.exercise_name}` : steps[step].title}
+            </DrawerTitle>
             <DrawerDescription>{formatExerciseDisplay(formData)}</DrawerDescription>
           </DrawerHeader>
           {CurrentComponent && <CurrentComponent {...currentProps} />}
@@ -176,40 +251,66 @@ export function DrawerExercise({ onSetCreated }: DrawerExerciseProps = {}) {
               <Button
                 onClick={async () => {
                   if (step === steps.length - 1) {
-                    // Dernière étape : sauvegarder le set
+                    // Dernière étape : sauvegarder ou mettre à jour le set
                     try {
-                      console.log("Saving set:", formData)
+                      if (editMode && setToEdit) {
+                        // Mode édition : mettre à jour le set existant
+                        console.log("Updating set:", { setId: setToEdit.id, formData })
 
-                      // Create sets for each serie
-                      const promises = []
-                      for (let i = 0; i < formData.serie; i++) {
-                        promises.push(
-                          createSet(formData.exercise, formData.weight, formData.repetition),
+                        const result = await updateSet(
+                          setToEdit.id,
+                          formData.weight,
+                          formData.repetition,
                         )
-                      }
 
-                      const results = await Promise.all(promises)
-                      console.log("Results:", results)
-
-                      // Check if all sets were created successfully
-                      const allSuccess = results.every((result) => result !== null)
-
-                      if (allSuccess) {
-                        toast({
-                          title: "Set enregistré !",
-                          description: `${formData.serie} série(s) de ${formData.repetition} répétitions à ${formData.weight}kg ajoutée(s)`,
-                        })
-                        handleResetForm()
-                        // Appeler le callback pour rafraîchir les données
-                        onSetCreated?.()
+                        if (result) {
+                          toast({
+                            title: "Série modifiée !",
+                            description: `${formData.repetition} répétitions à ${formData.weight}kg`,
+                          })
+                          handleResetForm()
+                          // Appeler le callback pour rafraîchir les données
+                          onSetUpdated?.()
+                        } else {
+                          const errorMsg = error?.message || "Impossible de modifier la série"
+                          console.error("Set update failed:", errorMsg, error)
+                          throw new Error(errorMsg)
+                        }
                       } else {
-                        // Check for error details
-                        const errorMsg = error?.message || "Certains sets n'ont pas pu être créés"
-                        console.error("Set creation failed:", errorMsg, error)
-                        throw new Error(errorMsg)
+                        // Mode création : créer de nouveaux sets
+                        console.log("Saving set:", formData)
+
+                        // Create sets for each serie
+                        const promises = []
+                        for (let i = 0; i < formData.serie; i++) {
+                          promises.push(
+                            createSet(formData.exercise, formData.weight, formData.repetition),
+                          )
+                        }
+
+                        const results = await Promise.all(promises)
+                        console.log("Results:", results)
+
+                        // Check if all sets were created successfully
+                        const allSuccess = results.every((result) => result !== null)
+
+                        if (allSuccess) {
+                          toast({
+                            title: "Set enregistré !",
+                            description: `${formData.serie} série(s) de ${formData.repetition} répétitions à ${formData.weight}kg ajoutée(s)`,
+                          })
+                          handleResetForm()
+                          // Appeler le callback pour rafraîchir les données
+                          onSetCreated?.()
+                        } else {
+                          // Check for error details
+                          const errorMsg = error?.message || "Certains sets n'ont pas pu être créés"
+                          console.error("Set creation failed:", errorMsg, error)
+                          throw new Error(errorMsg)
+                        }
                       }
                     } catch (err) {
-                      console.error("Error saving set:", err, error)
+                      console.error("Error saving/updating set:", err, error)
                       const errorMessage =
                         error?.message ||
                         (err instanceof Error ? err.message : null) ||
@@ -230,8 +331,12 @@ export function DrawerExercise({ onSetCreated }: DrawerExerciseProps = {}) {
               >
                 {step === steps.length - 1
                   ? isLoading
-                    ? "Enregistrement..."
-                    : "Envoyer"
+                    ? editMode
+                      ? "Modification..."
+                      : "Enregistrement..."
+                    : editMode
+                      ? "Modifier"
+                      : "Envoyer"
                   : "Suivant"}
               </Button>
             </div>
