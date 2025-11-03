@@ -15,38 +15,38 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 import { useModal } from "@/lib/hooks/useModal"
-import type { Exercise, Profile, Set, Workout } from "@/lib/types"
+import { useFetchSetsWithExercises } from "@/lib/hooks/useSets"
+import type { Profile, Workout } from "@/lib/types"
 import { createClient } from "@/utils/supabase/client"
 import { Dumbbell, Plus } from "lucide-react"
-import type { SetWithExerciseName } from "@/components/Cards/WorkoutCard"
+
+interface SetWithExerciseInfo {
+  id: string
+  workout_id: string
+  exercise_id: number
+  weight: number
+  repetition: number
+  created_at: string
+  updated_at: string
+  exercise_name: string
+  exercise_image: string
+  category_name: string
+}
 
 type WorkoutStatus = "none" | "created" | "in_progress" | "completed"
 
 export default function Home() {
   const supabase = createClient()
   const alertModal = useModal()
+  const { fetchSets } = useFetchSetsWithExercises()
 
   const [workoutStatus, setWorkoutStatus] = useState<WorkoutStatus>("none")
-  const [currentSets, setCurrentSets] = useState<Set[] | undefined>()
+  const [currentSets, setCurrentSets] = useState<SetWithExerciseInfo[] | undefined>()
   const [currentWorkout, setCurrentWorkout] = useState<Workout | null>(null)
   const [currentProfile, setCurrentProfile] = useState<Profile | null>(null)
-  const [exercises, setExercises] = useState<Exercise[]>([])
-  const [editingSet, setEditingSet] = useState<SetWithExerciseName | null>(null)
+  const [editingSet, setEditingSet] = useState<SetWithExerciseInfo | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
 
-  // Charger tous les exercices depuis Supabase
-  useEffect(() => {
-    async function fetchExercises() {
-      try {
-        const { data } = await supabase.from("exercises").select("*")
-        console.log("Exercices chargés :", data)
-        setExercises(data || [])
-      } catch (error) {
-        console.log("Erreur lors de la récupération des exercices :", error)
-      }
-    }
-    fetchExercises()
-  }, [])
 
   // Charger automatiquement le workout du jour au démarrage
   useEffect(() => {
@@ -143,28 +143,23 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Fonction pour rafraîchir les sets d'un workout avec les noms d'exercices
+  // Fonction pour rafraîchir les sets d'un workout avec les infos d'exercice
   const refreshWorkoutSets = useCallback(
     async (workoutId: string) => {
       try {
-        const { data: sets } = await supabase.from("sets").select("*").eq("workout_id", workoutId)
+        const setsWithExerciseInfo = await fetchSets(workoutId)
 
-        const setsWithExerciseNames = (sets || []).map((set: Set) => {
-          const exercise = exercises.find((ex) => ex.id === set.exercise_id)
-          return {
-            ...set,
-            exercise_name: exercise?.title || `Exercice #${set.exercise_id}`,
-          }
-        })
-
-        setCurrentSets(setsWithExerciseNames)
-        return setsWithExerciseNames
+        if (setsWithExerciseInfo) {
+          setCurrentSets(setsWithExerciseInfo)
+          return setsWithExerciseInfo
+        }
+        return []
       } catch (error) {
         console.error("Erreur lors du rafraîchissement des sets:", error)
         return []
       }
     },
-    [exercises, supabase],
+    [fetchSets],
   )
 
   // Fonction pour démarrer un nouveau workout
@@ -223,7 +218,7 @@ export default function Home() {
   }, [currentWorkout, workoutStatus, refreshWorkoutSets])
 
   // Fonction pour gérer l'édition d'un set
-  const handleEditSet = useCallback((set: SetWithExerciseName) => {
+  const handleEditSet = useCallback((set: SetWithExerciseInfo) => {
     setEditingSet(set)
     setDrawerOpen(true)
   }, [])

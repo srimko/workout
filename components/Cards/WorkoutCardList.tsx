@@ -1,13 +1,12 @@
 "use client"
 
 import { memo } from "react"
-import { WorkoutCard, type SetWithExerciseName } from "@/components/Cards/WorkoutCard"
+import { WorkoutCard, type SetWithExerciseInfo } from "@/components/Cards/WorkoutCard"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import type { Set } from "@/lib/types"
 
 interface WorkoutCardListProps {
-  sets?: Set[]
-  onEditSet?: (set: SetWithExerciseName) => void
+  sets?: SetWithExerciseInfo[]
+  onEditSet?: (set: SetWithExerciseInfo) => void
   workoutTitle?: string
 }
 
@@ -25,12 +24,6 @@ export const WorkoutCardList = memo(function WorkoutCardList({
   const totalWeight = sets.reduce((sum, set) => sum + set.weight, 0)
   const totalReps = sets.reduce((sum, set) => sum + set.repetition, 0)
   const avgWeight = (totalWeight / totalSets).toFixed(1)
-
-  // Mapper les sets avec exercise_name
-  const setsWithNames = sets.map((set) => ({
-    ...set,
-    exercise_name: (set as any).exercise_name || `Exercice #${set.exercise_id}`,
-  })) as SetWithExerciseName[]
 
   return (
     <div className="space-y-4 pb-20">
@@ -64,7 +57,7 @@ export const WorkoutCardList = memo(function WorkoutCardList({
 
       {/* Workout Cards */}
       <div className="space-y-3 px-4">
-        {setsWithNames.map((set, index) => (
+        {sets.map((set, index) => (
           <WorkoutCard
             key={set.id}
             set={set}

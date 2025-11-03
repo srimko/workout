@@ -20,8 +20,17 @@ import { useToast } from "@/hooks/use-toast"
 import { useCreateSet, useUpdateSet } from "@/lib/hooks/useSets"
 import type { Set } from "@/lib/types"
 
-interface SetToEdit extends Set {
+interface SetToEdit {
+  id: string
+  workout_id: string
+  exercise_id: number
+  weight: number
+  repetition: number
+  created_at: string
+  updated_at: string
   exercise_name: string
+  exercise_image?: string
+  category_name?: string
 }
 
 interface DrawerExerciseProps {

@@ -88,6 +88,60 @@ export async function getSetsByWorkout(workoutId: string): Promise<Set[]> {
 }
 
 /**
+ * Get all sets for a workout with exercise information (title, category)
+ * This is more efficient than fetching sets and exercises separately
+ */
+export async function getSetsByWorkoutWithExercises(
+  workoutId: string,
+): Promise<
+  Array<
+    Set & {
+      exercise: {
+        id: number
+        title: string
+        image: string
+        category_id: string
+        category: {
+          id: string
+          name: string
+          image: string
+        }
+      }
+    }
+  >
+> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from("sets")
+    .select(
+      `
+      *,
+      exercise:exercises(
+        id,
+        title,
+        image,
+        category_id,
+        category:categories(
+          id,
+          name,
+          image
+        )
+      )
+    `,
+    )
+    .eq("workout_id", workoutId)
+    .order("created_at", { ascending: true })
+
+  if (error) {
+    console.error("Error fetching sets with exercises:", error)
+    return []
+  }
+
+  return data || []
+}
+
+/**
  * Get all sets for an exercise
  */
 export async function getSetsByExercise(exerciseId: number): Promise<Set[]> {

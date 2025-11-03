@@ -5,16 +5,24 @@ import { Pencil } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import type { Set } from "@/lib/types"
 
-export interface SetWithExerciseName extends Set {
+export interface SetWithExerciseInfo {
+  id: string
+  workout_id: string
+  exercise_id: number
+  weight: number
+  repetition: number
+  created_at: string
+  updated_at: string
   exercise_name: string
+  exercise_image: string
+  category_name: string
 }
 
 interface WorkoutCardProps {
-  set: SetWithExerciseName
+  set: SetWithExerciseInfo
   index: number
-  onEdit?: (set: SetWithExerciseName) => void
+  onEdit?: (set: SetWithExerciseInfo) => void
 }
 
 export const WorkoutCard = memo(function WorkoutCard({
@@ -26,9 +34,12 @@ export const WorkoutCard = memo(function WorkoutCard({
     <Card className="overflow-hidden bg-card hover:bg-accent/50 transition-colors active:bg-accent">
       <CardHeader className="pb-3 flex flex-row items-start justify-between space-y-0">
         <div className="flex-1 min-w-0">
-          <Badge variant="secondary" className="mb-2">
-            #{index + 1}
-          </Badge>
+          <div className="flex gap-2 mb-2 flex-wrap">
+            <Badge variant="secondary">#{index + 1}</Badge>
+            <Badge variant="outline" className="text-xs">
+              {set.category_name}
+            </Badge>
+          </div>
           <h3 className="font-semibold text-base leading-tight truncate">{set.exercise_name}</h3>
         </div>
         {onEdit && (

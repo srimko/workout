@@ -91,6 +91,86 @@ export function useCreateSet() {
 }
 
 /**
+ * Hook to fetch sets with exercise information (client-side)
+ */
+export function useFetchSetsWithExercises() {
+  const [isLoading, setIsLoading] = useState(false)
+  const [lastError, setLastError] = useState<Error | null>(null)
+
+  const fetchSets = async (
+    workoutId: string,
+  ): Promise<
+    Array<{
+      id: string
+      workout_id: string
+      exercise_id: number
+      weight: number
+      repetition: number
+      created_at: string
+      updated_at: string
+      exercise_name: string
+      exercise_image: string
+      category_name: string
+    }> | null
+  > => {
+    setIsLoading(true)
+    setLastError(null)
+
+    try {
+      const supabase = createClient()
+
+      const { data: sets, error } = await supabase
+        .from("sets")
+        .select(
+          `
+          *,
+          exercise:exercises(
+            id,
+            title,
+            image,
+            category_id,
+            category:categories(
+              id,
+              name,
+              image
+            )
+          )
+        `,
+        )
+        .eq("workout_id", workoutId)
+        .order("created_at", { ascending: true })
+
+      if (error) throw error
+
+      // Transform the data to flat structure for easier access
+      const transformedSets = (sets || []).map((set: any) => ({
+        id: set.id,
+        workout_id: set.workout_id,
+        exercise_id: set.exercise_id,
+        weight: set.weight,
+        repetition: set.repetition,
+        created_at: set.created_at,
+        updated_at: set.updated_at,
+        exercise_name: set.exercise?.title || `Exercice #${set.exercise_id}`,
+        exercise_image: set.exercise?.image || "",
+        category_name: set.exercise?.category?.name || "Non catégorisé",
+      }))
+
+      setIsLoading(false)
+      return transformedSets
+    } catch (err) {
+      console.error("[useFetchSetsWithExercises] Error fetching sets:", err)
+      const errObj = err instanceof Error ? err : new Error("Unknown error")
+      setLastError(errObj)
+      setIsLoading(false)
+      return null
+    }
+  }
+
+  return { fetchSets, loading: isLoading, error: lastError }
+}
+
+/**
  * Hook to update a set (client-side)
  */
 export function useUpdateSet() {
