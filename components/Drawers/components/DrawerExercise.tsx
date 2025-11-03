@@ -16,7 +16,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer"
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 import { useCreateSet, useUpdateSet } from "@/lib/hooks/useSets"
 import type { Set } from "@/lib/types"
 
@@ -67,7 +67,6 @@ export function DrawerExercise({
 
   const { createSet, loading: isCreating, error: createError } = useCreateSet()
   const { updateSet, loading: isUpdating, error: updateError } = useUpdateSet()
-  const { toast } = useToast()
 
   // Gérer l'état open de manière contrôlée ou non-contrôlée
   const open = controlledOpen !== undefined ? controlledOpen : internalOpen
@@ -273,9 +272,9 @@ export function DrawerExercise({
                         )
 
                         if (result) {
-                          toast({
-                            title: "Série modifiée !",
+                          toast.success("Série modifiée !", {
                             description: `${formData.repetition} répétitions à ${formData.weight}kg`,
+                            duration: 1000,
                           })
                           handleResetForm()
                           // Appeler le callback pour rafraîchir les données
@@ -304,9 +303,9 @@ export function DrawerExercise({
                         const allSuccess = results.every((result) => result !== null)
 
                         if (allSuccess) {
-                          toast({
-                            title: "Set enregistré !",
+                          toast.success("Set enregistré !", {
                             description: `${formData.serie} série(s) de ${formData.repetition} répétitions à ${formData.weight}kg ajoutée(s)`,
+                            duration: 1000,
                           })
                           handleResetForm()
                           // Appeler le callback pour rafraîchir les données
@@ -325,10 +324,9 @@ export function DrawerExercise({
                         (err instanceof Error ? err.message : null) ||
                         "Impossible d'enregistrer le set"
 
-                      toast({
-                        title: "Erreur",
+                      toast.error("Erreur", {
                         description: errorMessage,
-                        variant: "destructive",
+                        duration: 1000,
                       })
                     }
                   } else {

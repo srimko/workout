@@ -15,7 +15,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 import { updateProfile } from "@/lib/actions/profiles"
 import type { Profile } from "@/lib/types"
 import { createClient } from "@/utils/supabase/client"
@@ -28,7 +28,6 @@ export default function UserPage() {
   const [editingField, setEditingField] = useState<EditableField | null>(null)
   const [tempValue, setTempValue] = useState<any>(null)
   const [saving, setSaving] = useState(false)
-  const { toast } = useToast()
 
   const supabase = createClient()
 
@@ -68,18 +67,17 @@ export default function UserPage() {
         setProfile(result.profile)
         setEditingField(null)
         setTempValue(null)
-        toast({
-          title: "Mis à jour",
+        toast.success("Mis à jour", {
           description: "Votre profil a été mis à jour avec succès",
+          duration: 1000,
         })
       } else {
         throw new Error(result.error || "Erreur lors de la mise à jour")
       }
     } catch (error: any) {
-      toast({
-        title: "Erreur",
+      toast.error("Erreur", {
         description: error.message || "Impossible de mettre à jour le profil",
-        variant: "destructive",
+        duration: 1000,
       })
     } finally {
       setSaving(false)

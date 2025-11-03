@@ -15,8 +15,8 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 import { useModal } from "@/lib/hooks/useModal"
-import { useToast } from "@/hooks/use-toast"
 import { useFetchSetsWithExercises } from "@/lib/hooks/useSets"
+import { toast } from "sonner"
 import type { Profile, Workout } from "@/lib/types"
 import { createClient } from "@/utils/supabase/client"
 import { Dumbbell, Plus } from "lucide-react"
@@ -40,7 +40,6 @@ export default function Home() {
   const supabase = createClient()
   const alertModal = useModal()
   const { fetchSets } = useFetchSetsWithExercises()
-  const { toast } = useToast()
 
   const [workoutStatus, setWorkoutStatus] = useState<WorkoutStatus>("none")
   const [currentSets, setCurrentSets] = useState<SetWithExerciseInfo[] | undefined>()
@@ -223,19 +222,18 @@ export default function Home() {
       setCurrentWorkout({ ...currentWorkout, ended_at: null })
 
       // Show success toast
-      toast({
-        title: "Workout repris !",
+      toast.success("Workout repris !", {
         description: "Vous pouvez continuer votre séance",
+        duration: 1000,
       })
     } catch (error) {
       console.error("Erreur lors de la reprise du workout:", error)
-      toast({
-        title: "Erreur",
+      toast.error("Erreur", {
         description: "Impossible de reprendre le workout",
-        variant: "destructive",
+        duration: 1000,
       })
     }
-  }, [currentWorkout, supabase, toast])
+  }, [currentWorkout, supabase])
 
   // Fonction pour rafraîchir les sets après création
   const handleSetCreated = useCallback(async () => {
@@ -407,17 +405,13 @@ export default function Home() {
           </div>
 
           {/* Contenu principal - cartes */}
-          <div className="px-4">
+          <div className="">
             <WorkoutCardList sets={currentSets} workoutTitle={currentWorkout?.title} />
           </div>
 
           {/* Bottom bar - Reprendre workout */}
           <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-background border-t border-border/50 backdrop-blur-sm safe-area-inset-bottom">
-            <Button
-              variant="default"
-              className="w-full h-12 text-base"
-              onClick={resumeWorkoutFn}
-            >
+            <Button variant="default" className="w-full h-12 text-base" onClick={resumeWorkoutFn}>
               Reprendre le workout
             </Button>
           </div>
