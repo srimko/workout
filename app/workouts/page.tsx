@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react"
 import { getAllWorkoutsWithSets } from "@/lib/actions/workouts"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import type { WorkoutWithSets } from "@/lib/types"
+import type { WorkoutWithSets, SetWithExercise } from "@/lib/types"
 import Image from "next/image"
 
 export default function WorkoutPage() {
   const [workouts, setWorkouts] = useState<WorkoutWithSets[]>([])
   const [loading, setLoading] = useState(true)
-  const [exercisesCount, setExercisesCount] = useState({})
+  const [exercisesCount, setExercisesCount] = useState<Record<string, number>>({})
   const [totalWeight, setTotalWeight] = useState(0)
   const [totalRep, setTotalRep] = useState(0)
 
@@ -32,19 +32,20 @@ export default function WorkoutPage() {
     loadWorkouts()
   }, [])
 
-  function getAllExercices(sets) {
-    sets.map((set) => {
-      exercisesCount[set.exercise.category.id] = (exercisesCount[set.exercise.category.id] || 0) + 1
-      setExercisesCount(exercisesCount)
+  function getAllExercices(sets: SetWithExercise[]) {
+    const newCounts: Record<string, number> = { ...exercisesCount }
+    sets.forEach((set) => {
+      newCounts[set.exercise.category.id] = (newCounts[set.exercise.category.id] || 0) + 1
     })
+    setExercisesCount(newCounts)
   }
 
-  function getTotalWeight(sets) {
+  function getTotalWeight(sets: SetWithExercise[]) {
     const total = sets.reduce((sum, set) => sum + set.weight, 0)
     setTotalWeight(total)
   }
 
-  function getTotalRep(sets) {
+  function getTotalRep(sets: SetWithExercise[]) {
     const total = sets.reduce((sum, set) => sum + set.repetition, 0)
     setTotalRep(total)
   }
