@@ -181,7 +181,6 @@ export function WorkoutSetsModal({
         handleSetsChange(updatedSets)
 
         toast.success("Set supprimé avec succès")
-        setEditingSet(null)
         onSetsUpdated?.(updatedSets)
       } else {
         toast.error("Erreur lors de la suppression")

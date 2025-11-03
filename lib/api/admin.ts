@@ -1,7 +1,7 @@
 import "server-only"
 
 import type { Profile, Workout, WorkoutWithSets, Set } from "@/lib/types"
-import { createClient, createAdminClient } from "@/utils/supabase/server"
+import { createClient } from "@/utils/supabase/server"
 
 /**
  * Vérifie si l'utilisateur actuel est admin

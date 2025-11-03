@@ -7,7 +7,8 @@ export default async function AdminDashboardPage() {
 
   users = users.filter((user) => !["wadmin"].includes(user.display_name))
 
-  const usersWorkouts = await Promise.all(users.map((user) => getUserWithWorkouts(user.id)))
+  const usersWorkoutsData = await Promise.all(users.map((user) => getUserWithWorkouts(user.id)))
+  const usersWorkouts = usersWorkoutsData.filter((user): user is NonNullable<typeof user> => user !== null)
 
   return (
     <div className="space-y-6 p-6">
