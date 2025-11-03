@@ -153,6 +153,25 @@ export async function endWorkout(workoutId: string): Promise<boolean> {
 }
 
 /**
+ * Resume a completed workout (set ended_at back to null)
+ */
+export async function resumeWorkout(workoutId: string): Promise<boolean> {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from("workouts")
+    .update({ ended_at: null })
+    .eq("id", workoutId)
+
+  if (error) {
+    console.error("Error resuming workout:", error)
+    return false
+  }
+
+  return true
+}
+
+/**
  * Get all workouts for the current user
  */
 export async function getAllWorkouts(): Promise<Workout[]> {

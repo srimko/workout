@@ -6,6 +6,7 @@ import {
   createTodayWorkout as createTodayWorkoutAPI,
   getOrCreateTodayWorkout as getOrCreateTodayWorkoutAPI,
   endWorkout as endWorkoutAPI,
+  resumeWorkout as resumeWorkoutAPI,
   getAllWorkouts as getAllWorkoutsAPI,
   getAllWorkoutsWithSets as getAllWorkoutsWithSetsAPI,
 } from "@/lib/api/workouts"
@@ -44,6 +45,13 @@ export async function getOrCreateTodayWorkout() {
  */
 export async function endWorkout(workoutId: string) {
   return await endWorkoutAPI(workoutId)
+}
+
+/**
+ * Resume a completed workout
+ */
+export async function resumeWorkout(workoutId: string) {
+  return await resumeWorkoutAPI(workoutId)
 }
 
 /**

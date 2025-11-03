@@ -15,6 +15,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 import { useModal } from "@/lib/hooks/useModal"
+import { useToast } from "@/hooks/use-toast"
 import { useFetchSetsWithExercises } from "@/lib/hooks/useSets"
 import type { Profile, Workout } from "@/lib/types"
 import { createClient } from "@/utils/supabase/client"
@@ -39,6 +40,7 @@ export default function Home() {
   const supabase = createClient()
   const alertModal = useModal()
   const { fetchSets } = useFetchSetsWithExercises()
+  const { toast } = useToast()
 
   const [workoutStatus, setWorkoutStatus] = useState<WorkoutStatus>("none")
   const [currentSets, setCurrentSets] = useState<SetWithExerciseInfo[] | undefined>()
@@ -204,6 +206,36 @@ export default function Home() {
       console.error("Erreur lors de la clôture du workout:", error)
     }
   }, [currentWorkout, supabase])
+
+  // Fonction pour reprendre un workout terminé
+  const resumeWorkoutFn = useCallback(async () => {
+    if (!currentWorkout) return
+
+    try {
+      const { error } = await supabase
+        .from("workouts")
+        .update({ ended_at: null })
+        .eq("id", currentWorkout.id)
+
+      if (error) throw error
+
+      setWorkoutStatus("in_progress")
+      setCurrentWorkout({ ...currentWorkout, ended_at: null })
+
+      // Show success toast
+      toast({
+        title: "Workout repris !",
+        description: "Vous pouvez continuer votre séance",
+      })
+    } catch (error) {
+      console.error("Erreur lors de la reprise du workout:", error)
+      toast({
+        title: "Erreur",
+        description: "Impossible de reprendre le workout",
+        variant: "destructive",
+      })
+    }
+  }, [currentWorkout, supabase, toast])
 
   // Fonction pour rafraîchir les sets après création
   const handleSetCreated = useCallback(async () => {
@@ -377,6 +409,17 @@ export default function Home() {
           {/* Contenu principal - cartes */}
           <div className="px-4">
             <WorkoutCardList sets={currentSets} workoutTitle={currentWorkout?.title} />
+          </div>
+
+          {/* Bottom bar - Reprendre workout */}
+          <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-background border-t border-border/50 backdrop-blur-sm safe-area-inset-bottom">
+            <Button
+              variant="default"
+              className="w-full h-12 text-base"
+              onClick={resumeWorkoutFn}
+            >
+              Reprendre le workout
+            </Button>
           </div>
         </div>
 
