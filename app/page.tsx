@@ -47,7 +47,6 @@ export default function Home() {
   const [editingSet, setEditingSet] = useState<SetWithExerciseInfo | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
 
-
   // Charger automatiquement le workout du jour au démarrage
   useEffect(() => {
     async function initializeTodayWorkout() {
@@ -315,7 +314,7 @@ export default function Home() {
           </div>
 
           {/* Contenu principal - cartes */}
-          <div className="px-4">
+          <div className="">
             <WorkoutCardList
               sets={currentSets}
               onEditSet={handleEditSet}
@@ -347,11 +346,7 @@ export default function Home() {
 
           {/* Bottom bar - Terminer workout */}
           <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-background border-t border-border/50 backdrop-blur-sm safe-area-inset-bottom">
-            <Button
-              variant="destructive"
-              className="w-full h-12 text-base"
-              onClick={endWorkout}
-            >
+            <Button variant="destructive" className="w-full h-12 text-base" onClick={endWorkout}>
               Terminer le workout
             </Button>
           </div>
@@ -381,10 +376,7 @@ export default function Home() {
 
           {/* Contenu principal - cartes */}
           <div className="px-4">
-            <WorkoutCardList
-              sets={currentSets}
-              workoutTitle={currentWorkout?.title}
-            />
+            <WorkoutCardList sets={currentSets} workoutTitle={currentWorkout?.title} />
           </div>
         </div>
 

@@ -51,19 +51,12 @@ export const WorkoutCardList = memo(function WorkoutCardList({
       </Card>
 
       {/* Workout Title */}
-      {workoutTitle && (
-        <h2 className="text-lg font-semibold px-4">{workoutTitle}</h2>
-      )}
+      {workoutTitle && <h2 className="text-lg font-semibold px-4">{workoutTitle}</h2>}
 
       {/* Workout Cards */}
-      <div className="space-y-3 px-4">
+      <div className="space-y-3">
         {sets.map((set, index) => (
-          <WorkoutCard
-            key={set.id}
-            set={set}
-            index={index}
-            onEdit={onEditSet}
-          />
+          <WorkoutCard key={set.id} set={set} index={index} onEdit={onEditSet} />
         ))}
       </div>
     </div>
