@@ -1,14 +1,15 @@
 export interface Profile {
   id: string
+  auth_id: string
   display_name: string
-  birthday: string
-  height_cm: number
-  weight_kg: number
-  sex: "male" | "female"
-  training_experience: "beginner" | "intermediate" | "advanced"
-  goals: string[]
-  injuries: string[]
-  dominant_hand: "left" | "right"
+  birthday: string | null
+  height_cm: number | null
+  weight_kg: number | null
+  sex: "male" | "female" | "other" | null
+  training_experience: "beginner" | "intermediate" | "advanced" | "expert" | null
+  goals: string[] | null
+  injuries: string[] | null
+  dominant_hand: "left" | "right" | "ambidextrous" | null
   created_at: string
   updated_at: string
 }
