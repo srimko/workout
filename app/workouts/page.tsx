@@ -5,6 +5,8 @@ import { getAllWorkoutsWithSets } from "@/lib/actions/workouts"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import type { WorkoutWithSets, SetWithExercise } from "@/lib/types"
 import { Badge } from "@/components/ui/badge"
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 
 interface CategoryVolume {
   categoryName: string
@@ -90,7 +92,7 @@ export default function WorkoutPage() {
   }
 
   return (
-    <section className="p-6">
+    <section>
       <h2 className="text-2xl font-bold mb-6">Workouts</h2>
 
       <div className="space-y-6">
@@ -164,6 +166,37 @@ export default function WorkoutPage() {
                           </div>
                         ))}
                       </div>
+                    </div>
+
+                    {/* Bar Chart */}
+                    <div>
+                      <h3 className="font-semibold mb-3">Graphique des volumes</h3>
+                      <ChartContainer
+                        config={volumeStats.reduce(
+                          (acc, category) => {
+                            acc[category.categoryName] = {
+                              label: category.categoryName,
+                              color: "hsl(var(--color-chart-5))",
+                            }
+                            return acc
+                          },
+                          {} as Record<string, { label: string; color: string }>,
+                        )}
+                        className="h-[300px] w-full"
+                      >
+                        <BarChart
+                          data={volumeStats.map((cat) => ({
+                            name: cat.categoryName,
+                            volume: cat.volume,
+                          }))}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="name" tick={{ fontSize: 12 }} tickLine={false} />
+                          <YAxis tick={{ fontSize: 12 }} tickLine={true} />
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <Bar dataKey="volume" fill="var(--color-chart-4)" radius={[8, 8, 0, 0]} />
+                        </BarChart>
+                      </ChartContainer>
                     </div>
                   </div>
                 )}
