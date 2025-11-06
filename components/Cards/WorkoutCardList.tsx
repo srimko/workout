@@ -1,13 +1,27 @@
 "use client"
 
-import { memo } from "react"
+import { memo, useMemo } from "react"
 import { WorkoutCard, type SetWithExerciseInfo } from "@/components/Cards/WorkoutCard"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import { Badge } from "@/components/ui/badge"
 
 interface WorkoutCardListProps {
   sets?: SetWithExerciseInfo[]
   onEditSet?: (set: SetWithExerciseInfo) => void
   workoutTitle?: string
+}
+
+interface CategoryGroup {
+  categoryName: string
+  sets: SetWithExerciseInfo[]
+  totalWeight: number
+  totalVolume: number
 }
 
 export const WorkoutCardList = memo(function WorkoutCardList({
@@ -19,11 +33,44 @@ export const WorkoutCardList = memo(function WorkoutCardList({
     return null
   }
 
-  // Calculer les stats
+  // Calculer les stats globales
   const totalSets = sets.length
   const totalWeight = sets.reduce((sum, set) => sum + set.weight, 0)
   const totalReps = sets.reduce((sum, set) => sum + set.repetition, 0)
   const avgWeight = (totalWeight / totalSets).toFixed(1)
+
+  // Regrouper les sets par catégorie musculaire
+  const groupedByCategory = useMemo(() => {
+    const groups = new Map<string, CategoryGroup>()
+
+    sets.forEach((set) => {
+      const categoryName = set.category_name
+      if (!groups.has(categoryName)) {
+        groups.set(categoryName, {
+          categoryName,
+          sets: [],
+          totalWeight: 0,
+          totalVolume: 0,
+        })
+      }
+
+      const group = groups.get(categoryName)!
+      group.sets.push(set)
+      group.totalWeight += set.weight
+      group.totalVolume += set.weight * set.repetition
+    })
+
+    // Retourner les groupes dans l'ordre d'apparition
+    return Array.from(groups.values())
+  }, [sets])
+
+  // Ouvrir uniquement la catégorie du dernier set ajouté
+  const defaultOpenCategories = useMemo(() => {
+    if (sets.length === 0) return []
+    // Le dernier set est le dernier élément du tableau (ordre chronologique)
+    const lastSet = sets[sets.length - 1]
+    return [lastSet.category_name]
+  }, [sets])
 
   return (
     <div className="space-y-4 pb-20">
@@ -53,11 +100,33 @@ export const WorkoutCardList = memo(function WorkoutCardList({
       {/* Workout Title */}
       {workoutTitle && <h2 className="text-lg font-semibold px-4">{workoutTitle}</h2>}
 
-      {/* Workout Cards */}
-      <div className="space-y-3">
-        {sets.map((set, index) => (
-          <WorkoutCard key={set.id} set={set} index={index} onEdit={onEditSet} />
-        ))}
+      {/* Accordéons par groupe musculaire */}
+      <div>
+        <Accordion type="multiple" defaultValue={defaultOpenCategories} className="w-full">
+          {groupedByCategory.map((group) => (
+            <AccordionItem key={group.categoryName} value={group.categoryName}>
+              <AccordionTrigger className="hover:no-underline">
+                <div className="flex items-center justify-between gap-3 w-full">
+                  <span className="font-semibold text-base">{group.categoryName}</span>
+                  <Badge variant="secondary" className="text-xs">
+                    {group.sets.length} série{group.sets.length > 1 ? "s" : ""}
+                  </Badge>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-3 pt-2">
+                  {group.sets.map((set) => {
+                    // Trouver l'index global du set
+                    const globalIndex = sets.findIndex((s) => s.id === set.id)
+                    return (
+                      <WorkoutCard key={set.id} set={set} index={globalIndex} onEdit={onEditSet} />
+                    )
+                  })}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
       </div>
     </div>
   )
