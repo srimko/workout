@@ -34,13 +34,16 @@ export const WorkoutCard = memo(function WorkoutCard({
     <Card className="overflow-hidden bg-card hover:bg-accent/50 transition-colors active:bg-accent">
       <CardHeader className="pb-3 flex flex-row items-start justify-between space-y-0">
         <div className="flex-1 min-w-0">
-          <div className="flex gap-2 mb-2 flex-wrap">
-            <Badge variant="secondary">#{index + 1}</Badge>
+          <div className="flex justify-between gap-2 mb-2 flex-wrap">
+            <span className="flex justify-between gap-4">
+              <Badge variant="secondary">#{index + 1}</Badge>
+              <h3 className="font-semibold text-base leading-tight truncate">{set.exercise_name.slice(0, 20) + '...'}</h3>
+            </span>
             <Badge variant="outline" className="text-xs">
               {set.category_name}
             </Badge>
           </div>
-          <h3 className="font-semibold text-base leading-tight truncate">{set.exercise_name}</h3>
+          
         </div>
         {onEdit && (
           <Button
