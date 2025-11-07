@@ -1,0 +1,307 @@
+{
+  "metadata": {
+    "source": "strengthlevel.fr",
+    "gender": "homme",
+    "unit": "kg",
+    "lastUpdated": "2025-11-07"
+  },
+  "exercises": [
+    {
+      "id": "developpe-couche",
+      "name": "Développé couché",
+      "category": "pectoraux",
+      "strengthLevels": {
+        "debutant": 47,
+        "novice": 70,
+        "intermediaire": 98,
+        "avance": 132,
+        "elite": 169
+      },
+      "standardsByWeight": [
+        { "poids": 50, "debutant": 24, "novice": 38, "intermediaire": 57, "avance": 79, "elite": 103 },
+        { "poids": 55, "debutant": 29, "novice": 45, "intermediaire": 64, "avance": 87, "elite": 113 },
+        { "poids": 60, "debutant": 34, "novice": 51, "intermediaire": 72, "avance": 96, "elite": 123 },
+        { "poids": 65, "debutant": 39, "novice": 57, "intermediaire": 79, "avance": 104, "elite": 132 },
+        { "poids": 70, "debutant": 44, "novice": 62, "intermediaire": 85, "avance": 112, "elite": 141 },
+        { "poids": 75, "debutant": 49, "novice": 68, "intermediaire": 92, "avance": 119, "elite": 149 },
+        { "poids": 80, "debutant": 53, "novice": 74, "intermediaire": 98, "avance": 127, "elite": 157 },
+        { "poids": 85, "debutant": 58, "novice": 79, "intermediaire": 105, "avance": 134, "elite": 165 },
+        { "poids": 90, "debutant": 62, "novice": 84, "intermediaire": 111, "avance": 141, "elite": 172 },
+        { "poids": 95, "debutant": 67, "novice": 89, "intermediaire": 116, "avance": 147, "elite": 180 },
+        { "poids": 100, "debutant": 71, "novice": 94, "intermediaire": 122, "avance": 153, "elite": 187 },
+        { "poids": 105, "debutant": 75, "novice": 99, "intermediaire": 128, "avance": 160, "elite": 194 },
+        { "poids": 110, "debutant": 80, "novice": 104, "intermediaire": 133, "avance": 166, "elite": 200 },
+        { "poids": 115, "debutant": 84, "novice": 109, "intermediaire": 138, "avance": 172, "elite": 207 },
+        { "poids": 120, "debutant": 88, "novice": 113, "intermediaire": 143, "avance": 177, "elite": 213 },
+        { "poids": 125, "debutant": 92, "novice": 118, "intermediaire": 148, "avance": 183, "elite": 219 },
+        { "poids": 130, "debutant": 95, "novice": 122, "intermediaire": 153, "avance": 188, "elite": 225 },
+        { "poids": 135, "debutant": 99, "novice": 126, "intermediaire": 158, "avance": 194, "elite": 231 },
+        { "poids": 140, "debutant": 103, "novice": 130, "intermediaire": 163, "avance": 199, "elite": 236 }
+      ]
+    },
+    {
+      "id": "developpe-incline",
+      "name": "Développé incliné",
+      "category": "pectoraux",
+      "strengthLevels": {
+        "debutant": 44,
+        "novice": 64,
+        "intermediaire": 89,
+        "avance": 118,
+        "elite": 149
+      },
+      "standardsByWeight": [
+        { "poids": 50, "debutant": 22, "novice": 34, "intermediaire": 49, "avance": 67, "elite": 87 },
+        { "poids": 55, "debutant": 27, "novice": 40, "intermediaire": 56, "avance": 76, "elite": 97 },
+        { "poids": 60, "debutant": 32, "novice": 46, "intermediaire": 63, "avance": 83, "elite": 106 },
+        { "poids": 65, "debutant": 36, "novice": 51, "intermediaire": 70, "avance": 91, "elite": 114 },
+        { "poids": 70, "debutant": 41, "novice": 57, "intermediaire": 76, "avance": 98, "elite": 122 },
+        { "poids": 75, "debutant": 45, "novice": 62, "intermediaire": 82, "avance": 105, "elite": 130 },
+        { "poids": 80, "debutant": 50, "novice": 67, "intermediaire": 88, "avance": 112, "elite": 138 },
+        { "poids": 85, "debutant": 54, "novice": 73, "intermediaire": 94, "avance": 119, "elite": 145 },
+        { "poids": 90, "debutant": 59, "novice": 78, "intermediaire": 100, "avance": 125, "elite": 152 },
+        { "poids": 95, "debutant": 63, "novice": 82, "intermediaire": 105, "avance": 131, "elite": 159 },
+        { "poids": 100, "debutant": 67, "novice": 87, "intermediaire": 111, "avance": 137, "elite": 165 },
+        { "poids": 105, "debutant": 71, "novice": 92, "intermediaire": 116, "avance": 143, "elite": 172 },
+        { "poids": 110, "debutant": 75, "novice": 96, "intermediaire": 121, "avance": 149, "elite": 178 },
+        { "poids": 115, "debutant": 79, "novice": 101, "intermediaire": 126, "avance": 154, "elite": 184 },
+        { "poids": 120, "debutant": 83, "novice": 105, "intermediaire": 131, "avance": 160, "elite": 190 },
+        { "poids": 125, "debutant": 87, "novice": 110, "intermediaire": 136, "avance": 165, "elite": 196 },
+        { "poids": 130, "debutant": 91, "novice": 114, "intermediaire": 141, "avance": 170, "elite": 201 },
+        { "poids": 135, "debutant": 94, "novice": 118, "intermediaire": 145, "avance": 175, "elite": 207 },
+        { "poids": 140, "debutant": 98, "novice": 122, "intermediaire": 150, "avance": 180, "elite": 212 }
+      ]
+    },
+    {
+      "id": "tirage-vertical-poulie",
+      "name": "Tirage vertical à la poulie assis",
+      "category": "dos",
+      "strengthLevels": {
+        "debutant": 38,
+        "novice": 58,
+        "intermediaire": 82,
+        "avance": 110,
+        "elite": 141
+      },
+      "standardsByWeight": [
+        { "poids": 50, "debutant": 25, "novice": 39, "intermediaire": 58, "avance": 81, "elite": 105 },
+        { "poids": 55, "debutant": 28, "novice": 43, "intermediaire": 63, "avance": 86, "elite": 112 },
+        { "poids": 60, "debutant": 31, "novice": 47, "intermediaire": 67, "avance": 92, "elite": 118 },
+        { "poids": 65, "debutant": 34, "novice": 51, "intermediaire": 72, "avance": 97, "elite": 124 },
+        { "poids": 70, "debutant": 37, "novice": 54, "intermediaire": 76, "avance": 101, "elite": 129 },
+        { "poids": 75, "debutant": 39, "novice": 57, "intermediaire": 80, "avance": 106, "elite": 134 },
+        { "poids": 80, "debutant": 42, "novice": 61, "intermediaire": 84, "avance": 110, "elite": 139 },
+        { "poids": 85, "debutant": 45, "novice": 64, "intermediaire": 87, "avance": 115, "elite": 144 },
+        { "poids": 90, "debutant": 47, "novice": 67, "intermediaire": 91, "avance": 119, "elite": 149 },
+        { "poids": 95, "debutant": 50, "novice": 70, "intermediaire": 94, "avance": 122, "elite": 153 },
+        { "poids": 100, "debutant": 52, "novice": 72, "intermediaire": 97, "avance": 126, "elite": 157 },
+        { "poids": 105, "debutant": 54, "novice": 75, "intermediaire": 101, "avance": 130, "elite": 161 },
+        { "poids": 110, "debutant": 57, "novice": 78, "intermediaire": 104, "avance": 133, "elite": 165 },
+        { "poids": 115, "debutant": 59, "novice": 80, "intermediaire": 107, "avance": 137, "elite": 169 },
+        { "poids": 120, "debutant": 61, "novice": 83, "intermediaire": 110, "avance": 140, "elite": 172 },
+        { "poids": 125, "debutant": 63, "novice": 85, "intermediaire": 112, "avance": 143, "elite": 176 },
+        { "poids": 130, "debutant": 65, "novice": 88, "intermediaire": 115, "avance": 146, "elite": 179 },
+        { "poids": 135, "debutant": 67, "novice": 90, "intermediaire": 118, "avance": 149, "elite": 183 },
+        { "poids": 140, "debutant": 69, "novice": 92, "intermediaire": 120, "avance": 152, "elite": 186 }
+      ]
+    },
+    {
+      "id": "rowing-assis-poulie",
+      "name": "Rowing assis à la poulie",
+      "category": "dos",
+      "strengthLevels": {
+        "debutant": 41,
+        "novice": 61,
+        "intermediaire": 86,
+        "avance": 115,
+        "elite": 147
+      },
+      "standardsByWeight": [
+        { "poids": 50, "debutant": 24, "novice": 38, "intermediaire": 56, "avance": 78, "elite": 102 },
+        { "poids": 55, "debutant": 27, "novice": 42, "intermediaire": 62, "avance": 85, "elite": 110 },
+        { "poids": 60, "debutant": 31, "novice": 47, "intermediaire": 67, "avance": 91, "elite": 117 },
+        { "poids": 65, "debutant": 35, "novice": 52, "intermediaire": 73, "avance": 97, "elite": 124 },
+        { "poids": 70, "debutant": 38, "novice": 56, "intermediaire": 78, "avance": 103, "elite": 131 },
+        { "poids": 75, "debutant": 42, "novice": 60, "intermediaire": 83, "avance": 109, "elite": 137 },
+        { "poids": 80, "debutant": 45, "novice": 64, "intermediaire": 88, "avance": 114, "elite": 143 },
+        { "poids": 85, "debutant": 49, "novice": 68, "intermediaire": 92, "avance": 120, "elite": 149 },
+        { "poids": 90, "debutant": 52, "novice": 72, "intermediaire": 97, "avance": 125, "elite": 155 },
+        { "poids": 95, "debutant": 55, "novice": 76, "intermediaire": 101, "avance": 130, "elite": 160 },
+        { "poids": 100, "debutant": 58, "novice": 79, "intermediaire": 105, "avance": 134, "elite": 166 },
+        { "poids": 105, "debutant": 61, "novice": 83, "intermediaire": 109, "avance": 139, "elite": 171 },
+        { "poids": 110, "debutant": 64, "novice": 86, "intermediaire": 113, "avance": 143, "elite": 176 },
+        { "poids": 115, "debutant": 67, "novice": 90, "intermediaire": 117, "avance": 148, "elite": 180 },
+        { "poids": 120, "debutant": 70, "novice": 93, "intermediaire": 121, "avance": 152, "elite": 185 },
+        { "poids": 125, "debutant": 73, "novice": 96, "intermediaire": 124, "avance": 156, "elite": 189 },
+        { "poids": 130, "debutant": 75, "novice": 99, "intermediaire": 128, "avance": 160, "elite": 194 },
+        { "poids": 135, "debutant": 78, "novice": 102, "intermediaire": 131, "avance": 164, "elite": 198 },
+        { "poids": 140, "debutant": 81, "novice": 105, "intermediaire": 134, "avance": 167, "elite": 202 }
+      ]
+    },
+    {
+      "id": "presse-epaules-machine",
+      "name": "Presse à épaules à la machine",
+      "category": "epaules",
+      "strengthLevels": {
+        "debutant": 24,
+        "novice": 46,
+        "intermediaire": 77,
+        "avance": 115,
+        "elite": 159
+      },
+      "standardsByWeight": [
+        { "poids": 50, "debutant": 10, "novice": 23, "intermediaire": 44, "avance": 71, "elite": 102 },
+        { "poids": 55, "debutant": 13, "novice": 28, "intermediaire": 50, "avance": 78, "elite": 112 },
+        { "poids": 60, "debutant": 16, "novice": 32, "intermediaire": 56, "avance": 86, "elite": 120 },
+        { "poids": 65, "debutant": 19, "novice": 37, "intermediaire": 62, "avance": 93, "elite": 129 },
+        { "poids": 70, "debutant": 22, "novice": 41, "intermediaire": 67, "avance": 100, "elite": 137 },
+        { "poids": 75, "debutant": 25, "novice": 45, "intermediaire": 73, "avance": 106, "elite": 144 },
+        { "poids": 80, "debutant": 28, "novice": 49, "intermediaire": 78, "avance": 112, "elite": 152 },
+        { "poids": 85, "debutant": 31, "novice": 53, "intermediaire": 83, "avance": 119, "elite": 159 },
+        { "poids": 90, "debutant": 34, "novice": 57, "intermediaire": 88, "avance": 124, "elite": 165 },
+        { "poids": 95, "debutant": 37, "novice": 61, "intermediaire": 92, "avance": 130, "elite": 172 },
+        { "poids": 100, "debutant": 40, "novice": 65, "intermediaire": 97, "avance": 136, "elite": 178 },
+        { "poids": 105, "debutant": 43, "novice": 69, "intermediaire": 102, "avance": 141, "elite": 184 },
+        { "poids": 110, "debutant": 46, "novice": 72, "intermediaire": 106, "avance": 146, "elite": 190 },
+        { "poids": 115, "debutant": 49, "novice": 76, "intermediaire": 110, "avance": 151, "elite": 196 },
+        { "poids": 120, "debutant": 52, "novice": 80, "intermediaire": 115, "avance": 156, "elite": 202 },
+        { "poids": 125, "debutant": 55, "novice": 83, "intermediaire": 119, "avance": 161, "elite": 207 },
+        { "poids": 130, "debutant": 58, "novice": 86, "intermediaire": 123, "avance": 166, "elite": 212 },
+        { "poids": 135, "debutant": 60, "novice": 90, "intermediaire": 127, "avance": 170, "elite": 218 },
+        { "poids": 140, "debutant": 63, "novice": 93, "intermediaire": 131, "avance": 175, "elite": 223 }
+      ]
+    },
+    {
+      "id": "elevation-laterale-halteres",
+      "name": "Élévation latérale d'haltères",
+      "category": "epaules",
+      "strengthLevels": {
+        "debutant": 4,
+        "novice": 8,
+        "intermediaire": 15,
+        "avance": 25,
+        "elite": 36
+      },
+      "standardsByWeight": [
+        { "poids": 50, "debutant": 1, "novice": 5, "intermediaire": 10, "avance": 18, "elite": 27 },
+        { "poids": 55, "debutant": 2, "novice": 6, "intermediaire": 11, "avance": 19, "elite": 29 },
+        { "poids": 60, "debutant": 2, "novice": 6, "intermediaire": 12, "avance": 20, "elite": 30 },
+        { "poids": 65, "debutant": 3, "novice": 7, "intermediaire": 13, "avance": 22, "elite": 32 },
+        { "poids": 70, "debutant": 3, "novice": 8, "intermediaire": 14, "avance": 23, "elite": 33 },
+        { "poids": 75, "debutant": 4, "novice": 8, "intermediaire": 15, "avance": 24, "elite": 34 },
+        { "poids": 80, "debutant": 4, "novice": 9, "intermediaire": 16, "avance": 25, "elite": 36 },
+        { "poids": 85, "debutant": 4, "novice": 10, "intermediaire": 17, "avance": 26, "elite": 37 },
+        { "poids": 90, "debutant": 5, "novice": 10, "intermediaire": 18, "avance": 27, "elite": 38 },
+        { "poids": 95, "debutant": 5, "novice": 11, "intermediaire": 18, "avance": 28, "elite": 39 },
+        { "poids": 100, "debutant": 6, "novice": 11, "intermediaire": 19, "avance": 29, "elite": 40 },
+        { "poids": 105, "debutant": 6, "novice": 12, "intermediaire": 20, "avance": 30, "elite": 41 },
+        { "poids": 110, "debutant": 7, "novice": 12, "intermediaire": 21, "avance": 31, "elite": 42 },
+        { "poids": 115, "debutant": 7, "novice": 13, "intermediaire": 21, "avance": 32, "elite": 43 },
+        { "poids": 120, "debutant": 7, "novice": 13, "intermediaire": 22, "avance": 32, "elite": 44 },
+        { "poids": 125, "debutant": 8, "novice": 14, "intermediaire": 23, "avance": 33, "elite": 45 },
+        { "poids": 130, "debutant": 8, "novice": 14, "intermediaire": 23, "avance": 34, "elite": 46 },
+        { "poids": 135, "debutant": 8, "novice": 15, "intermediaire": 24, "avance": 35, "elite": 47 },
+        { "poids": 140, "debutant": 9, "novice": 15, "intermediaire": 24, "avance": 35, "elite": 48 }
+      ]
+    },
+    {
+      "id": "curl-biceps-machine",
+      "name": "Curl biceps machine",
+      "category": "biceps",
+      "strengthLevels": {
+        "debutant": 21,
+        "novice": 36,
+        "intermediaire": 57,
+        "avance": 81,
+        "elite": 109
+      },
+      "standardsByWeight": [
+        { "poids": 50, "debutant": 12, "novice": 23, "intermediaire": 38, "avance": 57, "elite": 79 },
+        { "poids": 55, "debutant": 14, "novice": 25, "intermediaire": 41, "avance": 61, "elite": 84 },
+        { "poids": 60, "debutant": 16, "novice": 28, "intermediaire": 45, "avance": 66, "elite": 89 },
+        { "poids": 65, "debutant": 18, "novice": 31, "intermediaire": 48, "avance": 70, "elite": 94 },
+        { "poids": 70, "debutant": 20, "novice": 34, "intermediaire": 52, "avance": 74, "elite": 98 },
+        { "poids": 75, "debutant": 22, "novice": 36, "intermediaire": 55, "avance": 77, "elite": 103 },
+        { "poids": 80, "debutant": 24, "novice": 39, "intermediaire": 58, "avance": 81, "elite": 107 },
+        { "poids": 85, "debutant": 26, "novice": 41, "intermediaire": 61, "avance": 84, "elite": 111 },
+        { "poids": 90, "debutant": 28, "novice": 43, "intermediaire": 64, "avance": 88, "elite": 115 },
+        { "poids": 95, "debutant": 29, "novice": 46, "intermediaire": 66, "avance": 91, "elite": 118 },
+        { "poids": 100, "debutant": 31, "novice": 48, "intermediaire": 69, "avance": 94, "elite": 122 },
+        { "poids": 105, "debutant": 33, "novice": 50, "intermediaire": 71, "avance": 97, "elite": 125 },
+        { "poids": 110, "debutant": 34, "novice": 52, "intermediaire": 74, "avance": 100, "elite": 128 },
+        { "poids": 115, "debutant": 36, "novice": 54, "intermediaire": 76, "avance": 103, "elite": 131 },
+        { "poids": 120, "debutant": 38, "novice": 56, "intermediaire": 79, "avance": 105, "elite": 134 },
+        { "poids": 125, "debutant": 39, "novice": 58, "intermediaire": 81, "avance": 108, "elite": 137 },
+        { "poids": 130, "debutant": 41, "novice": 60, "intermediaire": 83, "avance": 111, "elite": 140 },
+        { "poids": 135, "debutant": 42, "novice": 61, "intermediaire": 85, "avance": 113, "elite": 143 },
+        { "poids": 140, "debutant": 44, "novice": 63, "intermediaire": 87, "avance": 115, "elite": 146 }
+      ]
+    },
+    {
+      "id": "curl-marteau",
+      "name": "Curl marteau",
+      "category": "biceps",
+      "strengthLevels": {
+        "debutant": 8,
+        "novice": 15,
+        "intermediaire": 23,
+        "avance": 34,
+        "elite": 46
+      },
+      "standardsByWeight": [
+        { "poids": 50, "debutant": 4, "novice": 8, "intermediaire": 14, "avance": 22, "elite": 31 },
+        { "poids": 55, "debutant": 5, "novice": 9, "intermediaire": 16, "avance": 24, "elite": 33 },
+        { "poids": 60, "debutant": 6, "novice": 11, "intermediaire": 17, "avance": 26, "elite": 36 },
+        { "poids": 65, "debutant": 7, "novice": 12, "intermediaire": 19, "avance": 28, "elite": 38 },
+        { "poids": 70, "debutant": 8, "novice": 13, "intermediaire": 21, "avance": 30, "elite": 41 },
+        { "poids": 75, "debutant": 9, "novice": 15, "intermediaire": 22, "avance": 32, "elite": 43 },
+        { "poids": 80, "debutant": 10, "novice": 16, "intermediaire": 24, "avance": 34, "elite": 45 },
+        { "poids": 85, "debutant": 10, "novice": 17, "intermediaire": 26, "avance": 36, "elite": 47 },
+        { "poids": 90, "debutant": 11, "novice": 18, "intermediaire": 27, "avance": 38, "elite": 49 },
+        { "poids": 95, "debutant": 12, "novice": 19, "intermediaire": 28, "avance": 39, "elite": 51 },
+        { "poids": 100, "debutant": 13, "novice": 21, "intermediaire": 30, "avance": 41, "elite": 53 },
+        { "poids": 105, "debutant": 14, "novice": 22, "intermediaire": 31, "avance": 42, "elite": 55 },
+        { "poids": 110, "debutant": 15, "novice": 23, "intermediaire": 32, "avance": 44, "elite": 57 },
+        { "poids": 115, "debutant": 16, "novice": 24, "intermediaire": 34, "avance": 45, "elite": 58 },
+        { "poids": 120, "debutant": 17, "novice": 25, "intermediaire": 35, "avance": 47, "elite": 60 },
+        { "poids": 125, "debutant": 18, "novice": 26, "intermediaire": 36, "avance": 48, "elite": 61 },
+        { "poids": 130, "debutant": 18, "novice": 27, "intermediaire": 37, "avance": 50, "elite": 63 },
+        { "poids": 135, "debutant": 19, "novice": 28, "intermediaire": 39, "avance": 51, "elite": 65 },
+        { "poids": 140, "debutant": 20, "novice": 29, "intermediaire": 40, "avance": 52, "elite": 66 }
+      ]
+    },
+    {
+      "id": "curl-incline-halteres",
+      "name": "Curl incliné avec haltères",
+      "category": "biceps",
+      "strengthLevels": {
+        "debutant": 6,
+        "novice": 12,
+        "intermediaire": 19,
+        "avance": 29,
+        "elite": 40
+      },
+      "standardsByWeight": [
+        { "poids": 50, "debutant": 3, "novice": 7, "intermediaire": 13, "avance": 21, "elite": 30 },
+        { "poids": 55, "debutant": 4, "novice": 8, "intermediaire": 14, "avance": 22, "elite": 32 },
+        { "poids": 60, "debutant": 4, "novice": 9, "intermediaire": 16, "avance": 24, "elite": 34 },
+        { "poids": 65, "debutant": 5, "novice": 10, "intermediaire": 17, "avance": 26, "elite": 36 },
+        { "poids": 70, "debutant": 6, "novice": 11, "intermediaire": 18, "avance": 27, "elite": 37 },
+        { "poids": 75, "debutant": 6, "novice": 12, "intermediaire": 19, "avance": 29, "elite": 39 },
+        { "poids": 80, "debutant": 7, "novice": 13, "intermediaire": 20, "avance": 30, "elite": 41 },
+        { "poids": 85, "debutant": 8, "novice": 13, "intermediaire": 21, "avance": 31, "elite": 42 },
+        { "poids": 90, "debutant": 8, "novice": 14, "intermediaire": 22, "avance": 32, "elite": 44 },
+        { "poids": 95, "debutant": 9, "novice": 15, "intermediaire": 24, "avance": 34, "elite": 45 },
+        { "poids": 100, "debutant": 9, "novice": 16, "intermediaire": 24, "avance": 35, "elite": 47 },
+        { "poids": 105, "debutant": 10, "novice": 17, "intermediaire": 25, "avance": 36, "elite": 48 },
+        { "poids": 110, "debutant": 11, "novice": 17, "intermediaire": 26, "avance": 37, "elite": 49 },
+        { "poids": 115, "debutant": 11, "novice": 18, "intermediaire": 27, "avance": 38, "elite": 50 },
+        { "poids": 120, "debutant": 12, "novice": 19, "intermediaire": 28, "avance": 39, "elite": 52 },
+        { "poids": 125, "debutant": 12, "novice": 20, "intermediaire": 29, "avance": 40, "elite": 53 },
+        { "poids": 130, "debutant": 13, "novice": 20, "intermediaire": 30, "avance": 41, "elite": 54 },
+        { "poids": 135, "debutant": 13, "novice": 21, "intermediaire": 31, "avance": 42, "elite": 55 },
+        { "poids": 140, "debutant": 14, "novice": 22, "intermediaire": 32, "avance": 43, "elite": 56 }
+      ]
+    }
+  ]
+}
