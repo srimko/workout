@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Dumbbell, User, Library, LogOut, GitCompare } from "lucide-react"
+import { Dumbbell, User, Library, LogOut, GitCompare, Award } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -40,6 +40,11 @@ const getItems = (profileId?: string) => [
         title: "Comparaison",
         url: "/comparaison",
         icon: GitCompare,
+      },
+      {
+        title: "Standards",
+        url: "/standards",
+        icon: Award,
       },
       {
         title: "Exercises",
