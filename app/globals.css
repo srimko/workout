@@ -160,3 +160,15 @@
     transition: all 150ms ease-in-out;
   }
 }
+
+@layer utilities {
+  /* PWA Drawer/Sheet scroll utilities */
+  .overscroll-contain {
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .overscroll-none {
+    overscroll-behavior: none;
+  }
+}
