@@ -18,7 +18,6 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
-import { PWASheet } from "@/components/ui/pwa-sheet"
 import {
   Tooltip,
   TooltipContent,
@@ -182,30 +181,27 @@ function Sidebar({
   }
 
   if (isMobile) {
-    // Utilise PWASheet pour meilleure compatibilité en mode standalone
     return (
-      <PWASheet
-        open={openMobile}
-        onOpenChange={setOpenMobile}
-        side={side}
-        title="Sidebar"
-        description="Displays the mobile sidebar."
-        className="bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
-      >
-        <div
+      <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
+        <SheetContent
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
-          className="flex h-full w-full flex-col"
+          className="bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
             } as React.CSSProperties
           }
+          side={side}
         >
-          {children}
-        </div>
-      </PWASheet>
+          <SheetHeader className="sr-only">
+            <SheetTitle>Sidebar</SheetTitle>
+            <SheetDescription>Displays the mobile sidebar.</SheetDescription>
+          </SheetHeader>
+          <div className="flex h-full w-full flex-col">{children}</div>
+        </SheetContent>
+      </Sheet>
     )
   }
 

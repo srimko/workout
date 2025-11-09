@@ -66,7 +66,7 @@ export function DrawerWorkoutDetails({ workout, trigger }: DrawerWorkoutDetailsP
         </DrawerHeader>
 
         {/* Zone scrollable */}
-        <div className="overflow-y-auto max-h-[60vh] overscroll-contain px-4 pb-4">
+        <div className="overflow-y-auto max-h-[60vh] px-4 pb-4">
           {groupedExercises.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
               Aucun exercice dans cette séance
