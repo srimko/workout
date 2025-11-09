@@ -159,31 +159,4 @@
   button, a, input, select, textarea {
     transition: all 150ms ease-in-out;
   }
-
-  /* PWA Drawer scroll fix - Permet le scroll dans les drawers sur mobile */
-  [data-vaul-drawer] [data-scrollable="true"] {
-    touch-action: pan-y !important;
-    overscroll-behavior: contain !important;
-    -webkit-overflow-scrolling: touch !important;
-  }
-
-  /* Empêcher l'overscroll du drawer content */
-  [data-slot="drawer-content"] {
-    overscroll-behavior: contain !important;
-  }
-
-  /* Bloquer le scroll de la page quand un drawer modal est ouvert (PWA fix) */
-  body:has([data-vaul-drawer][data-vaul-drawer-visible]) {
-    overflow: hidden !important;
-    position: fixed !important;
-    width: 100% !important;
-    height: 100% !important;
-    overscroll-behavior: none !important;
-  }
-
-  /* Empêcher le scroll sur l'overlay */
-  [data-slot="drawer-overlay"] {
-    touch-action: none !important;
-    overscroll-behavior: none !important;
-  }
 }

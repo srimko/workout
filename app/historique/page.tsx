@@ -91,7 +91,7 @@ export default function WorkoutPage() {
 
   return (
     <section>
-      <h2 className="text-2xl font-bold mb-6">Workouts test - 1</h2>
+      <h2 className="text-2xl font-bold mb-6">Workouts test - 2</h2>
 
       <div className="space-y-6">
         {workouts.map((workout) => {
