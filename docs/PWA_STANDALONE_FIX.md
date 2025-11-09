@@ -1,59 +1,94 @@
 # Fix: Gestion des Drawers/Sheets en mode PWA Standalone
 
-## Problème identifié
+## Problèmes identifiés
 
+### Problème 1 : Événements en mode standalone
 En mode `display: standalone` dans le manifest d'une PWA, les événements tactiles sont gérés différemment par l'OS natif :
+- Les événements `click` sur l'overlay peuvent ne pas se déclencher
+- Les événements `touchstart/touchend` peuvent être interceptés
+- Le comportement de swipe peut être modifié
 
-- **Mode Browser/Minimal-UI** : Tous les événements JavaScript standard sont disponibles
-- **Mode Standalone** : Certains événements sont filtrés ou gérés nativement par l'OS
-  - Les événements `click` sur l'overlay peuvent ne pas se déclencher
-  - Les événements `touchstart/touchend` peuvent être interceptés
-  - Le comportement de swipe peut être modifié
-
-### Symptômes
-- Le drawer/sheet ne se ferme pas quand on clique sur l'overlay
-- Le geste de swipe pour fermer ne fonctionne pas correctement
-- L'interface semble "gelée" ou non-responsive
+### Problème 2 : Scroll qui "percole"
+Quand on scroll dans une zone scrollable du drawer et qu'on atteint le bord, le scroll se propage à la page derrière :
+- L'utilisateur perd le contexte
+- L'UX est dégradée
+- Comportement incohérent entre modes browser et standalone
 
 ## Solution implémentée
 
-Création de wrappers PWA-compatibles qui forcent la gestion correcte des événements tactiles :
+### Architecture en 3 couches
 
-### 1. PWASheet (`components/ui/pwa-sheet.tsx`)
-- Gestion explicite des événements `touchstart` et `click` sur l'overlay
-- Support du swipe directionnel pour fermer le sheet
-- Overlay personnalisé avec `touchAction: 'auto'`
+**Couche 1 - Vaul (Drawer)**
+- ✅ Body scroll lock automatique intégré
+- ✅ Gestion sophistiquée des touch events
+- ✅ Props `scrollLockTimeout`, `modal`, `shouldScaleBackground`
 
-### 2. PWADrawer (`components/ui/pwa-drawer.tsx`)
-- Amélioration de la gestion tactile pour la librairie `vaul`
-- Détection de swipe avec seuils configurables
-- Support multi-directionnel (top, right, bottom, left)
+**Couche 2 - CSS**
+- `overscroll-behavior: contain` → empêche scroll percole
+- `-webkit-overflow-scrolling: touch` → momentum scrolling iOS
+- Classes utilitaires dans `globals.css`
 
-### 3. Mise à jour du Sidebar (`components/ui/sidebar.tsx`)
-- Utilisation automatique de `PWASheet` en mode mobile
-- Pas de changement pour le mode desktop
+**Couche 3 - Wrappers PWA**
+- PWADrawer : Complète Vaul pour cas standalone
+- PWASheet : Body lock manuel + événements standalone (Radix n'a pas de scroll lock)
+
+### Fichiers modifiés/créés
+
+1. **`app/globals.css`**
+   ```css
+   .overscroll-contain {
+     overscroll-behavior: contain;
+     -webkit-overflow-scrolling: touch;
+   }
+   ```
+
+2. **`components/ui/drawer.tsx`**
+   - Props Vaul par défaut :
+     - `scrollLockTimeout={100}` (100ms après scroll avant drag)
+     - `shouldScaleBackground={true}` (effet visuel)
+     - `modal={true}` (comportement modal explicite)
+
+3. **`components/ui/pwa-drawer.tsx`**
+   - Wrapper optimisé tirant parti de Vaul
+   - Événements tactiles custom pour standalone
+   - Classe `overscroll-contain` appliquée automatiquement
+
+4. **`components/ui/pwa-sheet.tsx`**
+   - Body scroll lock manuel (Radix ne le fait pas)
+   - Événements tactiles pour standalone
+   - Classe `overscroll-contain` appliquée automatiquement
+
+5. **`components/ui/sidebar.tsx`**
+   - Utilise PWASheet en mode mobile
+   - Pas de changement pour desktop
+
+6. **`components/Drawers/components/DrawerWorkoutDetails.tsx`**
+   - Classe `overscroll-contain` sur zone scrollable
 
 ## Utilisation
 
-### Pour les Sheets (ex: Sidebar mobile)
+### Drawer (avec props Vaul optimisées)
 
-Le composant `Sidebar` a été automatiquement mis à jour. Aucune modification nécessaire.
+Le composant `Drawer` de base a maintenant des valeurs par défaut optimisées :
 
-### Pour les Drawers personnalisés
-
-**Avant :**
 ```tsx
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer"
 
+// Utilisation standard - props Vaul automatiquement appliquées
 <Drawer open={open} onOpenChange={setOpen}>
   <DrawerTrigger>Ouvrir</DrawerTrigger>
   <DrawerContent>
-    {/* Contenu */}
+    <div className="overflow-y-auto max-h-[60vh] overscroll-contain">
+      {/* Contenu scrollable */}
+    </div>
   </DrawerContent>
 </Drawer>
 ```
 
-**Après (option 1 - Wrapper simple) :**
+### PWADrawer (pour standalone avancé)
+
+Utilise PWADrawer si tu veux forcer la gestion standalone :
+
 ```tsx
 import { PWADrawer } from "@/components/ui/pwa-drawer"
 
@@ -63,98 +98,175 @@ import { PWADrawer } from "@/components/ui/pwa-drawer"
   direction="bottom"
   title="Mon Drawer"
   description="Description optionnelle"
+  scrollLockTimeout={100}  // Déjà par défaut
 >
-  {/* Contenu */}
+  {/* Contenu - overscroll-contain appliqué automatiquement */}
 </PWADrawer>
 ```
 
-**Après (option 2 - Drawer complexe avec trigger) :**
-Si vous avez besoin d'un DrawerTrigger, continuez à utiliser le Drawer standard :
-```tsx
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer"
+### PWASheet (pour Sheet/Sidebar mobile)
 
-<Drawer open={open} onOpenChange={setOpen}>
-  <DrawerTrigger asChild>
-    <Button>Ouvrir</Button>
-  </DrawerTrigger>
-  <DrawerContent>
-    {/* Le Drawer standard fonctionne toujours,
-        mais PWADrawer offre une meilleure compatibilité PWA */}
-  </DrawerContent>
-</Drawer>
+```tsx
+import { PWASheet } from "@/components/ui/pwa-sheet"
+
+<PWASheet
+  open={open}
+  onOpenChange={setOpen}
+  side="left"
+  title="Sidebar"
+>
+  {/* Contenu - body lock et overscroll-contain automatiques */}
+</PWASheet>
 ```
 
-## Props des nouveaux composants
+## Props Vaul importantes
 
-### PWASheet
+### scrollLockTimeout (défaut: 100)
+Temps en ms après un scroll avant de pouvoir drag le drawer. Évite les conflits scroll/drag.
+
 ```tsx
-interface PWASheetProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  children: React.ReactNode
-  side?: "top" | "right" | "bottom" | "left"  // défaut: "left"
-  className?: string
-  title?: string
-  description?: string
-}
+<Drawer scrollLockTimeout={100}> {/* 100ms après scroll */}
 ```
 
-### PWADrawer
+### modal (défaut: true)
+Force le comportement modal. **Ne jamais mettre à `false` avec du contenu scrollable** (bug connu Vaul).
+
 ```tsx
-interface PWADrawerProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  children: React.ReactNode
-  direction?: "top" | "right" | "bottom" | "left"  // défaut: "bottom"
-  className?: string
-  title?: string
-  description?: string
-  dismissible?: boolean                // défaut: true
-  shouldScaleBackground?: boolean      // défaut: true
-}
+<Drawer modal={true}> {/* Toujours true */}
 ```
 
-## Différences mode Standalone vs Browser
+### shouldScaleBackground (défaut: true)
+Effet visuel de scale sur le background.
 
-| Aspect | Browser | Standalone (avant fix) | Standalone (après fix) |
-|--------|---------|------------------------|------------------------|
-| Clic sur overlay | ✅ Fonctionne | ❌ Ne fonctionne pas | ✅ Fonctionne |
-| Swipe pour fermer | ✅ Fonctionne | ⚠️ Inconsistent | ✅ Fonctionne |
-| Événements touch | ✅ Standard | ⚠️ Filtrés par OS | ✅ Forcés |
-| Performance | ✅ Bonne | ✅ Bonne | ✅ Bonne |
+```tsx
+<Drawer shouldScaleBackground={true}>
+```
+
+### direction
+Direction d'ouverture du drawer.
+
+```tsx
+<Drawer direction="bottom"> {/* "top" | "right" | "bottom" | "left" */}
+```
+
+## Classes CSS utilitaires
+
+### .overscroll-contain
+Empêche le scroll de percorer vers le parent.
+
+```tsx
+<div className="overflow-y-auto max-h-[60vh] overscroll-contain">
+  {/* Zone scrollable qui ne percole pas */}
+</div>
+```
+
+### .overscroll-none
+Bloque complètement l'overscroll.
+
+```tsx
+<div className="overscroll-none">
+  {/* Aucun overscroll possible */}
+</div>
+```
+
+## Différences mode Browser vs Standalone
+
+| Aspect | Browser | Standalone (avant) | Standalone (après) |
+|--------|---------|-------------------|-------------------|
+| Clic overlay | ✅ | ❌ | ✅ |
+| Swipe fermer | ✅ | ⚠️ Inconsistent | ✅ |
+| Scroll percole | ⚠️ Possible | ⚠️ Fréquent | ✅ Bloqué |
+| Body scroll lock | ⚠️ Variable | ❌ | ✅ |
 
 ## Tests recommandés
 
-1. **Tester en mode Browser** : `http://localhost:3000`
-   - Vérifier que le drawer s'ouvre et se ferme normalement
+### 1. Mode Browser (`http://localhost:3000`)
+- ✅ Drawer s'ouvre et se ferme
+- ✅ Swipe fonctionne
+- ✅ Scroll dans drawer ne percole pas
+- ✅ Clic overlay ferme le drawer
 
-2. **Tester en mode PWA Standalone** :
-   - Sur iOS : Ajouter à l'écran d'accueil
-   - Sur Android : Installer l'app
-   - Vérifier que le drawer se ferme en :
-     - Cliquant sur l'overlay
-     - Swipant vers le bas/haut/gauche/droite selon la direction
+### 2. Mode PWA Standalone
+**iOS** : Ajouter à l'écran d'accueil
+**Android** : Installer l'app
 
-3. **Tester le swipe** :
-   - Swipe dans la bonne direction (min 80px)
-   - Vérifier que le swipe dans la mauvaise direction ne ferme pas
-   - Vérifier que le scroll vertical fonctionne toujours
+Tester :
+- ✅ Clic overlay ferme le drawer
+- ✅ Swipe directionnel ferme le drawer
+- ✅ Scroll dans zone scrollable ne percole pas
+- ✅ Body est locké quand drawer ouvert
+- ✅ Scroll vertical fonctionne dans le drawer
 
-## Configuration du Manifest
+### 3. Zone scrollable spécifique
+- ✅ Scroll dans `DrawerWorkoutDetails` ne percole pas
+- ✅ Arriver en haut/bas ne ferme pas le drawer
+- ✅ Momentum scrolling iOS fonctionne
 
-Le fichier `app/manifest.ts` reste en mode `standalone` pour une expérience native optimale :
+## Architecture technique
 
-```ts
-{
-  display: "standalone",  // Garde ce mode pour une vraie app PWA
-  // ... autres options
+### Vaul (Drawer)
+```
+Vaul Root
+  ├─ scrollLockTimeout={100}  ← Gère conflit scroll/drag
+  ├─ modal={true}              ← Force comportement modal
+  ├─ shouldScaleBackground     ← Effet visuel
+  └─ Body scroll lock AUTO     ← Vaul le fait nativement
+```
+
+### Radix Dialog (Sheet)
+```
+Sheet
+  ├─ Pas de scroll lock natif  ← On le fait manuellement
+  ├─ PWASheet wrapper          ← Body lock + events
+  └─ overscroll-contain        ← CSS anti-percole
+```
+
+### CSS Layers
+```css
+/* Zone scrollable */
+.overflow-y-auto.overscroll-contain {
+  overscroll-behavior: contain;  ← Stop propagation
+  -webkit-overflow-scrolling: touch;  ← iOS momentum
+}
+
+/* Body quand Sheet ouvert (PWASheet) */
+body {
+  overflow: hidden;  ← Bloque scroll
+  overscroll-behavior: none;  ← Aucun overscroll
 }
 ```
 
-Alternatives possibles (mais moins recommandées pour une PWA) :
-- `"browser"` : Mode navigateur standard (pas de problème mais moins "app-like")
-- `"minimal-ui"` : Barre d'URL minimale
-- `"fullscreen"` : Plein écran (problèmes similaires au standalone)
+## Pourquoi cette approche ?
+
+### ✅ Tire parti de Vaul
+- Vaul fait déjà 90% du travail pour les Drawers
+- Ne réinvente pas la roue
+- Bénéficie des mises à jour Vaul
+
+### ✅ Complète avec CSS minimal
+- `overscroll-behavior: contain` sur zones scrollables
+- Pas de `touch-action: none` agressif (bloque zoom/navigation)
+- Classes utilitaires réutilisables
+
+### ✅ Wrappers légers
+- PWADrawer : Complète Vaul pour standalone
+- PWASheet : Ajoute ce que Radix ne fait pas
+- Code minimal, maintenance facile
+
+### ✅ Pas d'effet secondaire
+- Zoom fonctionne toujours
+- Navigation iOS/Android préservée
+- Performance optimale
+
+## Configuration du Manifest
+
+Le fichier `app/manifest.ts` reste en mode `standalone` :
+
+```ts
+{
+  display: "standalone",  // Mode optimal pour PWA
+}
+```
 
 ## Compatibilité
 
@@ -164,25 +276,27 @@ Alternatives possibles (mais moins recommandées pour une PWA) :
 - ✅ Mode browser classique
 - ✅ Mode minimal-ui
 
-## Notes techniques
+## Bugs connus Vaul à éviter
 
-### Pourquoi ce problème existe ?
-
-En mode `standalone`, les navigateurs tentent de donner une expérience native :
-- L'OS intercepte certains gestes (pull-to-refresh, edge swipes, etc.)
-- Les événements JavaScript sont filtrés pour éviter les conflits
-- Le modèle de rendu peut différer légèrement
-
-### Comment le fix fonctionne ?
-
-1. **Overlay personnalisé** : Crée un overlay avec `touchAction: 'auto'` pour forcer la propagation des événements
-2. **Event Listeners directs** : Écoute directement les événements sur `document` au lieu de déléguer
-3. **Passive listeners** : Utilise `{ passive: false }` pour `touchmove` afin de pouvoir `preventDefault()`
-4. **Détection de swipe** : Calcule manuellement les deltas et applique des seuils
+⚠️ **Ne JAMAIS utiliser `modal={false}` avec du contenu scrollable**
+- Bug connu Vaul ([issue #168](https://github.com/emilkowalski/vaul/issues/168))
+- Le drawer ne se ferme plus correctement
+- Toujours utiliser `modal={true}` (notre défaut)
 
 ## Contributions futures
 
-Si vous trouvez des cas où le drawer ne se ferme pas correctement :
-1. Vérifier le mode d'affichage (standalone vs browser)
-2. Tester sur différents OS (iOS vs Android)
-3. Ajuster les seuils de swipe si nécessaire (actuellement 80-100px)
+Pour ajouter des zones scrollables dans un drawer :
+1. Ajouter `className="overflow-y-auto overscroll-contain"`
+2. Définir une hauteur max (`max-h-[60vh]`)
+3. Tester en mode standalone
+
+Pour les nouveaux Sheets :
+1. Utiliser `PWASheet` pour le mode mobile
+2. Le body scroll lock est automatique
+3. La classe `overscroll-contain` est appliquée
+
+## Ressources
+
+- [Vaul Documentation](https://www.npmjs.com/package/vaul)
+- [overscroll-behavior MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/overscroll-behavior)
+- [PWA display modes](https://web.dev/learn/pwa/app-design/)
