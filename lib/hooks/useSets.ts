@@ -224,6 +224,43 @@ export function useUpdateSet() {
 }
 
 /**
+ * Hook to delete a set (client-side)
+ */
+export function useDeleteSet() {
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [lastError, setLastError] = useState<Error | null>(null)
+
+  const deleteSet = async (setId: string): Promise<boolean> => {
+    setIsDeleting(true)
+    setLastError(null)
+
+    try {
+      console.log("[useDeleteSet] Deleting set:", setId)
+
+      const supabase = createClient()
+
+      const { error: deleteError } = await supabase.from("sets").delete().eq("id", setId)
+
+      console.log("[useDeleteSet] Delete result:", { deleteError })
+
+      if (deleteError) throw deleteError
+
+      console.log("[useDeleteSet] Success! Set deleted:", setId)
+      setIsDeleting(false)
+      return true
+    } catch (err) {
+      console.error("[useDeleteSet] Error deleting set:", err)
+      const errObj = err instanceof Error ? err : new Error("Unknown error")
+      setLastError(errObj)
+      setIsDeleting(false)
+      return false
+    }
+  }
+
+  return { deleteSet, loading: isDeleting, error: lastError }
+}
+
+/**
  * Helper function to get or create today's workout (client-side)
  */
 async function getOrCreateTodayWorkout(supabase: ReturnType<typeof createClient>) {

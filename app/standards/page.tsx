@@ -168,7 +168,6 @@ export default function StandardsPage() {
                 placeholder="Ex: 80"
                 disabled={!selectedExercise}
               />
-              <p className="text-xs text-muted-foreground">Votre 1RM (max sur 1 répétition)</p>
             </div>
           </div>
 
@@ -197,7 +196,7 @@ export default function StandardsPage() {
       )}
 
       {/* Explorateur de tous les standards */}
-      <StrengthStandardsExplorer bodyWeight={bodyWeight} />
+      {/* <StrengthStandardsExplorer bodyWeight={bodyWeight} /> */}
 
       {/* Légende des niveaux */}
       <Card>

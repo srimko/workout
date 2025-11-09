@@ -49,7 +49,9 @@ export function ConfirmModal({
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button onClick={handleConfirm}>{isLoading ? "Chargement..." : confirmText}</Button>
+          <Button onClick={handleConfirm} variant={variant}>
+            {isLoading ? "Chargement..." : confirmText}
+          </Button>
           <Button onClick={() => (onCancel ? onCancel() : close())} variant="outline">
             {cancelText}
           </Button>

@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge"
 interface WorkoutCardListProps {
   sets?: SetWithExerciseInfo[]
   onEditSet?: (set: SetWithExerciseInfo) => void
+  onDeleteSet?: (set: SetWithExerciseInfo) => void
   workoutTitle?: string
 }
 
@@ -27,6 +28,7 @@ interface CategoryGroup {
 export const WorkoutCardList = memo(function WorkoutCardList({
   sets,
   onEditSet,
+  onDeleteSet,
   workoutTitle,
 }: WorkoutCardListProps) {
   if (!sets || sets.length === 0) {
@@ -119,7 +121,13 @@ export const WorkoutCardList = memo(function WorkoutCardList({
                     // Trouver l'index global du set
                     const globalIndex = sets.findIndex((s) => s.id === set.id)
                     return (
-                      <WorkoutCard key={set.id} set={set} index={globalIndex} onEdit={onEditSet} />
+                      <WorkoutCard
+                        key={set.id}
+                        set={set}
+                        index={globalIndex}
+                        onEdit={onEditSet}
+                        onDelete={onDeleteSet}
+                      />
                     )
                   })}
                 </div>

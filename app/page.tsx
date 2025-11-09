@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { DrawerExercise } from "@/components/Drawers/components/DrawerExercise"
 import { AlertModal } from "@/components/modals/AlertModal"
+import { ConfirmModal } from "@/components/modals/ConfirmModal"
 import { WorkoutCardList } from "@/components/Cards/WorkoutCardList"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -15,7 +16,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 import { useModal } from "@/lib/hooks/useModal"
-import { useFetchSetsWithExercises } from "@/lib/hooks/useSets"
+import { useFetchSetsWithExercises, useDeleteSet } from "@/lib/hooks/useSets"
 import { toast } from "sonner"
 import type { Profile, Workout } from "@/lib/types"
 import { createClient } from "@/utils/supabase/client"
@@ -39,7 +40,9 @@ type WorkoutStatus = "none" | "created" | "in_progress" | "completed"
 export default function Home() {
   const supabase = createClient()
   const alertModal = useModal()
+  const confirmDeleteModal = useModal()
   const { fetchSets } = useFetchSetsWithExercises()
+  const { deleteSet, loading: isDeleting } = useDeleteSet()
 
   const [workoutStatus, setWorkoutStatus] = useState<WorkoutStatus>("none")
   const [currentSets, setCurrentSets] = useState<SetWithExerciseInfo[] | undefined>()
@@ -47,6 +50,7 @@ export default function Home() {
   const [currentProfile, setCurrentProfile] = useState<Profile | null>(null)
   const [editingSet, setEditingSet] = useState<SetWithExerciseInfo | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [setToDelete, setSetToDelete] = useState<SetWithExerciseInfo | null>(null)
 
   // Charger automatiquement le workout du jour au démarrage
   useEffect(() => {
@@ -269,6 +273,46 @@ export default function Home() {
     }
   }, [])
 
+  // Fonction pour ouvrir le modal de confirmation de suppression
+  const handleDeleteSet = useCallback((set: SetWithExerciseInfo) => {
+    setSetToDelete(set)
+    confirmDeleteModal.open()
+  }, [confirmDeleteModal])
+
+  // Fonction pour confirmer la suppression d'un set
+  const confirmDeleteSet = useCallback(async () => {
+    if (!setToDelete) return
+
+    try {
+      const success = await deleteSet(setToDelete.id)
+
+      if (success) {
+        toast.success("Série supprimée !", {
+          description: `${setToDelete.exercise_name} - ${setToDelete.weight}kg × ${setToDelete.repetition}`,
+          duration: 2000,
+        })
+
+        // Rafraîchir les sets
+        if (currentWorkout) {
+          await refreshWorkoutSets(currentWorkout.id)
+        }
+      } else {
+        toast.error("Erreur", {
+          description: "Impossible de supprimer la série",
+          duration: 2000,
+        })
+      }
+    } catch (error) {
+      console.error("Erreur lors de la suppression du set:", error)
+      toast.error("Erreur", {
+        description: "Une erreur est survenue lors de la suppression",
+        duration: 2000,
+      })
+    } finally {
+      setSetToDelete(null)
+    }
+  }, [setToDelete, deleteSet, currentWorkout, refreshWorkoutSets])
+
   // Vue 1 : Aucun workout du jour
   if (workoutStatus === "none") {
     return (
@@ -326,6 +370,19 @@ export default function Home() {
           title="Erreur"
           description="Veuillez remplir tous les champs du formulaire avant de soumettre."
         />
+        <ConfirmModal
+          {...confirmDeleteModal}
+          title="Supprimer cette série ?"
+          description={
+            setToDelete
+              ? `${setToDelete.exercise_name}\n${setToDelete.weight}kg × ${setToDelete.repetition} reps`
+              : ""
+          }
+          onConfirm={confirmDeleteSet}
+          confirmText="Supprimer"
+          cancelText="Annuler"
+          variant="destructive"
+        />
       </>
     )
   }
@@ -348,6 +405,7 @@ export default function Home() {
             <WorkoutCardList
               sets={currentSets}
               onEditSet={handleEditSet}
+              onDeleteSet={handleDeleteSet}
               workoutTitle={currentWorkout?.title}
             />
           </div>
@@ -387,6 +445,19 @@ export default function Home() {
           title="Erreur"
           description="Veuillez remplir tous les champs du formulaire avant de soumettre."
         />
+        <ConfirmModal
+          {...confirmDeleteModal}
+          title="Supprimer cette série ?"
+          description={
+            setToDelete
+              ? `${setToDelete.exercise_name}\n${setToDelete.weight}kg × ${setToDelete.repetition} reps`
+              : ""
+          }
+          onConfirm={confirmDeleteSet}
+          confirmText="Supprimer"
+          cancelText="Annuler"
+          variant="destructive"
+        />
       </>
     )
   }
@@ -406,7 +477,11 @@ export default function Home() {
 
           {/* Contenu principal - cartes */}
           <div className="">
-            <WorkoutCardList sets={currentSets} workoutTitle={currentWorkout?.title} />
+            <WorkoutCardList
+              sets={currentSets}
+              onDeleteSet={handleDeleteSet}
+              workoutTitle={currentWorkout?.title}
+            />
           </div>
 
           {/* Bottom bar - Reprendre workout */}
@@ -421,6 +496,19 @@ export default function Home() {
           {...alertModal}
           title="Erreur"
           description="Veuillez remplir tous les champs du formulaire avant de soumettre."
+        />
+        <ConfirmModal
+          {...confirmDeleteModal}
+          title="Supprimer cette série ?"
+          description={
+            setToDelete
+              ? `${setToDelete.exercise_name}\n${setToDelete.weight}kg × ${setToDelete.repetition} reps`
+              : ""
+          }
+          onConfirm={confirmDeleteSet}
+          confirmText="Supprimer"
+          cancelText="Annuler"
+          variant="destructive"
         />
       </>
     )

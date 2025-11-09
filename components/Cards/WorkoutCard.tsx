@@ -1,9 +1,9 @@
 "use client"
 
 import { memo } from "react"
-import { Pencil } from "lucide-react"
+import { Pencil, Trash } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardAction } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
 export interface SetWithExerciseInfo {
@@ -23,12 +23,14 @@ interface WorkoutCardProps {
   set: SetWithExerciseInfo
   index: number
   onEdit?: (set: SetWithExerciseInfo) => void
+  onDelete?: (set: SetWithExerciseInfo) => void
 }
 
 export const WorkoutCard = memo(function WorkoutCard({
   set,
   index,
   onEdit,
+  onDelete,
 }: WorkoutCardProps) {
   return (
     <Card className="overflow-hidden bg-card hover:bg-accent/50 transition-colors active:bg-accent">
@@ -45,17 +47,6 @@ export const WorkoutCard = memo(function WorkoutCard({
           </div>
           
         </div>
-        {onEdit && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onEdit(set)}
-            className="h-8 w-8 p-0 ml-2 flex-shrink-0 active:bg-accent"
-          >
-            <Pencil className="h-4 w-4" />
-            <span className="sr-only">Modifier</span>
-          </Button>
-        )}
       </CardHeader>
 
       <CardContent>
@@ -73,6 +64,29 @@ export const WorkoutCard = memo(function WorkoutCard({
           </div>
         </div>
       </CardContent>
+      <CardAction className="px-6 w-full">
+        <div className="flex justify-between">
+          {onEdit && (
+            <Button
+              onClick={() => onEdit(set)}
+              className="p-0 flex-shrink-0 active:bg-accent"
+            >
+              <Pencil className="h-4 w-4" /> Modifier
+              <span className="sr-only">Modifier</span>
+            </Button>
+          )}
+          {onDelete && (
+            <Button
+              variant="destructive"
+              onClick={() => onDelete(set)}
+              className="p-0 flex-shrink-0 active:bg-accent"
+            >
+              <Trash className="h-4 w-4" /> Supprimer
+              <span className="sr-only">Supprimer</span>
+            </Button>
+          )}
+        </div>
+      </CardAction>
     </Card>
   )
 })
