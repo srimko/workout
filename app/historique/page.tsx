@@ -91,7 +91,7 @@ export default function WorkoutPage() {
 
   return (
     <section>
-      <h2 className="text-2xl font-bold mb-6">Workouts</h2>
+      <h2 className="text-2xl font-bold mb-6">Workouts test - 1</h2>
 
       <div className="space-y-6">
         {workouts.map((workout) => {
@@ -124,7 +124,9 @@ export default function WorkoutPage() {
                             <p className="text-xs text-muted-foreground">séries</p>
                           </div>
                           <div className="text-center">
-                            <p className="text-2xl font-bold text-primary">{totalVolume.toFixed(0)}</p>
+                            <p className="text-2xl font-bold text-primary">
+                              {totalVolume.toFixed(0)}
+                            </p>
                             <p className="text-xs text-muted-foreground">kg × reps</p>
                           </div>
                           <div className="text-center">
