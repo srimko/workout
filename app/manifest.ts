@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "Muscu",
     description: "Application de suivi d'entraînement musculation",
     start_url: "/",
-    display: "standalone",
+    display: "minimal-ui",
     background_color: "#ffffff",
     theme_color: "#1a1625",
     orientation: "portrait",
