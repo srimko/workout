@@ -50,7 +50,12 @@ export function DrawerWorkoutDetails({ workout, trigger }: DrawerWorkoutDetailsP
   }, [workout.sets])
 
   return (
-    <Drawer>
+    <Drawer
+      shouldScaleBackground={false}
+      preventScrollRestoration={true}
+      dismissible={true}
+      modal={true}
+    >
       <DrawerTrigger asChild>{trigger}</DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
@@ -66,7 +71,15 @@ export function DrawerWorkoutDetails({ workout, trigger }: DrawerWorkoutDetailsP
         </DrawerHeader>
 
         {/* Zone scrollable */}
-        <div className="overflow-y-auto max-h-[60vh] px-4 pb-4">
+        <div
+          className="overflow-y-auto max-h-[60vh] px-4 pb-4"
+          data-scrollable="true"
+          style={{
+            touchAction: 'pan-y',
+            overscrollBehavior: 'contain',
+            WebkitOverflowScrolling: 'touch'
+          }}
+        >
           {groupedExercises.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
               Aucun exercice dans cette séance
