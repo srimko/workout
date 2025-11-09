@@ -182,7 +182,7 @@ function Sidebar({
   }
 
   if (isMobile) {
-    // Utilise PWASheet pour une meilleure compatibilité en mode standalone
+    // Utilise PWASheet pour meilleure compatibilité en mode standalone
     return (
       <PWASheet
         open={openMobile}
@@ -190,12 +190,13 @@ function Sidebar({
         side={side}
         title="Sidebar"
         description="Displays the mobile sidebar."
+        className="bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
       >
         <div
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
-          className="bg-sidebar text-sidebar-foreground flex h-full w-full flex-col p-0"
+          className="flex h-full w-full flex-col"
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
