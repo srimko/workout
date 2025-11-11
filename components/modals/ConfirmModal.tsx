@@ -18,7 +18,7 @@ export interface ConfirmModalProps {
   onCancel?: () => void
   confirmText?: string
   cancelText?: string
-  variant?: "default" | "destructive" | "success"
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
 }
 
 export function ConfirmModal({
