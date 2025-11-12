@@ -54,7 +54,7 @@ export function DrawerSelectExercise({ repetition, onSelectExercise }: DrawerSel
             <p>Chargement des exercices...</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4 p-4">
+          <div className="flex flex-cols-2 gap-4 p-4 overflow-auto">
             {exercises.length === 0 ? (
               <p className="col-span-2 text-center text-gray-500">
                 Aucun exercice actif dans cette catégorie
@@ -66,7 +66,7 @@ export function DrawerSelectExercise({ repetition, onSelectExercise }: DrawerSel
                   onClick={() => onSelectExercise(exercise.title)}
                   className="cursor-pointer hover:shadow-md transition-shadow"
                 >
-                  <CardContent className="flex-col p-2">
+                  <CardContent className="flex-col p-2 w-[150]">
                     <div className="relative w-full h-32">
                       <Image
                         src={`/exercises/${exercise.image}`}
@@ -88,16 +88,16 @@ export function DrawerSelectExercise({ repetition, onSelectExercise }: DrawerSel
 
   // Affichage des catégories
   return (
-    <div className="grid grid-cols-2 gap-4 p-4">
+    <div className="flex flex-cols-2 gap-4 p-4 overflow-auto">
       {categories.map((category) => (
         <div key={category.id} className="">
           <Card
             onClick={() => handleSelectCategory(category.id)}
-            className="cursor-pointer hover:shadow-md transition-shadow"
+            className="cursor-pointer hover:shadow-md transition-shadow w-[150]"
           >
-            <CardContent className="p-4">
+            <CardContent>
               <div className="flex items-center gap-4 flex-col">
-                <div className="relative w-16 h-16 flex-shrink-0">
+                <div className="relative w-32 h-32 flex-shrink-0">
                   <Image
                     src={category.image}
                     alt={category.name}
