@@ -274,10 +274,13 @@ export default function Home() {
   }, [])
 
   // Fonction pour ouvrir le modal de confirmation de suppression
-  const handleDeleteSet = useCallback((set: SetWithExerciseInfo) => {
-    setSetToDelete(set)
-    confirmDeleteModal.open()
-  }, [confirmDeleteModal])
+  const handleDeleteSet = useCallback(
+    (set: SetWithExerciseInfo) => {
+      setSetToDelete(set)
+      confirmDeleteModal.open()
+    },
+    [confirmDeleteModal],
+  )
 
   // Fonction pour confirmer la suppression d'un set
   const confirmDeleteSet = useCallback(async () => {
@@ -433,11 +436,11 @@ export default function Home() {
           </div>
 
           {/* Bottom bar - Terminer workout */}
-          <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-background border-t border-border/50 backdrop-blur-sm safe-area-inset-bottom">
+          {/* <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-background border-t border-border/50 backdrop-blur-sm safe-area-inset-bottom">
             <Button variant="destructive" className="w-full h-12 text-base" onClick={endWorkout}>
               Terminer le workout
             </Button>
-          </div>
+          </div> */}
         </div>
 
         <AlertModal

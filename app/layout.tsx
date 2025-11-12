@@ -8,6 +8,9 @@ import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister"
 import { createClient } from "@/utils/supabase/server"
 import "./globals.css"
 
+import Link from "next/link"
+import { Dumbbell, User, Library, LogOut, GitCompare, Award } from "lucide-react"
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -17,6 +20,44 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 })
+
+const items = [
+  {
+    title: "Home",
+    url: "/",
+    icon: Dumbbell,
+  },
+  {
+    title: "Historique",
+    url: "/historique",
+    icon: Library,
+  },
+  {
+    title: "Comparaison",
+    url: "/comparaison",
+    icon: GitCompare,
+  },
+  {
+    title: "Standards",
+    url: "/standards",
+    icon: Award,
+  },
+  {
+    title: "Exercises",
+    url: "/exercises",
+    icon: Library,
+  },
+]
+// {
+//   title: "Management",
+//   items: [
+//     {
+//       title: "Profile",
+//       url: profileId ? `/users/${profileId}` : "/",
+//       icon: User,
+//     },
+//   ],
+// },
 
 export const metadata: Metadata = {
   title: "Muscu Tracker",
@@ -64,6 +105,20 @@ export default async function RootLayout({
             <div className="p-4 flex-1 min-h-0">{children}</div>
           </SidebarInset>
         </SidebarProvider>
+        <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-background border-t border-border/50 backdrop-blur-sm safe-area-inset-bottom flex justify-between">
+          {items.map((item) => {
+            // const isActive = pathname === item.url
+            const Icon = item.icon
+            console.log(item)
+
+            return (
+              <Link key={item.title} href={item.url} className="flex flex-col items-center">
+                <Icon className="h-4 w-4" />
+                <span className="text-sm">{item.title}</span>
+              </Link>
+            )
+          })}
+        </div>
         <Toaster />
       </body>
     </html>
