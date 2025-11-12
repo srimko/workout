@@ -3,6 +3,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Select,
   SelectContent,
@@ -10,9 +11,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Trash2, Save, ChevronLeft, ChevronRight, Link } from "lucide-react"
+import { Trash2, Save, ChevronLeft, ChevronRight, Link, Plus } from "lucide-react"
 import { useState } from "react"
-import { updateSet, deleteSet } from "@/lib/actions/admin"
+import { createSet, updateSet, deleteSet } from "@/lib/actions/admin"
+import { useExercises } from "@/lib/hooks/useExercises"
 import { toast } from "sonner"
 import type { SetWithExercise, WorkoutWithSets } from "@/lib/types"
 
@@ -49,6 +51,15 @@ export function WorkoutSetsModal({
   const [modifiedSets, setModifiedSets] = useState<Map<string, EditingSet>>(new Map())
   const [isLoading, setIsLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
+  const [showAddForm, setShowAddForm] = useState(false)
+  const [newSet, setNewSet] = useState({
+    exercise_id: "",
+    weight: "",
+    repetition: "",
+  })
+
+  // Récupérer la liste des exercices
+  const { exercises } = useExercises(true) // Active only
 
   // Calculer le nombre de pages et les sets à afficher
   const totalPages = Math.ceil(sets.length / SETS_PER_PAGE)
@@ -193,17 +204,76 @@ export function WorkoutSetsModal({
     }
   }
 
+  const handleCreateSet = async () => {
+    // Validation
+    if (!newSet.exercise_id || !newSet.weight || !newSet.repetition) {
+      toast.error("Veuillez remplir tous les champs")
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      // Trouver le dernier set pour récupérer son created_at
+      let createdAt: string | undefined
+      if (sets.length > 0) {
+        // Prendre le created_at du dernier set (le plus récent)
+        const lastSet = sets[sets.length - 1]
+        createdAt = lastSet.created_at
+      }
+
+      const result = await createSet(
+        workoutId,
+        parseInt(newSet.exercise_id),
+        parseFloat(newSet.weight),
+        parseInt(newSet.repetition),
+        createdAt,
+      )
+
+      if (result) {
+        // Ajouter le nouveau set à la liste
+        const updatedSets = [...sets, result]
+        handleSetsChange(updatedSets)
+
+        // Réinitialiser le formulaire
+        setNewSet({ exercise_id: "", weight: "", repetition: "" })
+        setShowAddForm(false)
+
+        toast.success("Set créé avec succès")
+        onSetsUpdated?.(updatedSets)
+      } else {
+        toast.error("Erreur lors de la création")
+      }
+    } catch (error) {
+      console.error("Error creating set:", error)
+      toast.error("Erreur lors de la création")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-between">
-            <DialogTitle></DialogTitle>
-            {workoutTitle} - Sets <span className="text-xs text-gray-800">{workoutId}</span>
+            <DialogTitle>
+              {workoutTitle} - Sets <span className="text-xs text-gray-800">{workoutId}</span>
+            </DialogTitle>
             {editingMode === "single" ? (
-              <Button onClick={handleEnableMultiEdit} variant="outline" size="sm">
-                Édition groupée
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => setShowAddForm(!showAddForm)}
+                  variant="outline"
+                  size="sm"
+                  disabled={isLoading}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Ajouter un set
+                </Button>
+                <Button onClick={handleEnableMultiEdit} variant="outline" size="sm">
+                  Édition groupée
+                </Button>
+              </div>
             ) : (
               <div className="flex gap-2">
                 <Button
@@ -223,6 +293,71 @@ export function WorkoutSetsModal({
         </DialogHeader>
 
         <div className="space-y-4">
+          {/* Formulaire d'ajout */}
+          {showAddForm && (
+            <Card className="border-green-500">
+              <CardHeader>
+                <CardTitle className="text-lg">Ajouter un nouveau set</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium">Exercice</label>
+                  <Select
+                    value={newSet.exercise_id}
+                    onValueChange={(value) => setNewSet({ ...newSet, exercise_id: value })}
+                    disabled={isLoading}
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Sélectionner un exercice" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {exercises.map((exercise) => (
+                        <SelectItem key={exercise.id} value={String(exercise.id)}>
+                          {exercise.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium">Poids (kg)</label>
+                    <Input
+                      type="number"
+                      placeholder="0"
+                      value={newSet.weight}
+                      onChange={(e) => setNewSet({ ...newSet, weight: e.target.value })}
+                      disabled={isLoading}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Répétitions</label>
+                    <Input
+                      type="number"
+                      placeholder="0"
+                      value={newSet.repetition}
+                      onChange={(e) => setNewSet({ ...newSet, repetition: e.target.value })}
+                      disabled={isLoading}
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-2 justify-end">
+                  <Button onClick={() => setShowAddForm(false)} variant="outline" disabled={isLoading}>
+                    Annuler
+                  </Button>
+                  <Button onClick={handleCreateSet} disabled={isLoading}>
+                    <Plus className="h-4 w-4 mr-1" />
+                    Créer
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {sets && sets.length > 0 ? (
             <>
               {/* Liste des sets paginés */}

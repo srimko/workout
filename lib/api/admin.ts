@@ -185,6 +185,57 @@ export async function getUserWithWorkouts(userId: string): Promise<UserWithWorko
 }
 
 /**
+ * Créer un nouveau set
+ */
+export async function createSet(
+  workoutId: string,
+  exerciseId: number,
+  weight: number,
+  repetition: number,
+  createdAt?: string,
+): Promise<any | null> {
+  await requireAdmin()
+
+  const supabase = await createClient()
+
+  const setData = {
+    workout_id: workoutId,
+    exercise_id: exerciseId,
+    weight,
+    repetition,
+    ...(createdAt && { created_at: createdAt }),
+  }
+
+  const { data: set, error } = await supabase
+    .from("sets")
+    .insert(setData)
+    .select(
+      `
+      id,
+      weight,
+      repetition,
+      workout_id,
+      created_at,
+      updated_at,
+      exercise:exercises(
+        id,
+        title,
+        image,
+        category:categories(*)
+      )
+    `,
+    )
+    .single()
+
+  if (error) {
+    console.error("Error creating set:", error)
+    return null
+  }
+
+  return set
+}
+
+/**
  * Modifier un set
  */
 export async function updateSet(

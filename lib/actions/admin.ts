@@ -3,6 +3,7 @@
 import {
   getAllUsers as getAllUsersAPI,
   getUserWithWorkouts as getUserWithWorkoutsAPI,
+  createSet as createSetAPI,
   updateSet as updateSetAPI,
   deleteSet as deleteSetAPI,
   updateWorkout as updateWorkoutAPI,
@@ -23,6 +24,19 @@ export async function getAllUsers() {
  */
 export async function getUserWithWorkouts(userId: string) {
   return await getUserWithWorkoutsAPI(userId)
+}
+
+/**
+ * Créer un nouveau set
+ */
+export async function createSet(
+  workoutId: string,
+  exerciseId: number,
+  weight: number,
+  repetition: number,
+  createdAt?: string,
+) {
+  return await createSetAPI(workoutId, exerciseId, weight, repetition, createdAt)
 }
 
 /**
