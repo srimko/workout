@@ -1,7 +1,7 @@
 import "server-only"
 
 import type { Profile, Workout, WorkoutWithSets, Set } from "@/lib/types"
-import { createClient } from "@/utils/supabase/server"
+import { createClient, createAdminClient } from "@/utils/supabase/server"
 
 /**
  * Vérifie si l'utilisateur actuel est admin
@@ -206,6 +206,8 @@ export async function createSet(
     ...(createdAt && { created_at: createdAt }),
   }
 
+  console.log("📝 Creating set with data:", setData)
+
   const { data: set, error } = await supabase
     .from("sets")
     .insert(setData)
@@ -228,10 +230,12 @@ export async function createSet(
     .single()
 
   if (error) {
-    console.error("Error creating set:", error)
+    console.error("❌ Error creating set:", error)
+    console.error("Error details:", JSON.stringify(error, null, 2))
     return null
   }
 
+  console.log("✅ Set created successfully:", set)
   return set
 }
 

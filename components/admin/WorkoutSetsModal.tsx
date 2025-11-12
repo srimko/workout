@@ -241,11 +241,11 @@ export function WorkoutSetsModal({
         toast.success("Set créé avec succès")
         onSetsUpdated?.(updatedSets)
       } else {
-        toast.error("Erreur lors de la création")
+        toast.error("Erreur lors de la création 1")
       }
     } catch (error) {
       console.error("Error creating set:", error)
-      toast.error("Erreur lors de la création")
+      toast.error("Erreur lors de la création 2")
     } finally {
       setIsLoading(false)
     }
@@ -346,7 +346,11 @@ export function WorkoutSetsModal({
                 </div>
 
                 <div className="flex gap-2 justify-end">
-                  <Button onClick={() => setShowAddForm(false)} variant="outline" disabled={isLoading}>
+                  <Button
+                    onClick={() => setShowAddForm(false)}
+                    variant="outline"
+                    disabled={isLoading}
+                  >
                     Annuler
                   </Button>
                   <Button onClick={handleCreateSet} disabled={isLoading}>
