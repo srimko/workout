@@ -436,11 +436,11 @@ export default function Home() {
           </div>
 
           {/* Bottom bar - Terminer workout */}
-          {/* <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-background border-t border-border/50 backdrop-blur-sm safe-area-inset-bottom">
-            <Button variant="destructive" className="w-full h-12 text-base" onClick={endWorkout}>
-              Terminer le workout
-            </Button>
-          </div> */}
+        </div>
+        <div className="fixed bottom-1/12 left-0 right-0 z-40 p-4 bg-background border-t border-border/50 backdrop-blur-sm safe-area-inset-bottom">
+          <Button variant="destructive" className="w-full h-12 text-base" onClick={endWorkout}>
+            Terminer le workout
+          </Button>
         </div>
 
         <AlertModal
@@ -488,11 +488,11 @@ export default function Home() {
           </div>
 
           {/* Bottom bar - Reprendre workout */}
-          <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-background border-t border-border/50 backdrop-blur-sm safe-area-inset-bottom">
-            <Button variant="default" className="w-full h-12 text-base" onClick={resumeWorkoutFn}>
-              Reprendre le workout
-            </Button>
-          </div>
+        </div>
+        <div className="fixed bottom-1/12 left-0 right-0 z-40 p-4 bg-background border-t border-border/50 backdrop-blur-sm safe-area-inset-bottom">
+          <Button variant="default" className="w-full h-12 text-base" onClick={resumeWorkoutFn}>
+            Reprendre le workout
+          </Button>
         </div>
 
         <AlertModal
