@@ -27,10 +27,6 @@ interface CategoryGroup {
   totalVolume: number
 }
 
-interface onEditParam {
-  id: string | null
-}
-
 export const WorkoutCardList = memo(function WorkoutCardList({
   sets,
   onEditSet,
@@ -41,7 +37,7 @@ export const WorkoutCardList = memo(function WorkoutCardList({
     return null
   }
 
-  const [onEdit, setOnEdit] = useState(null)
+  const [onEdit, setOnEdit] = useState<string | null>(null)
 
   // Calculer les stats globales
   const totalSets = sets.length
