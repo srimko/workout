@@ -1,10 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo, useRef } from "react"
 import { getAllWorkoutsWithSets } from "@/lib/actions/workouts"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import type { WorkoutWithSets, SetWithExercise } from "@/lib/types"
 import { DrawerWorkoutDetails } from "@/components/Drawers/components/DrawerWorkoutDetails"
+import { Badge } from "@/components/ui/badge"
+import { Calendar } from "@/components/Calendar"
 
 interface CategoryVolume {
   categoryName: string
@@ -13,9 +15,25 @@ interface CategoryVolume {
   setsCount: number
 }
 
+interface DayInfo {
+  day: number
+  dayName: string // Nom du jour (lundi, mardi, etc.)
+  isActive: boolean // true si c'est aujourd'hui
+  date: String
+}
+
+interface ExerciseGroup {
+  exerciseId: number
+  exerciseName: string
+  categoryName: string
+  sets: SetWithExercise[]
+}
+
 export default function WorkoutPage() {
   const [workouts, setWorkouts] = useState<WorkoutWithSets[]>([])
+  const [currentWorkout, setCurrentWorkout] = useState<WorkoutWithSets | null>()
   const [loading, setLoading] = useState(true)
+  const [calendar, setCalendar] = useState<DayInfo[]>([])
 
   useEffect(() => {
     async function loadWorkouts() {
@@ -32,43 +50,80 @@ export default function WorkoutPage() {
     loadWorkouts()
   }, [])
 
-  // Calculer le volume par catégorie pour un workout
-  function calculateVolumeByCategory(sets: SetWithExercise[]): CategoryVolume[] {
-    const volumeByCategory: Record<
-      string,
-      { volume: number; categoryName: string; setsCount: number }
-    > = {}
+  useEffect(() => {
+    setCalendar(getCurrentMonthDays())
+  }, [])
 
-    // Calculer le volume total par catégorie
-    sets.forEach((set) => {
-      const categoryId = set.exercise.category.id
-      const categoryName = set.exercise.category.name
-      const volume = set.weight * set.repetition
+  useEffect(() => {
+    const now = new Date().toISOString()
+    const dayWorkout = workouts.find((w) => w.created_at.split("T")[0] === now.split("T")[0])
+    console.log(dayWorkout)
+  }, [workouts, loading])
 
-      if (!volumeByCategory[categoryId]) {
-        volumeByCategory[categoryId] = {
-          volume: 0,
-          categoryName,
-          setsCount: 0,
-        }
+  const groupedExercises = useMemo(() => {
+    const groupMap = new Map<number, ExerciseGroup>()
+
+    if (!currentWorkout) {
+      return false
+    }
+    currentWorkout.sets.forEach((set) => {
+      const exerciseId = set.exercise.id
+      if (!groupMap.has(exerciseId)) {
+        groupMap.set(exerciseId, {
+          exerciseId,
+          exerciseName: set.exercise.title,
+          categoryName: set.exercise.category.name,
+          sets: [],
+        })
       }
-
-      volumeByCategory[categoryId].volume += volume
-      volumeByCategory[categoryId].setsCount += 1
+      groupMap.get(exerciseId)!.sets.push(set)
     })
 
-    // Calculer le volume total
-    const totalVolume = Object.values(volumeByCategory).reduce((sum, cat) => sum + cat.volume, 0)
+    // Retourner dans l'ordre d'apparition (ordre chronologique de création)
+    console.log(Array.from(groupMap.values()))
+    return Array.from(groupMap.values())
+  }, [currentWorkout])
 
-    // Convertir en tableau avec pourcentages
-    return Object.entries(volumeByCategory)
-      .map(([categoryId, data]) => ({
-        categoryName: data.categoryName,
-        volume: data.volume,
-        percentage: totalVolume > 0 ? (data.volume / totalVolume) * 100 : 0,
-        setsCount: data.setsCount,
-      }))
-      .sort((a, b) => b.volume - a.volume) // Trier par volume décroissant
+  function getCurrentMonthDays(): DayInfo[] {
+    const now = new Date()
+    console.log("now", now)
+    const currentDay = now.getDate()
+    console.log("currentDay", currentDay)
+    const currentMonth = now.getMonth()
+    console.log("currentMonth", currentMonth)
+    const currentYear = now.getFullYear()
+    console.log("currentYear", currentYear)
+
+    // Obtenir le nombre de jours dans le mois actuel
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
+
+    const days: DayInfo[] = []
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(Date.UTC(currentYear, currentMonth, day))
+      console.log(date.toISOString())
+
+      // Obtenir le nom du jour en français
+      const dayName = date.toLocaleDateString("fr-FR", { weekday: "long" })
+
+      days.push({
+        day,
+        dayName,
+        isActive: day === currentDay,
+        date: date.toISOString(),
+      })
+    }
+    return days
+  }
+
+  function handleClick(id: string | undefined) {
+    if (!id) {
+      setCurrentWorkout(null)
+      return false
+    }
+    const workout = workouts.find((w) => w.id === id)
+
+    setCurrentWorkout(workout)
   }
 
   if (loading) {
@@ -93,89 +148,47 @@ export default function WorkoutPage() {
     <section>
       <h2 className="text-2xl font-bold mb-6">Workouts</h2>
 
+      <Calendar calendar={calendar} workouts={workouts} onCardClick={handleClick} />
+
       <div className="space-y-6">
-        {workouts.map((workout) => {
-          const volumeStats = calculateVolumeByCategory(workout.sets)
-          const totalVolume = volumeStats.reduce((sum, cat) => sum + cat.volume, 0)
+        {groupedExercises ? (
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold mb-6">Workouts</h2>
+            {groupedExercises.map((group) => (
+              <div key={group.exerciseId} className="border rounded-lg p-3 bg-muted/30">
+                {/* En-tête de l'exercice */}
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <h4 className="font-semibold text-base">
+                    {group.exerciseName} - {group.exerciseId}
+                  </h4>
+                  <Badge variant="secondary" className="text-xs">
+                    {group.categoryName}
+                  </Badge>
+                </div>
 
-          return (
-            <DrawerWorkoutDetails
-              key={workout.id}
-              workout={workout}
-              trigger={
-                <Card className="cursor-pointer hover:bg-accent/50 transition-colors">
-                  <CardHeader>
-                    <CardTitle className="flex justify-between items-center">
-                      <span>{workout.title}</span>
-                      <span className="text-sm font-normal text-muted-foreground">
-                        {new Date(workout.started_at).toLocaleDateString("fr-FR")}
+                {/* Liste des séries */}
+                <div className="space-y-1.5">
+                  {group.sets.map((set, index) => (
+                    <div
+                      key={set.id}
+                      className="flex items-center justify-between text-sm bg-background rounded px-3 py-2"
+                    >
+                      <span className="text-muted-foreground font-medium">Série {index + 1}</span>
+                      <span className="font-semibold">
+                        {set.weight}kg × {set.repetition}
                       </span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {workout.sets.length === 0 ? (
-                      <p className="text-muted-foreground">Aucun set pour ce workout</p>
-                    ) : (
-                      <div className="space-y-4">
-                        {/* Résumé général */}
-                        <div className="grid grid-cols-3 gap-4 p-4rounded-lg">
-                          <div className="text-center">
-                            <p className="text-2xl font-bold text-primary">{workout.sets.length}</p>
-                            <p className="text-xs text-muted-foreground">séries</p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-2xl font-bold text-primary">
-                              {totalVolume.toFixed(0)}
-                            </p>
-                            <p className="text-xs text-muted-foreground">kg × reps</p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-2xl font-bold text-primary">
-                              {(totalVolume / workout.sets.length).toFixed(0)}
-                            </p>
-                            <p className="text-xs text-muted-foreground">volume moyen</p>
-                          </div>
-                        </div>
-
-                        {/* Volume par catégorie */}
-                        <div>
-                          <h3 className="font-semibold mb-3">Volume par catégorie</h3>
-                          <div className="space-y-3">
-                            {volumeStats.map((category, index) => (
-                              <div key={index} className="space-y-1">
-                                <div className="flex justify-between items-center">
-                                  <span className="font-medium">{category.categoryName}</span>
-                                  <div className="text-right">
-                                    <span className="text-sm font-semibold">
-                                      {category.volume.toFixed(0)} kg×reps
-                                    </span>
-                                    <span className="text-xs text-muted-foreground ml-2">
-                                      ({category.setsCount} séries)
-                                    </span>
-                                  </div>
-                                </div>
-                                {/* Barre de progression */}
-                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                  <div
-                                    className="bg-primary h-2 rounded-full"
-                                    style={{ width: `${category.percentage}%` }}
-                                  />
-                                </div>
-                                <p className="text-xs text-muted-foreground text-right">
-                                  {category.percentage.toFixed(1)}% du volume total
-                                </p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              }
-            />
-          )
-        })}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <section>
+            <h2 className="text-2xl font-bold mb-6">Workouts</h2>
+            <p className="text-muted-foreground">Aucun workout trouvé</p>
+          </section>
+        )}
       </div>
     </section>
   )
