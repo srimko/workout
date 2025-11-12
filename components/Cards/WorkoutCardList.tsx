@@ -1,6 +1,6 @@
 "use client"
 
-import { memo, useMemo } from "react"
+import { useState, memo, useMemo } from "react"
 import { WorkoutCard, type SetWithExerciseInfo } from "@/components/Cards/WorkoutCard"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -9,7 +9,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { Button } from "../ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Pencil, Trash } from "lucide-react"
 
 interface WorkoutCardListProps {
   sets?: SetWithExerciseInfo[]
@@ -25,6 +27,10 @@ interface CategoryGroup {
   totalVolume: number
 }
 
+interface onEditParam {
+  id: string | null
+}
+
 export const WorkoutCardList = memo(function WorkoutCardList({
   sets,
   onEditSet,
@@ -34,6 +40,8 @@ export const WorkoutCardList = memo(function WorkoutCardList({
   if (!sets || sets.length === 0) {
     return null
   }
+
+  const [onEdit, setOnEdit] = useState(null)
 
   // Calculer les stats globales
   const totalSets = sets.length
@@ -62,6 +70,8 @@ export const WorkoutCardList = memo(function WorkoutCardList({
       group.totalVolume += set.weight * set.repetition
     })
 
+    console.log(Array.from(groups.values()))
+
     // Retourner les groupes dans l'ordre d'apparition
     return Array.from(groups.values())
   }, [sets])
@@ -73,6 +83,15 @@ export const WorkoutCardList = memo(function WorkoutCardList({
     const lastSet = sets[sets.length - 1]
     return [lastSet.category_name]
   }, [sets])
+
+  const handleClick = (id: string) => {
+    console.log(onEdit)
+    if (id === onEdit) {
+      setOnEdit(null)
+      return
+    }
+    setOnEdit(id)
+  }
 
   return (
     <div className="space-y-4 pb-20">
@@ -100,9 +119,8 @@ export const WorkoutCardList = memo(function WorkoutCardList({
       </Card>
 
       {/* Workout Title */}
-      {workoutTitle && <h2 className="text-lg font-semibold px-4">{workoutTitle}</h2>}
+      {workoutTitle && <h2 className="text-lg font-semibold">{workoutTitle}</h2>}
 
-      {/* Accordéons par groupe musculaire */}
       <div>
         <Accordion type="multiple" defaultValue={defaultOpenCategories} className="w-full">
           {groupedByCategory.map((group) => (
@@ -116,21 +134,54 @@ export const WorkoutCardList = memo(function WorkoutCardList({
                 </div>
               </AccordionTrigger>
               <AccordionContent>
-                <div className="space-y-3 pt-2">
-                  {group.sets.map((set) => {
-                    // Trouver l'index global du set
-                    const globalIndex = sets.findIndex((s) => s.id === set.id)
-                    return (
-                      <WorkoutCard
-                        key={set.id}
-                        set={set}
-                        index={globalIndex}
-                        onEdit={onEditSet}
-                        onDelete={onDeleteSet}
-                      />
-                    )
-                  })}
-                </div>
+                <Card>
+                  <CardHeader className="flex justify-between">
+                    <h3 className="font-semibold text-base leading-tight truncate">
+                      Tirage horizontal
+                    </h3>
+                    <Badge>Dos</Badge>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-1.5">
+                      {group.sets.map((set, index) => (
+                        <>
+                          <div
+                            key={set.id}
+                            className="flex items-center justify-between text-sm bg-background rounded px-3 py-2"
+                            onClick={() => handleClick(set.id)}
+                          >
+                            <span className="text-muted-foreground font-medium">
+                              Série {index + 1}
+                            </span>
+                            <span className="font-semibold">
+                              {set.weight}kg × {set.repetition} reps
+                            </span>
+                          </div>
+                          {onEdit === set.id && (
+                            <div className="my-4 flex justify-between">
+                              <Button
+                                className="p-0 flex-shrink-0 active:bg-accent"
+                                onClick={() => onEditSet?.(set)}
+                              >
+                                <Pencil className="h-4 w-4" /> Modifier
+                                <span className="sr-only">Modifier</span>
+                              </Button>
+
+                              <Button
+                                variant="destructive"
+                                className="p-0 flex-shrink-0 active:bg-accent"
+                                onClick={() => onDeleteSet?.(set)}
+                              >
+                                <Trash className="h-4 w-4" /> Supprimer
+                                <span className="sr-only">Supprimer</span>
+                              </Button>
+                            </div>
+                          )}
+                        </>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
               </AccordionContent>
             </AccordionItem>
           ))}
