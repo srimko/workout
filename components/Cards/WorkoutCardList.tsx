@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/accordion"
 import { Button } from "../ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Pencil, Trash } from "lucide-react"
+import { Pencil, Trash, Pen } from "lucide-react"
 
 interface WorkoutCardListProps {
   sets?: SetWithExerciseInfo[]
@@ -149,8 +149,9 @@ export const WorkoutCardList = memo(function WorkoutCardList({
                             <span className="text-muted-foreground font-medium">
                               Série {index + 1}
                             </span>
-                            <span className="font-semibold">
+                            <span className="flex items-center gap-4 font-semibold">
                               {set.weight}kg × {set.repetition} reps
+                              <Pen className="size-2" />
                             </span>
                           </div>
                           {onEdit === set.id && (
