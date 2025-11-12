@@ -152,15 +152,13 @@ export default function WorkoutPage() {
 
       <div className="space-y-6">
         {groupedExercises ? (
-          <div className="space-y-4">
+          <div className="space-y-4 pb-[70]">
             <h2 className="text-2xl font-bold mb-6">Workouts</h2>
             {groupedExercises.map((group) => (
               <div key={group.exerciseId} className="border rounded-lg p-3 bg-muted/30">
                 {/* En-tête de l'exercice */}
                 <div className="flex items-center justify-between gap-2 mb-3">
-                  <h4 className="font-semibold text-base">
-                    {group.exerciseName} - {group.exerciseId}
-                  </h4>
+                  <h4 className="font-semibold text-sm">{group.exerciseName}</h4>
                   <Badge variant="secondary" className="text-xs">
                     {group.categoryName}
                   </Badge>
