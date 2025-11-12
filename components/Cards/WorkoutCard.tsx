@@ -39,13 +39,14 @@ export const WorkoutCard = memo(function WorkoutCard({
           <div className="flex justify-between gap-2 mb-2 flex-wrap">
             <span className="flex justify-between gap-4">
               <Badge variant="secondary">#{index + 1}</Badge>
-              <h3 className="font-semibold text-base leading-tight truncate">{set.exercise_name.slice(0, 20) + '...'}</h3>
+              <h3 className="font-semibold text-base leading-tight truncate">
+                {set.exercise_name.slice(0, 20) + "..."}
+              </h3>
             </span>
             <Badge variant="outline" className="text-xs">
               {set.category_name}
             </Badge>
           </div>
-          
         </div>
       </CardHeader>
 
@@ -67,10 +68,7 @@ export const WorkoutCard = memo(function WorkoutCard({
       <CardAction className="px-6 w-full">
         <div className="flex justify-between">
           {onEdit && (
-            <Button
-              onClick={() => onEdit(set)}
-              className="p-0 flex-shrink-0 active:bg-accent"
-            >
+            <Button onClick={() => onEdit(set)} className="p-0 flex-shrink-0 active:bg-accent">
               <Pencil className="h-4 w-4" /> Modifier
               <span className="sr-only">Modifier</span>
             </Button>
