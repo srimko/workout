@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { Check, Pencil, X, Plus, Minus } from "lucide-react"
+import { Check, Pencil, X, Plus, Minus, Moon, Sun } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -19,6 +19,7 @@ import { toast } from "sonner"
 import { updateProfile } from "@/lib/actions/profiles"
 import type { Profile } from "@/lib/types"
 import { createClient } from "@/utils/supabase/client"
+import { useTheme } from "@/lib/providers/ThemeProvider"
 
 type EditableField = keyof Omit<Profile, "id" | "auth_id" | "created_at" | "updated_at">
 
@@ -30,6 +31,7 @@ export default function UserPage() {
   const [saving, setSaving] = useState(false)
 
   const supabase = createClient()
+  const { currentTheme, colorMode, themes, colorModes, changeTheme, changeColorMode } = useTheme()
 
   useEffect(() => {
     async function getUser() {
@@ -138,15 +140,7 @@ export default function UserPage() {
   }
 
   return (
-    <div className="container mx-auto py-6 px-4 max-w-2xl">
-      <div className="mb-6">
-        <Link href="/">
-          <Button variant="ghost" className="min-h-[44px] text-base">
-            ← Retour
-          </Button>
-        </Link>
-      </div>
-
+    <div className="container mx-auto py-6 max-w-2xl">
       <Card>
         <CardHeader className="pb-4">
           <div className="flex items-center gap-4">
@@ -416,7 +410,7 @@ export default function UserPage() {
             </AccordionItem>
 
             {/* Blessures */}
-            <AccordionItem value="injuries" className="px-6">
+            <AccordionItem value="injuries" className="border-b px-6">
               <AccordionTrigger className="text-base font-semibold py-4 hover:no-underline">
                 Blessures
               </AccordionTrigger>
@@ -453,6 +447,90 @@ export default function UserPage() {
                     />
                   )}
                 />
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Thème */}
+            <AccordionItem value="theme" className="px-6">
+              <AccordionTrigger className="text-base font-semibold py-4 hover:no-underline">
+                Apparence
+              </AccordionTrigger>
+              <AccordionContent className="space-y-6 pb-6">
+                {/* Mode couleur (Dark/Light) */}
+                <div className="space-y-2">
+                  <Label className="text-sm text-muted-foreground">Mode</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {colorModes.map((mode) => (
+                      <Card
+                        key={mode.mode}
+                        className={`cursor-pointer transition-all hover:shadow-md ${
+                          colorMode === mode.mode
+                            ? "border-primary border-2 bg-primary/5"
+                            : "border-border hover:border-primary/50"
+                        }`}
+                        onClick={() => {
+                          changeColorMode(mode.mode)
+                          toast.success("Mode modifié", {
+                            description: `Le mode "${mode.label}" a été appliqué`,
+                            duration: 2000,
+                          })
+                        }}
+                      >
+                        <CardHeader className="pb-3">
+                          <div className="flex flex-col items-center gap-2 text-center">
+                            {mode.mode === "light" ? (
+                              <Sun className="h-8 w-8 text-primary" />
+                            ) : (
+                              <Moon className="h-8 w-8 text-primary" />
+                            )}
+                            <div className="space-y-1">
+                              <CardTitle className="text-base">{mode.label}</CardTitle>
+                              {colorMode === mode.mode && (
+                                <Check className="h-4 w-4 mx-auto text-primary" />
+                              )}
+                            </div>
+                          </div>
+                        </CardHeader>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Thème de couleur */}
+                <div className="space-y-2">
+                  <Label className="text-sm text-muted-foreground">Thème de l'application</Label>
+                  <div className="grid gap-3">
+                    {themes.map((theme) => (
+                      <Card
+                        key={theme.name}
+                        className={`cursor-pointer transition-all hover:shadow-md ${
+                          currentTheme === theme.name
+                            ? "border-primary border-2 bg-primary/5"
+                            : "border-border hover:border-primary/50"
+                        }`}
+                        onClick={() => {
+                          changeTheme(theme.name)
+                          toast.success("Thème modifié", {
+                            description: `Le thème "${theme.label}" a été appliqué`,
+                            duration: 2000,
+                          })
+                        }}
+                      >
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="text-base">{theme.label}</CardTitle>
+                            {currentTheme === theme.name && (
+                              <Check className="h-5 w-5 text-primary" />
+                            )}
+                          </div>
+                          <CardDescription className="text-sm">
+                            {theme.description}
+                          </CardDescription>
+                        </CardHeader>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
