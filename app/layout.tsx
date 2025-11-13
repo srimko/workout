@@ -10,7 +10,7 @@ import { ThemeProvider } from "@/lib/providers/ThemeProvider"
 import "./globals.css"
 
 import Link from "next/link"
-import { Dumbbell, User, Library, LogOut, GitCompare, Award } from "lucide-react"
+import { Dumbbell, User, Library, GitCompare, Award } from "lucide-react"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,9 +44,9 @@ const items = [
     icon: Award,
   },
   {
-    title: "Exercises",
-    url: "/exercises",
-    icon: Library,
+    title: "Profile",
+    url: profileId ? `/users/${profileId}` : "/",
+    icon: User,
   },
 ]
 // {
