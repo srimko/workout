@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister"
 import { createClient } from "@/utils/supabase/server"
+import { ThemeProvider } from "@/lib/providers/ThemeProvider"
 import "./globals.css"
 
 import Link from "next/link"
@@ -96,30 +97,31 @@ export default async function RootLayout({
         <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased dark`}>
-        <ServiceWorkerRegister />
-        <SidebarProvider>
-          <AppSidebar />
-          <SidebarInset>
-            {user && <AppHeader />}
-            <div className="p-4 flex-1 min-h-0">{children}</div>
-          </SidebarInset>
-        </SidebarProvider>
-        <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-background border-t border-border/50 backdrop-blur-sm safe-area-inset-bottom flex justify-between">
-          {items.map((item) => {
-            // const isActive = pathname === item.url
-            const Icon = item.icon
-            console.log(item)
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <ThemeProvider>
+          <ServiceWorkerRegister />
+          <SidebarProvider>
+            <AppSidebar />
+            <SidebarInset>
+              {user && <AppHeader />}
+              <div className="p-4 flex-1 min-h-0">{children}</div>
+            </SidebarInset>
+          </SidebarProvider>
+          <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-background border-t border-border/50 backdrop-blur-sm safe-area-inset-bottom flex justify-between">
+            {items.map((item) => {
+              // const isActive = pathname === item.url
+              const Icon = item.icon
 
-            return (
-              <Link key={item.title} href={item.url} className="flex flex-col items-center">
-                <Icon className="h-4 w-4" />
-                <span className="text-sm">{item.title}</span>
-              </Link>
-            )
-          })}
-        </div>
-        <Toaster />
+              return (
+                <Link key={item.title} href={item.url} className="flex flex-col items-center">
+                  <Icon className="h-4 w-4" />
+                  <span className="text-sm">{item.title}</span>
+                </Link>
+              )
+            })}
+          </div>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   )
