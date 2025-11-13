@@ -1,9 +1,17 @@
-import { useEffect, useState, useMemo, useRef } from "react"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { useEffect, useRef } from "react"
+import { Card, CardContent } from "@/components/ui/card"
+import type { WorkoutWithSets, DayInfo } from "@/lib/types"
 
-export function Calendar({ calendar, workouts, onCardClick }) {
+interface CalendarProps {
+  calendar: DayInfo[]
+  workouts: WorkoutWithSets[]
+  onCardClick: (id: string | undefined) => {}
+}
+
+export function Calendar({ calendar, workouts, onCardClick }: CalendarProps) {
   const scrollContainerRef = useRef<HTMLUListElement>(null)
   const activeCardRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
     const timer = setTimeout(() => {
       if (activeCardRef.current && scrollContainerRef.current) {
@@ -13,10 +21,19 @@ export function Calendar({ calendar, workouts, onCardClick }) {
           inline: "center",
         })
       }
-    }, 1000) // Petit délai de 100ms
+    }, 100)
 
     return () => clearTimeout(timer)
-  }, [])
+  }, [calendar])
+
+  function handleWorkoutClick(day: DayInfo) {
+    if (!day) {
+      return false
+    }
+
+    const dayWorkout = workouts.find((w) => w.created_at.split("T")[0] === day.date.split("T")[0])
+    onCardClick(dayWorkout?.id)
+  }
 
   return (
     <ul ref={scrollContainerRef} className="flex gap-3 mb-4 overflow-auto">
@@ -26,10 +43,7 @@ export function Calendar({ calendar, workouts, onCardClick }) {
             ref={day.isActive ? activeCardRef : null}
             className={`py-4 px-1 ${day.isActive ? "bg-stone-200 text-black" : ""}`}
             onClick={() => {
-              const dayWorkout = workouts.find(
-                (w) => w.created_at.split("T")[0] === day.date.split("T")[0],
-              )
-              onCardClick(dayWorkout?.id)
+              handleWorkoutClick(day)
             }}
           >
             <CardContent className="flex flex-col items-center relative">

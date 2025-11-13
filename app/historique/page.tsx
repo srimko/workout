@@ -2,19 +2,9 @@
 
 import { useEffect, useState, useMemo, useRef } from "react"
 import { getAllWorkoutsWithSets } from "@/lib/actions/workouts"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import type { WorkoutWithSets, SetWithExercise } from "@/lib/types"
-import { DrawerWorkoutDetails } from "@/components/Drawers/components/DrawerWorkoutDetails"
 import { Badge } from "@/components/ui/badge"
 import { Calendar } from "@/components/Calendar"
-
-interface CategoryVolume {
-  categoryName: string
-  volume: number
-  percentage: number
-  setsCount: number
-}
-
 interface DayInfo {
   day: number
   dayName: string // Nom du jour (lundi, mardi, etc.)
@@ -57,7 +47,6 @@ export default function WorkoutPage() {
   useEffect(() => {
     const now = new Date().toISOString()
     const dayWorkout = workouts.find((w) => w.created_at.split("T")[0] === now.split("T")[0])
-    console.log(dayWorkout)
   }, [workouts, loading])
 
   const groupedExercises = useMemo(() => {
@@ -80,19 +69,14 @@ export default function WorkoutPage() {
     })
 
     // Retourner dans l'ordre d'apparition (ordre chronologique de création)
-    console.log(Array.from(groupMap.values()))
     return Array.from(groupMap.values())
   }, [currentWorkout])
 
   function getCurrentMonthDays(): DayInfo[] {
     const now = new Date()
-    console.log("now", now)
     const currentDay = now.getDate()
-    console.log("currentDay", currentDay)
     const currentMonth = now.getMonth()
-    console.log("currentMonth", currentMonth)
     const currentYear = now.getFullYear()
-    console.log("currentYear", currentYear)
 
     // Obtenir le nombre de jours dans le mois actuel
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
@@ -101,7 +85,6 @@ export default function WorkoutPage() {
 
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(Date.UTC(currentYear, currentMonth, day))
-      console.log(date.toISOString())
 
       // Obtenir le nom du jour en français
       const dayName = date.toLocaleDateString("fr-FR", { weekday: "long" })
@@ -122,7 +105,19 @@ export default function WorkoutPage() {
       return false
     }
     const workout = workouts.find((w) => w.id === id)
+    console.log(workout?.created_at.split("T")[0].split("-")[2])
 
+    const currentDay = workout?.created_at.split("T")[0].split("-")[2]
+    const newCalendar = calendar.map((c) => {
+      if (currentDay && c.day === parseInt(currentDay)) {
+        c.isActive = true
+        return c
+      }
+      c.isActive = false
+      return c
+    })
+
+    setCalendar(newCalendar)
     setCurrentWorkout(workout)
   }
 

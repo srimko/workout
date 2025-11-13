@@ -83,3 +83,9 @@ export interface PersonalRecord {
   set_id: number
   achieved_at: string
 }
+export interface DayInfo {
+  day: number
+  dayName: string
+  isActive: boolean
+  date: String
+}
