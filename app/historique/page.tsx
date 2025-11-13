@@ -105,7 +105,6 @@ export default function WorkoutPage() {
       return false
     }
     const workout = workouts.find((w) => w.id === id)
-    console.log(workout?.created_at.split("T")[0].split("-")[2])
 
     const currentDay = workout?.created_at.split("T")[0].split("-")[2]
     const newCalendar = calendar.map((c) => {
