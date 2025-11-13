@@ -15,7 +15,6 @@ export default function UsersPage() {
     const fetchProfiles = async () => {
       try {
         const { data } = await supabase.from("profiles").select("*")
-        console.log("Fetched profiles:", data)
         setProfiles(data || [])
       } catch (error) {
         console.error("Error fetching profiles:", error)

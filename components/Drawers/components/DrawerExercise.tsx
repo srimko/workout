@@ -159,21 +159,17 @@ export function DrawerExercise({
   const currentProps = steps[step].props as any
 
   function handleExerciseChange(exercise: string) {
-    console.log("handleExerciseChange", exercise)
     setFormData({ ...formData, exercise })
 
     setStep(step + 1)
   }
   function handleWeightChange(weight: number) {
-    console.log("handleWeightChange", weight)
     setFormData({ ...formData, weight })
   }
   function handleSerieChange(serie: number) {
-    console.log("handleSerieChange", serie)
     setFormData({ ...formData, serie })
   }
   function handleRepetionChange(repetition: number) {
-    console.log("handleRepChange")
     setFormData({ ...formData, repetition })
   }
 
@@ -238,9 +234,7 @@ export function DrawerExercise({
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       {!editMode && showTrigger && (
-        <DrawerTrigger asChild>
-          {trigger || <Button>Ajouter mon exercice</Button>}
-        </DrawerTrigger>
+        <DrawerTrigger asChild>{trigger || <Button>Ajouter mon exercice</Button>}</DrawerTrigger>
       )}
       <DrawerContent>
         <div className="mx-auto w-full max-w-sm">
@@ -263,7 +257,6 @@ export function DrawerExercise({
                     try {
                       if (editMode && setToEdit) {
                         // Mode édition : mettre à jour le set existant
-                        console.log("Updating set:", { setId: setToEdit.id, formData })
 
                         const result = await updateSet(
                           setToEdit.id,
@@ -286,8 +279,6 @@ export function DrawerExercise({
                         }
                       } else {
                         // Mode création : créer de nouveaux sets
-                        console.log("Saving set:", formData)
-
                         // Create sets for each serie
                         const promises = []
                         for (let i = 0; i < formData.serie; i++) {
@@ -297,8 +288,6 @@ export function DrawerExercise({
                         }
 
                         const results = await Promise.all(promises)
-                        console.log("Results:", results)
-
                         // Check if all sets were created successfully
                         const allSuccess = results.every((result) => result !== null)
 

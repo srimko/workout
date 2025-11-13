@@ -206,8 +206,6 @@ export async function createSet(
     ...(createdAt && { created_at: createdAt }),
   }
 
-  console.log("📝 Creating set with data:", setData)
-
   const { data: set, error } = await supabase
     .from("sets")
     .insert(setData)
@@ -235,7 +233,6 @@ export async function createSet(
     return null
   }
 
-  console.log("✅ Set created successfully:", set)
   return set
 }
 

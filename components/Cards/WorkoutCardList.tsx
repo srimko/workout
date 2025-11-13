@@ -66,8 +66,6 @@ export const WorkoutCardList = memo(function WorkoutCardList({
       group.totalVolume += set.weight * set.repetition
     })
 
-    console.log(Array.from(groups.values()))
-
     // Retourner les groupes dans l'ordre d'apparition
     return Array.from(groups.values())
   }, [sets])
@@ -81,7 +79,6 @@ export const WorkoutCardList = memo(function WorkoutCardList({
   }, [sets])
 
   const handleClick = (id: string) => {
-    console.log(onEdit)
     if (id === onEdit) {
       setOnEdit(null)
       return
@@ -140,9 +137,8 @@ export const WorkoutCardList = memo(function WorkoutCardList({
                   <CardContent>
                     <div className="space-y-1.5">
                       {group.sets.map((set, index) => (
-                        <>
+                        <div key={set.id}>
                           <div
-                            key={set.id}
                             className="flex items-center justify-between text-sm bg-background rounded px-3 py-2"
                             onClick={() => handleClick(set.id)}
                           >
@@ -174,7 +170,7 @@ export const WorkoutCardList = memo(function WorkoutCardList({
                               </Button>
                             </div>
                           )}
-                        </>
+                        </div>
                       ))}
                     </div>
                   </CardContent>
