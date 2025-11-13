@@ -20,7 +20,7 @@ import { useFetchSetsWithExercises, useDeleteSet } from "@/lib/hooks/useSets"
 import { toast } from "sonner"
 import type { Profile, Workout } from "@/lib/types"
 import { createClient } from "@/utils/supabase/client"
-import { Dumbbell, Plus } from "lucide-react"
+import { Dumbbell, Plus, X } from "lucide-react"
 
 interface SetWithExerciseInfo {
   id: string
@@ -422,24 +422,17 @@ export default function Home() {
               onSetUpdated={handleSetUpdated}
               open={drawerOpen}
               onOpenChange={handleDrawerOpenChange}
-              trigger={
-                <Button
-                  size="lg"
-                  className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl active:scale-95 transition-all"
-                >
-                  <Plus className="h-6 w-6" />
-                  <span className="sr-only">Ajouter exercice</span>
-                </Button>
-              }
-              showTrigger={!editingSet}
             />
           </div>
 
           {/* Bottom bar - Terminer workout */}
         </div>
-        <div className="fixed bottom-1/12 left-0 right-0 z-40 p-4 bg-background border-t border-border/50 backdrop-blur-sm safe-area-inset-bottom">
-          <Button variant="destructive" className="w-full h-12 text-base" onClick={endWorkout}>
-            Terminer le workout
+        <div className="flex gap-4 fixed bottom-1/12 left-0 right-0 z-40 p-4 bg-background border-t border-border/50 backdrop-blur-sm safe-area-inset-bottom">
+          <Button variant="destructive" className="basis-1/5 h-12 text-base" onClick={endWorkout}>
+            <X />
+          </Button>
+          <Button className="flex-1 h-12 text-base" onClick={() => setDrawerOpen(true)}>
+            Ajouter un exercice
           </Button>
         </div>
 

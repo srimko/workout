@@ -41,9 +41,6 @@ interface DrawerExerciseProps {
   onSetUpdated?: () => void
   open?: boolean
   onOpenChange?: (open: boolean) => void
-  // Props pour customiser le trigger
-  trigger?: React.ReactNode
-  showTrigger?: boolean
 }
 
 export function DrawerExercise({
@@ -53,8 +50,6 @@ export function DrawerExercise({
   onSetUpdated,
   open: controlledOpen,
   onOpenChange,
-  trigger,
-  showTrigger = true,
 }: DrawerExerciseProps = {}) {
   const [internalOpen, setInternalOpen] = useState(false)
   const [step, setStep] = useState(0)
@@ -233,9 +228,6 @@ export function DrawerExercise({
 
   return (
     <Drawer open={open} onOpenChange={setOpen}>
-      {!editMode && showTrigger && (
-        <DrawerTrigger asChild>{trigger || <Button>Ajouter mon exercice</Button>}</DrawerTrigger>
-      )}
       <DrawerContent>
         <div className="mx-auto w-full max-w-sm">
           <DrawerHeader>
