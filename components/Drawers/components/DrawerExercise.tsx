@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { DrawerReps } from "@/components/Drawers/components/DrawerReps"
 import { DrawerSelectExercise } from "@/components/Drawers/components/DrawerSelectExercise"
+import { DrawerAddSerie } from "@/components/Drawers/components/DrawerAddSerie"
 import { DrawerSerie } from "@/components/Drawers/components/DrawerSerie"
 import { DrawerWeight } from "@/components/Drawers/components/DrawerWeight"
 import { Button } from "@/components/ui/button"
@@ -14,11 +15,16 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
 } from "@/components/ui/drawer"
 import { toast } from "sonner"
 import { useCreateSet, useUpdateSet } from "@/lib/hooks/useSets"
 import type { Set } from "@/lib/types"
+
+interface Serie {
+  title: string
+  weight: number
+  rep: number
+}
 
 interface SetToEdit {
   id: string
@@ -35,7 +41,6 @@ interface SetToEdit {
 
 interface DrawerExerciseProps {
   onSetCreated?: () => void
-  // Props pour le mode édition
   editMode?: boolean
   setToEdit?: SetToEdit
   onSetUpdated?: () => void
@@ -58,6 +63,7 @@ export function DrawerExercise({
     weight: 0,
     serie: 0,
     repetition: 0,
+    allSeries: [] as Serie[],
   })
 
   const { createSet, loading: isCreating, error: createError } = useCreateSet()
@@ -77,6 +83,7 @@ export function DrawerExercise({
         weight: setToEdit.weight,
         serie: 1, // Toujours 1 en mode édition
         repetition: setToEdit.repetition,
+        allSeries: [],
       })
       // En mode édition, on commence au slide du poids (skip exercice)
       setStep(0)
@@ -122,31 +129,18 @@ export function DrawerExercise({
           isValid: () => formData.exercise !== "",
         },
         {
-          title: "Poids kg",
-          description: "Ajouter du poids",
-          component: DrawerWeight,
-          props: { weight: formData.weight, onWeightChange: handleWeightChange },
-          fieldKey: "weight",
-          isValid: () => formData.weight > 0,
-        },
-        {
-          title: "Serie",
-          description: "Ajouter la serie",
-          component: DrawerSerie,
-          props: { serie: formData.serie, onSerieChange: handleSerieChange },
-          fieldKey: "serie",
-          isValid: () => formData.serie > 0,
-        },
-        {
-          title: "Répétitions",
-          description: "Ajouter le nombre de répétitions",
-          component: DrawerReps,
+          title: "Séries",
+          description: "Configurer vos séries",
+          component: DrawerAddSerie,
           props: {
-            repetition: formData.repetition,
-            onRepetitionChange: handleRepetionChange,
+            exerciseName: formData.exercise,
+            weight: formData.weight,
+            onWeightChange: handleWeightChange,
+            allSeries: formData.allSeries,
+            onSeriesChange: handleSeriesChange,
           },
-          fieldKey: "repetition",
-          isValid: () => formData.repetition > 0,
+          fieldKey: "allSeries",
+          isValid: () => formData.allSeries.length > 0,
         },
       ]
 
@@ -166,6 +160,9 @@ export function DrawerExercise({
   }
   function handleRepetionChange(repetition: number) {
     setFormData({ ...formData, repetition })
+  }
+  function handleSeriesChange(allSeries: Serie[]) {
+    setFormData({ ...formData, allSeries })
   }
 
   function formatExerciseDisplay(formData: {
@@ -211,6 +208,7 @@ export function DrawerExercise({
       weight: 0,
       serie: 0,
       repetition: 0,
+      allSeries: [],
     })
     setStep(0)
     setOpen(false)
@@ -228,7 +226,7 @@ export function DrawerExercise({
 
   return (
     <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerContent>
+      <DrawerContent className="h-[95vh]">
         <div className="mx-auto w-full max-w-sm">
           <DrawerHeader>
             <DrawerTitle>
@@ -237,7 +235,7 @@ export function DrawerExercise({
             <DrawerDescription>{formatExerciseDisplay(formData)}</DrawerDescription>
           </DrawerHeader>
           {CurrentComponent && <CurrentComponent {...currentProps} />}
-          <DrawerFooter className="mb-12">
+          <DrawerFooter className="absolute bottom-0 w-full">
             <div className="grid grid-cols-2 gap-4">
               <Button onClick={() => setStep(step - 1)} disabled={!canGoToPreviousStep()}>
                 Précédent
@@ -271,21 +269,18 @@ export function DrawerExercise({
                         }
                       } else {
                         // Mode création : créer de nouveaux sets
-                        // Create sets for each serie
-                        const promises = []
-                        for (let i = 0; i < formData.serie; i++) {
-                          promises.push(
-                            createSet(formData.exercise, formData.weight, formData.repetition),
-                          )
-                        }
+                        // Create sets for each serie in allSeries
+                        const promises = formData.allSeries.map((serie) =>
+                          createSet(formData.exercise, serie.weight, serie.rep),
+                        )
 
                         const results = await Promise.all(promises)
                         // Check if all sets were created successfully
                         const allSuccess = results.every((result) => result !== null)
 
                         if (allSuccess) {
-                          toast.success("Set enregistré !", {
-                            description: `${formData.serie} série(s) de ${formData.repetition} répétitions à ${formData.weight}kg ajoutée(s)`,
+                          toast.success("Sets enregistrés !", {
+                            description: `${formData.allSeries.length} série(s) ajoutée(s)`,
                             duration: 1000,
                           })
                           handleResetForm()
