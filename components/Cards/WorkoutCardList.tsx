@@ -62,6 +62,7 @@ export const WorkoutCardList = memo(function WorkoutCardList({
 
       const group = groups.get(categoryName)!
       group.sets.push(set)
+      // console.log(group)
       group.totalWeight += set.weight
       group.totalVolume += set.weight * set.repetition
     })
@@ -129,15 +130,15 @@ export const WorkoutCardList = memo(function WorkoutCardList({
               <AccordionContent>
                 <Card>
                   <CardHeader className="flex justify-between">
-                    <h3 className="font-semibold text-base leading-tight truncate">
-                      Tirage horizontal
-                    </h3>
-                    <Badge>Dos</Badge>
+                    <Badge>{group.categoryName}</Badge>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-1.5">
                       {group.sets.map((set, index) => (
                         <div key={set.id}>
+                          <h3 className="font-semibold text-base leading-tight truncate mb-2">
+                            {set.exercise_name}
+                          </h3>
                           <div
                             className="flex items-center justify-between text-sm bg-background rounded px-3 py-2"
                             onClick={() => handleClick(set.id)}
