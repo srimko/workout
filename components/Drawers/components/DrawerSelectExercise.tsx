@@ -38,7 +38,7 @@ export function DrawerSelectExercise({ repetition, onSelectExercise }: DrawerSel
 
     return (
       <div>
-        <div className="p-4 border-b">
+        <div className="flex gap-4 justify-between p-4 border-b">
           <button
             type="button"
             onClick={handleBackToCategories}
@@ -54,7 +54,7 @@ export function DrawerSelectExercise({ repetition, onSelectExercise }: DrawerSel
             <p>Chargement des exercices...</p>
           </div>
         ) : (
-          <div className="flex flex-cols-2 gap-4 p-4 overflow-auto">
+          <div className="grid gap-4 p-4 overflow-auto">
             {exercises.length === 0 ? (
               <p className="col-span-2 text-center text-gray-500">
                 Aucun exercice actif dans cette catégorie
@@ -66,8 +66,8 @@ export function DrawerSelectExercise({ repetition, onSelectExercise }: DrawerSel
                   onClick={() => onSelectExercise(exercise.title)}
                   className="cursor-pointer hover:shadow-md transition-shadow"
                 >
-                  <CardContent className="flex-col p-2 w-[150]">
-                    <div className="relative w-full h-32">
+                  <CardContent className="flex gap-4">
+                    <div className="relative h-12 w-12">
                       <Image
                         src={`/exercises/${exercise.image}`}
                         alt={exercise.title}
@@ -75,7 +75,7 @@ export function DrawerSelectExercise({ repetition, onSelectExercise }: DrawerSel
                         className="object-cover rounded"
                       />
                     </div>
-                    <p className="text-sm text-center mt-2 font-medium">{exercise.title}</p>
+                    <p className="text-sm mt-2 font-medium">{exercise.title}</p>
                   </CardContent>
                 </Card>
               ))
@@ -88,28 +88,27 @@ export function DrawerSelectExercise({ repetition, onSelectExercise }: DrawerSel
 
   // Affichage des catégories
   return (
-    <div className="flex flex-cols-2 gap-4 p-4 overflow-auto">
+    <div className="grid gap-4 p-4">
       {categories.map((category) => (
-        <div key={category.id} className="">
-          <Card
-            onClick={() => handleSelectCategory(category.id)}
-            className="cursor-pointer hover:shadow-md transition-shadow w-[150]"
-          >
-            <CardContent>
-              <div className="flex items-center gap-4 flex-col">
-                <div className="relative w-32 h-32 flex-shrink-0">
-                  <Image
-                    src={category.image}
-                    alt={category.name}
-                    fill
-                    className="object-cover rounded"
-                  />
-                </div>
-                <p className="font-bold text-lg">{category.name}</p>
+        <Card
+          key={category.id}
+          onClick={() => handleSelectCategory(category.id)}
+          className="cursor-pointer hover:shadow-md transition-shadow p-4"
+        >
+          <CardContent className="p-0">
+            <div className="flex items-center gap-4">
+              <div className="relative w-12 h-12 flex-shrink-0">
+                <Image
+                  src={category.image}
+                  alt={category.name}
+                  fill
+                  className="object-cover rounded"
+                />
               </div>
-            </CardContent>
-          </Card>
-        </div>
+              <p className="font-bold text-lg">{category.name}</p>
+            </div>
+          </CardContent>
+        </Card>
       ))}
     </div>
   )
