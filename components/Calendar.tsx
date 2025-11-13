@@ -26,6 +26,15 @@ export function Calendar({ calendar, workouts, onCardClick }: CalendarProps) {
     return () => clearTimeout(timer)
   }, [calendar])
 
+  useEffect(() => {
+    const activeDay: DayInfo | undefined = calendar.find((c) => {
+      return c.isActive
+    })
+    if (activeDay) {
+      handleWorkoutClick(activeDay)
+    }
+  }, [])
+
   function handleWorkoutClick(day: DayInfo) {
     if (!day) {
       return false
