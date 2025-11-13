@@ -5,7 +5,7 @@ import type { WorkoutWithSets, DayInfo } from "@/lib/types"
 interface CalendarProps {
   calendar: DayInfo[]
   workouts: WorkoutWithSets[]
-  onCardClick: (id: string | undefined) => {}
+  onCardClick: (id: string | undefined) => void
 }
 
 export function Calendar({ calendar, workouts, onCardClick }: CalendarProps) {
