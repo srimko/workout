@@ -66,18 +66,15 @@ export const DrawerWeight = memo(function DrawerWeight({
     setIsEditing(false)
   }, [inputValue, onWeightChange])
 
-  const handleInputKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter") {
-        inputRef.current?.blur()
-      }
-    },
-    [],
-  )
+  const handleInputKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      inputRef.current?.blur()
+    }
+  }, [])
 
   return (
-    <div className="p-4 pb-0 mb-10">
-      <div className="flex items-center justify-center space-x-2">
+    <div className="p-4 pb-0 mb-6">
+      <div className="flex items-center justify-center">
         <Button
           variant="outline"
           size="icon"
@@ -99,7 +96,7 @@ export const DrawerWeight = memo(function DrawerWeight({
               onChange={handleInputChange}
               onBlur={handleInputBlur}
               onKeyDown={handleInputKeyDown}
-              className="text-7xl font-bold tracking-tighter bg-transparent border-none outline-none text-center w-full focus:ring-2 focus:ring-primary rounded-md"
+              className="text-5xl font-bold tracking-tighter bg-transparent border-none outline-none text-center w-full focus:ring-2 focus:ring-primary rounded-md"
               aria-label="Modifier le poids"
               min={MIN_WEIGHT}
               max={MAX_WEIGHT}
@@ -107,7 +104,7 @@ export const DrawerWeight = memo(function DrawerWeight({
             />
           ) : (
             <output
-              className="text-7xl font-bold tracking-tighter cursor-pointer hover:text-primary transition-colors"
+              className="text-5xl font-bold tracking-tighter cursor-pointer hover:text-primary transition-colors"
               aria-live="polite"
               onClick={handleEditClick}
               onKeyDown={(e) => {
