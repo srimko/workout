@@ -89,8 +89,8 @@ export const WorkoutCardList = memo(function WorkoutCardList({
   return (
     <div className="space-y-4 pb-20">
       {/* Stats Card */}
-      <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-        <CardHeader className="pb-3">
+      <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 gap-2">
+        <CardHeader>
           <CardTitle className="text-lg">Résumé de la séance</CardTitle>
         </CardHeader>
         <CardContent>
