@@ -20,6 +20,8 @@ import { useFetchSetsWithExercises, useDeleteSet } from "@/lib/hooks/useSets"
 import { toast } from "sonner"
 import type { Profile, Workout } from "@/lib/types"
 import { createClient } from "@/utils/supabase/client"
+import { getTodayWorkout, autoCloseOldWorkouts } from "@/lib/actions/workouts"
+import { getSetsByWorkoutWithExercises } from "@/lib/actions/sets"
 import { Dumbbell, Plus, X } from "lucide-react"
 
 interface SetWithExerciseInfo {
@@ -56,6 +58,18 @@ export default function Home() {
   useEffect(() => {
     async function initializeTodayWorkout() {
       try {
+        // Auto-clôture des vieux workouts (UNE fois par jour avec localStorage guard)
+        const lastAutoClose = localStorage.getItem("lastAutoCloseDate")
+        const today = new Date().toISOString().split("T")[0]
+
+        if (lastAutoClose !== today) {
+          const closedCount = await autoCloseOldWorkouts()
+          if (closedCount > 0) {
+            console.log(`${closedCount} workout(s) auto-clôturé(s)`)
+          }
+          localStorage.setItem("lastAutoCloseDate", today)
+        }
+
         // Récupérer l'utilisateur connecté
         const {
           data: { user },
@@ -79,65 +93,30 @@ export default function Home() {
 
         setCurrentProfile(profile)
 
-        // Préparer la date du jour
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
+        // Récupérer le workout du jour (requête optimisée)
+        const workout = await getTodayWorkout()
 
-        // Récupérer tous les workouts de l'utilisateur
-        const { data: userWorkouts } = await supabase
-          .from("workouts")
-          .select("*")
-          .eq("profile_id", profile.id)
-          .order("started_at", { ascending: false })
-
-        // Auto-clôturer les workouts d'autres jours non terminés
-        const workoutsToClose = (userWorkouts || []).filter((w) => {
-          if (w.ended_at !== null) return false
-          const workoutDate = new Date(w.started_at)
-          workoutDate.setHours(0, 0, 0, 0)
-          return workoutDate.getTime() !== today.getTime()
-        })
-
-        for (const workout of workoutsToClose) {
-          const workoutDate = new Date(workout.started_at)
-          workoutDate.setHours(23, 59, 59, 999)
-          await supabase
-            .from("workouts")
-            .update({ ended_at: workoutDate.toISOString() })
-            .eq("id", workout.id)
-          console.log(`Workout ${workout.id} auto-clôturé`)
-        }
-
-        // Chercher le workout du jour uniquement
-        const todayWorkout = (userWorkouts || []).find((w) => {
-          const workoutDate = new Date(w.started_at)
-          workoutDate.setHours(0, 0, 0, 0)
-          return workoutDate.getTime() === today.getTime()
-        })
-
-        if (todayWorkout) {
-          setCurrentWorkout(todayWorkout)
-
-          // Charger les sets du workout
-          const { data: sets } = await supabase
-            .from("sets")
-            .select("*")
-            .eq("workout_id", todayWorkout.id)
-
-          // Déterminer le statut
-          if (todayWorkout.ended_at !== null) {
-            setWorkoutStatus("completed")
-          } else if (sets && sets.length > 0) {
-            setWorkoutStatus("in_progress")
-          } else {
-            setWorkoutStatus("created")
-          }
-
-          await refreshWorkoutSets(todayWorkout.id)
-        } else {
+        if (!workout) {
           // Aucun workout du jour
           setWorkoutStatus("none")
+          return
         }
+
+        setCurrentWorkout(workout)
+
+        // Charger les sets avec exercices (fonction existante optimisée)
+        const sets = await getSetsByWorkoutWithExercises(workout.id)
+
+        // Déterminer le statut
+        if (workout.ended_at !== null) {
+          setWorkoutStatus("completed")
+        } else if (sets && sets.length > 0) {
+          setWorkoutStatus("in_progress")
+        } else {
+          setWorkoutStatus("created")
+        }
+
+        await refreshWorkoutSets(workout.id)
       } catch (error) {
         console.error("Erreur lors de l'initialisation du workout du jour:", error)
       }
