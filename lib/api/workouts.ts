@@ -231,3 +231,57 @@ export async function getAllWorkoutsWithSets(): Promise<WorkoutWithSets[]> {
 
   return data || []
 }
+
+/**
+ * Auto-close old unfinished workouts (not from today)
+ * Returns number of workouts closed
+ */
+export async function autoCloseOldWorkouts(): Promise<number> {
+  const profileId = await getCurrentProfileId()
+  if (!profileId) return 0
+
+  const supabase = await createClient()
+
+  // Get today's date at midnight
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  // Find all unfinished workouts before today
+  const { data: workoutsToClose, error: fetchError } = await supabase
+    .from("workouts")
+    .select("id, started_at")
+    .eq("profile_id", profileId)
+    .is("ended_at", null)
+    .lt("started_at", today.toISOString())
+
+  if (fetchError) {
+    console.error("Error fetching old workouts:", fetchError)
+    return 0
+  }
+
+  if (!workoutsToClose || workoutsToClose.length === 0) {
+    return 0
+  }
+
+  // Close each workout at 23:59:59 of its own day
+  let closedCount = 0
+
+  for (const workout of workoutsToClose) {
+    const workoutDate = new Date(workout.started_at)
+    workoutDate.setHours(23, 59, 59, 999)
+
+    const { error: updateError } = await supabase
+      .from("workouts")
+      .update({ ended_at: workoutDate.toISOString() })
+      .eq("id", workout.id)
+
+    if (updateError) {
+      console.error(`Error closing workout ${workout.id}:`, updateError)
+    } else {
+      closedCount++
+      console.log(`Workout ${workout.id} auto-closed`)
+    }
+  }
+
+  return closedCount
+}
