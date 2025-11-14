@@ -4,6 +4,7 @@ import {
   createSet as createSetAPI,
   createSetByExerciseTitle as createSetByExerciseTitleAPI,
   getSetsByWorkout as getSetsByWorkoutAPI,
+  getSetsByWorkoutWithExercises as getSetsByWorkoutWithExercisesAPI,
   getSetsByExercise as getSetsByExerciseAPI,
   deleteSet as deleteSetAPI,
   updateSet as updateSetAPI,
@@ -38,6 +39,13 @@ export async function createSetByExerciseTitle(
  */
 export async function getSetsByWorkout(workoutId: string) {
   return await getSetsByWorkoutAPI(workoutId)
+}
+
+/**
+ * Get all sets for a workout with exercise information (title, category)
+ */
+export async function getSetsByWorkoutWithExercises(workoutId: string) {
+  return await getSetsByWorkoutWithExercisesAPI(workoutId)
 }
 
 /**
