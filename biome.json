@@ -21,9 +21,9 @@
     "rules": {
       "recommended": true,
       "a11y": {
-          "noStaticElementInteractions": "error"
+        "noStaticElementInteractions": "error"
       }
-    },
+    }
   },
   "javascript": {
     "formatter": {
