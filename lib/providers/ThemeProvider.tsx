@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
+import { createContext, type ReactNode, useContext, useEffect, useState } from "react"
 
 export type ThemeName = "default" | "neoBrutalism" | "amberMinimal"
 export type ColorMode = "light" | "dark"
@@ -91,7 +91,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const loadTheme = (themeName: ThemeName) => {
     // Retirer l'ancien link de thème s'il existe
-    const existingLink = document.querySelector('link[data-theme]')
+    const existingLink = document.querySelector("link[data-theme]")
     if (existingLink) {
       existingLink.remove()
     }

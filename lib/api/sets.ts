@@ -91,9 +91,7 @@ export async function getSetsByWorkout(workoutId: string): Promise<Set[]> {
  * Get all sets for a workout with exercise information (title, category)
  * This is more efficient than fetching sets and exercises separately
  */
-export async function getSetsByWorkoutWithExercises(
-  workoutId: string,
-): Promise<
+export async function getSetsByWorkoutWithExercises(workoutId: string): Promise<
   Array<
     Set & {
       exercise: {

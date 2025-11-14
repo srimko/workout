@@ -1,10 +1,10 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
 import { Pen } from "lucide-react"
 import { useState } from "react"
-import { WorkoutSetsModal } from "./WorkoutSetsModal"
+import { Button } from "@/components/ui/button"
 import type { SetWithExercise } from "@/lib/types"
+import { WorkoutSetsModal } from "./WorkoutSetsModal"
 
 interface WorkoutEditButtonProps {
   workoutId: string

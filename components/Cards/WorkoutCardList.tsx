@@ -1,17 +1,17 @@
 "use client"
 
-import { useState, memo, useMemo } from "react"
-import { WorkoutCard, type SetWithExerciseInfo } from "@/components/Cards/WorkoutCard"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Pen, Pencil, Trash } from "lucide-react"
+import { memo, useMemo, useState } from "react"
+import { type SetWithExerciseInfo, WorkoutCard } from "@/components/Cards/WorkoutCard"
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { Button } from "../ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Pencil, Trash, Pen } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "../ui/button"
 
 interface WorkoutCardListProps {
   sets?: SetWithExerciseInfo[]

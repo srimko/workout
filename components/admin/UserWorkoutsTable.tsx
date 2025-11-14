@@ -1,16 +1,10 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-} from "@/components/ui/table"
-import { WorkoutTableRow } from "./WorkoutTableRow"
-import type { UserWithWorkouts } from "@/lib/api/admin"
 import { useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import type { UserWithWorkouts } from "@/lib/api/admin"
+import { WorkoutTableRow } from "./WorkoutTableRow"
 
 interface UserWorkoutsTableProps {
   user: UserWithWorkouts

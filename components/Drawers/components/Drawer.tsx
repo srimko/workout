@@ -1,5 +1,5 @@
 import { Minus, Plus } from "lucide-react"
-import { useState, useCallback, memo, useRef, useEffect } from "react"
+import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 
 const MIN_WEIGHT = 0
@@ -66,14 +66,11 @@ export const DrawerWeight = memo(function DrawerWeight({
     setIsEditing(false)
   }, [inputValue, onWeightChange])
 
-  const handleInputKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter") {
-        inputRef.current?.blur()
-      }
-    },
-    [],
-  )
+  const handleInputKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      inputRef.current?.blur()
+    }
+  }, [])
 
   return (
     <div className="p-4 pb-0 mb-10">

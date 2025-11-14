@@ -1,9 +1,12 @@
 "use client"
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { ChevronLeft, ChevronRight, Link, Plus, Save, Trash2 } from "lucide-react"
+import { useState } from "react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import {
   Select,
   SelectContent,
@@ -11,11 +14,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Trash2, Save, ChevronLeft, ChevronRight, Link, Plus } from "lucide-react"
-import { useState } from "react"
-import { createSet, updateSet, deleteSet } from "@/lib/actions/admin"
+import { createSet, deleteSet, updateSet } from "@/lib/actions/admin"
 import { useExercises } from "@/lib/hooks/useExercises"
-import { toast } from "sonner"
 import type { SetWithExercise, WorkoutWithSets } from "@/lib/types"
 
 const SETS_PER_PAGE = 3

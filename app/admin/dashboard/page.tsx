@@ -1,5 +1,5 @@
-import { getAllUsers, getGlobalStats, getUserWithWorkouts } from "@/lib/actions/admin"
 import { UserWorkoutsTable } from "@/components/admin/UserWorkoutsTable"
+import { getAllUsers, getGlobalStats, getUserWithWorkouts } from "@/lib/actions/admin"
 
 export default async function AdminDashboardPage() {
   let users = await getAllUsers()
@@ -8,7 +8,9 @@ export default async function AdminDashboardPage() {
   users = users.filter((user) => !["wadmin"].includes(user.display_name))
 
   const usersWorkoutsData = await Promise.all(users.map((user) => getUserWithWorkouts(user.id)))
-  const usersWorkouts = usersWorkoutsData.filter((user): user is NonNullable<typeof user> => user !== null)
+  const usersWorkouts = usersWorkoutsData.filter(
+    (user): user is NonNullable<typeof user> => user !== null,
+  )
 
   return (
     <div className="space-y-6 p-6">

@@ -1,7 +1,8 @@
 "use client"
 
 import { useMemo } from "react"
-import type { WorkoutWithSets, SetWithExercise } from "@/lib/types"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   Drawer,
   DrawerClose,
@@ -12,8 +13,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import type { SetWithExercise, WorkoutWithSets } from "@/lib/types"
 
 interface ExerciseGroup {
   exerciseId: number

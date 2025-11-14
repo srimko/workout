@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
+import { DrawerAddSerie } from "@/components/Drawers/components/DrawerAddSerie"
 import { DrawerReps } from "@/components/Drawers/components/DrawerReps"
 import { DrawerSelectExercise } from "@/components/Drawers/components/DrawerSelectExercise"
-import { DrawerAddSerie } from "@/components/Drawers/components/DrawerAddSerie"
 import { DrawerSerie } from "@/components/Drawers/components/DrawerSerie"
 import { DrawerWeight } from "@/components/Drawers/components/DrawerWeight"
 import { Button } from "@/components/ui/button"
@@ -16,7 +17,6 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer"
-import { toast } from "sonner"
 import { useCreateSet, useUpdateSet } from "@/lib/hooks/useSets"
 import type { Set } from "@/lib/types"
 

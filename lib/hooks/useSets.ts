@@ -99,20 +99,18 @@ export function useFetchSetsWithExercises() {
 
   const fetchSets = async (
     workoutId: string,
-  ): Promise<
-    Array<{
-      id: string
-      workout_id: string
-      exercise_id: number
-      weight: number
-      repetition: number
-      created_at: string
-      updated_at: string
-      exercise_name: string
-      exercise_image: string
-      category_name: string
-    }> | null
-  > => {
+  ): Promise<Array<{
+    id: string
+    workout_id: string
+    exercise_id: number
+    weight: number
+    repetition: number
+    created_at: string
+    updated_at: string
+    exercise_name: string
+    exercise_image: string
+    category_name: string
+  }> | null> => {
     setIsLoading(true)
     setLastError(null)
 

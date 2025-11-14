@@ -1,8 +1,9 @@
 "use client"
 
-import { memo } from "react"
 import { Pencil } from "lucide-react"
+import { memo } from "react"
 import { TableWorkoutStats } from "@/components/Table/TableWorkoutStats"
+import { Button } from "@/components/ui/button"
 import {
   Table,
   TableBody,
@@ -12,7 +13,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
 
 import type { Set } from "@/lib/types"
 

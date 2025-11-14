@@ -1,10 +1,10 @@
 "use client"
 
-import { memo } from "react"
 import { Pencil, Trash } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardAction } from "@/components/ui/card"
+import { memo } from "react"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardAction, CardContent, CardHeader } from "@/components/ui/card"
 
 export interface SetWithExerciseInfo {
   id: string

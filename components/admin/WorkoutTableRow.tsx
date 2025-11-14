@@ -1,8 +1,8 @@
 "use client"
 
 import { TableCell, TableRow } from "@/components/ui/table"
-import { WorkoutEditButton } from "./WorkoutEditButton"
 import type { WorkoutWithSets } from "@/lib/types"
+import { WorkoutEditButton } from "./WorkoutEditButton"
 
 interface WorkoutTableRowProps {
   workout: WorkoutWithSets

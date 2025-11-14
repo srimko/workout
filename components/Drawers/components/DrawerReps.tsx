@@ -1,5 +1,5 @@
 import { Minus, Plus } from "lucide-react"
-import { useState, useCallback, useRef, useEffect } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 
 const MIN_REPS = 1
@@ -55,14 +55,11 @@ export function DrawerReps({ repetition, onRepetitionChange }: DrawerRepsProsp) 
     setIsEditing(false)
   }, [inputValue, onRepetitionChange])
 
-  const handleInputKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter") {
-        inputRef.current?.blur()
-      }
-    },
-    [],
-  )
+  const handleInputKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      inputRef.current?.blur()
+    }
+  }, [])
 
   return (
     <div className="p-4 pb-0 mb-10">

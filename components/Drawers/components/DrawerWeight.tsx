@@ -1,5 +1,5 @@
 import { Minus, Plus } from "lucide-react"
-import { useState, useCallback, memo, useRef, useEffect } from "react"
+import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 
 const MIN_WEIGHT = 0

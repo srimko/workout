@@ -1,13 +1,14 @@
 "use client"
 
+import { Award, Dumbbell, Target, TrendingUp } from "lucide-react"
 import { useState } from "react"
 import { StrengthStandardsCard } from "@/components/StrengthStandardsCard"
 import { StrengthStandardsExplorer } from "@/components/StrengthStandardsExplorer"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import {
   Select,
   SelectContent,
@@ -17,15 +18,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  getAllExercises,
-  getLevelLabel,
-  getLevelColor,
-  getCategoryLabel,
-  getAllCategories,
-} from "@/lib/utils/strength-standards"
 import type { Exercise } from "@/lib/types/strength-standards"
-import { Dumbbell, TrendingUp, Target, Award } from "lucide-react"
+import {
+  getAllCategories,
+  getAllExercises,
+  getCategoryLabel,
+  getLevelColor,
+  getLevelLabel,
+} from "@/lib/utils/strength-standards"
 
 export default function StandardsPage() {
   const [bodyWeight, setBodyWeight] = useState(75)

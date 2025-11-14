@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import type { WorkoutWithSets, DayInfo } from "@/lib/types"
+import type { DayInfo, WorkoutWithSets } from "@/lib/types"
 
 interface CalendarProps {
   calendar: DayInfo[]

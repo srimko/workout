@@ -1,21 +1,13 @@
 "use client"
 
-import { useEffect, useState, useMemo } from "react"
-import { getAllWorkoutsWithSets } from "@/lib/actions/workouts"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import type { WorkoutWithSets, SetWithExercise } from "@/lib/types"
-import {
-  Empty,
-  EmptyHeader,
-  EmptyTitle,
-  EmptyDescription,
-  EmptyMedia,
-} from "@/components/ui/empty"
-import { TrendingUp, ArrowUp, ArrowDown } from "lucide-react"
-import { Line, LineChart, CartesianGrid, XAxis, YAxis } from "recharts"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { ArrowDown, ArrowUp, TrendingUp } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
 import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -23,7 +15,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { getAllWorkoutsWithSets } from "@/lib/actions/workouts"
+import type { SetWithExercise, WorkoutWithSets } from "@/lib/types"
 
 interface ExerciseInfo {
   exerciseId: number
@@ -72,7 +66,7 @@ export default function EvolutionPage() {
         const data = await getAllWorkoutsWithSets()
         // Trier par date croissante pour l'affichage chronologique
         const sortedData = data.sort(
-          (a, b) => new Date(a.started_at).getTime() - new Date(b.started_at).getTime()
+          (a, b) => new Date(a.started_at).getTime() - new Date(b.started_at).getTime(),
         )
         setWorkouts(sortedData)
       } catch (error) {
@@ -98,7 +92,16 @@ export default function EvolutionPage() {
         >
         exerciseData: Map<
           number,
-          Map<string, { maxWeight: number; volume: number; setsCount: number; dateObj: Date; workoutId: string }>
+          Map<
+            string,
+            {
+              maxWeight: number
+              volume: number
+              setsCount: number
+              dateObj: Date
+              workoutId: string
+            }
+          >
         >
       }
     >()
@@ -167,25 +170,77 @@ export default function EvolutionPage() {
     })
 
     // Convertir en tableau et trier les dataPoints
-    const result: CategoryData[] = Array.from(categoriesMap.entries()).map(
-      ([categoryId, data]) => {
-        const sortedDataPoints = Array.from(data.dataPoints.entries())
-          .sort(([, a], [, b]) => a.dateObj.getTime() - b.dateObj.getTime())
+    const result: CategoryData[] = Array.from(categoriesMap.entries()).map(([categoryId, data]) => {
+      const sortedDataPoints = Array.from(data.dataPoints.entries()).sort(
+        ([, a], [, b]) => a.dateObj.getTime() - b.dateObj.getTime(),
+      )
 
-        // Détecter s'il y a plusieurs séances le même jour pour ajouter l'heure
-        const dateCount = new Map<string, number>()
-        sortedDataPoints.forEach(([, point]) => {
+      // Détecter s'il y a plusieurs séances le même jour pour ajouter l'heure
+      const dateCount = new Map<string, number>()
+      sortedDataPoints.forEach(([, point]) => {
+        const dateKey = point.dateObj.toISOString().split("T")[0]
+        dateCount.set(dateKey, (dateCount.get(dateKey) || 0) + 1)
+      })
+
+      const formattedDataPoints = sortedDataPoints.map(([workoutId, point]) => {
+        const dateKey = point.dateObj.toISOString().split("T")[0]
+        const hasMultipleSameDay = (dateCount.get(dateKey) || 0) > 1
+
+        let dateFormatted: string
+        if (hasMultipleSameDay) {
+          // Ajouter l'heure si plusieurs séances le même jour
+          dateFormatted = point.dateObj.toLocaleDateString("fr-FR", {
+            day: "numeric",
+            month: "short",
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        } else {
+          dateFormatted = point.dateObj.toLocaleDateString("fr-FR", {
+            day: "numeric",
+            month: "short",
+          })
+        }
+
+        return {
+          date: workoutId,
+          dateFormatted,
+          maxWeight: point.maxWeight,
+          volume: point.volume,
+          setsCount: point.setsCount,
+        }
+      })
+
+      // Convertir exerciseData en Map avec arrays triés
+      const exerciseData = new Map<
+        number,
+        Array<{
+          date: string
+          dateFormatted: string
+          maxWeight: number
+          volume: number
+          setsCount: number
+        }>
+      >()
+
+      data.exerciseData.forEach((exerciseDateMap, exerciseId) => {
+        const sortedExerciseDataPoints = Array.from(exerciseDateMap.entries()).sort(
+          ([, a], [, b]) => a.dateObj.getTime() - b.dateObj.getTime(),
+        )
+
+        // Détecter s'il y a plusieurs séances le même jour pour cet exercice
+        const exerciseDateCount = new Map<string, number>()
+        sortedExerciseDataPoints.forEach(([, point]) => {
           const dateKey = point.dateObj.toISOString().split("T")[0]
-          dateCount.set(dateKey, (dateCount.get(dateKey) || 0) + 1)
+          exerciseDateCount.set(dateKey, (exerciseDateCount.get(dateKey) || 0) + 1)
         })
 
-        const formattedDataPoints = sortedDataPoints.map(([workoutId, point]) => {
+        const formattedExerciseDataPoints = sortedExerciseDataPoints.map(([workoutId, point]) => {
           const dateKey = point.dateObj.toISOString().split("T")[0]
-          const hasMultipleSameDay = (dateCount.get(dateKey) || 0) > 1
+          const hasMultipleSameDay = (exerciseDateCount.get(dateKey) || 0) > 1
 
           let dateFormatted: string
           if (hasMultipleSameDay) {
-            // Ajouter l'heure si plusieurs séances le même jour
             dateFormatted = point.dateObj.toLocaleDateString("fr-FR", {
               day: "numeric",
               month: "short",
@@ -208,71 +263,19 @@ export default function EvolutionPage() {
           }
         })
 
-        // Convertir exerciseData en Map avec arrays triés
-        const exerciseData = new Map<
-          number,
-          Array<{
-            date: string
-            dateFormatted: string
-            maxWeight: number
-            volume: number
-            setsCount: number
-          }>
-        >()
+        exerciseData.set(exerciseId, formattedExerciseDataPoints)
+      })
 
-        data.exerciseData.forEach((exerciseDateMap, exerciseId) => {
-          const sortedExerciseDataPoints = Array.from(exerciseDateMap.entries())
-            .sort(([, a], [, b]) => a.dateObj.getTime() - b.dateObj.getTime())
-
-          // Détecter s'il y a plusieurs séances le même jour pour cet exercice
-          const exerciseDateCount = new Map<string, number>()
-          sortedExerciseDataPoints.forEach(([, point]) => {
-            const dateKey = point.dateObj.toISOString().split("T")[0]
-            exerciseDateCount.set(dateKey, (exerciseDateCount.get(dateKey) || 0) + 1)
-          })
-
-          const formattedExerciseDataPoints = sortedExerciseDataPoints.map(([workoutId, point]) => {
-            const dateKey = point.dateObj.toISOString().split("T")[0]
-            const hasMultipleSameDay = (exerciseDateCount.get(dateKey) || 0) > 1
-
-            let dateFormatted: string
-            if (hasMultipleSameDay) {
-              dateFormatted = point.dateObj.toLocaleDateString("fr-FR", {
-                day: "numeric",
-                month: "short",
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            } else {
-              dateFormatted = point.dateObj.toLocaleDateString("fr-FR", {
-                day: "numeric",
-                month: "short",
-              })
-            }
-
-            return {
-              date: workoutId,
-              dateFormatted,
-              maxWeight: point.maxWeight,
-              volume: point.volume,
-              setsCount: point.setsCount,
-            }
-          })
-
-          exerciseData.set(exerciseId, formattedExerciseDataPoints)
-        })
-
-        return {
-          categoryId,
-          categoryName: data.categoryName,
-          exercises: Array.from(data.exercises.entries())
-            .map(([exerciseId, exerciseName]) => ({ exerciseId, exerciseName }))
-            .sort((a, b) => a.exerciseName.localeCompare(b.exerciseName)),
-          dataPoints: formattedDataPoints,
-          exerciseData,
-        }
+      return {
+        categoryId,
+        categoryName: data.categoryName,
+        exercises: Array.from(data.exercises.entries())
+          .map(([exerciseId, exerciseName]) => ({ exerciseId, exerciseName }))
+          .sort((a, b) => a.exerciseName.localeCompare(b.exerciseName)),
+        dataPoints: formattedDataPoints,
+        exerciseData,
       }
-    )
+    })
 
     // Trier les catégories par nom
     return result.sort((a, b) => a.categoryName.localeCompare(b.categoryName))
@@ -286,7 +289,7 @@ export default function EvolutionPage() {
       maxWeight: number
       volume: number
       setsCount: number
-    }>
+    }>,
   ): CategoryStats => {
     if (dataPoints.length === 0) {
       return {
@@ -299,7 +302,8 @@ export default function EvolutionPage() {
     }
 
     const currentMaxWeight = dataPoints[dataPoints.length - 1].maxWeight
-    const previousMaxWeight = dataPoints.length > 1 ? dataPoints[dataPoints.length - 2].maxWeight : null
+    const previousMaxWeight =
+      dataPoints.length > 1 ? dataPoints[dataPoints.length - 2].maxWeight : null
     const totalVolume = dataPoints.reduce((sum, point) => sum + point.volume, 0)
     const totalSets = dataPoints.reduce((sum, point) => sum + point.setsCount, 0)
 
@@ -406,7 +410,11 @@ export default function EvolutionPage() {
           const { dataPoints, stats, label } = displayData
 
           return (
-            <TabsContent key={category.categoryId} value={category.categoryId} className="space-y-6">
+            <TabsContent
+              key={category.categoryId}
+              value={category.categoryId}
+              className="space-y-6"
+            >
               {/* Sélecteur d'exercice */}
               {category.exercises.length > 0 && (
                 <div className="space-y-2">
@@ -426,7 +434,10 @@ export default function EvolutionPage() {
                     <SelectContent>
                       <SelectItem value="all">Tous les exercices</SelectItem>
                       {category.exercises.map((exercise) => (
-                        <SelectItem key={exercise.exerciseId} value={exercise.exerciseId.toString()}>
+                        <SelectItem
+                          key={exercise.exerciseId}
+                          value={exercise.exerciseId.toString()}
+                        >
                           {exercise.exerciseName}
                         </SelectItem>
                       ))}
@@ -495,7 +506,9 @@ export default function EvolutionPage() {
                 <Card>
                   <CardContent className="p-4">
                     <div className="text-center">
-                      <p className="text-2xl sm:text-3xl font-bold text-primary">{stats.totalSets}</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-primary">
+                        {stats.totalSets}
+                      </p>
                       <p className="text-xs text-muted-foreground mt-1">Séries totales</p>
                     </div>
                   </CardContent>
@@ -562,7 +575,9 @@ export default function EvolutionPage() {
                                     </div>
                                     <div className="flex justify-between gap-4">
                                       <span className="text-muted-foreground">Volume:</span>
-                                      <span className="font-semibold">{data.volume.toFixed(0)}</span>
+                                      <span className="font-semibold">
+                                        {data.volume.toFixed(0)}
+                                      </span>
                                     </div>
                                     <div className="flex justify-between gap-4">
                                       <span className="text-muted-foreground">Séries:</span>

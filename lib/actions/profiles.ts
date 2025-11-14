@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache"
 import {
-  getProfileById as getProfileByIdAPI,
   getCurrentProfile as getCurrentProfileAPI,
+  getProfileById as getProfileByIdAPI,
   updateProfile as updateProfileAPI,
 } from "@/lib/api/profiles"
 import type { Profile } from "@/lib/types"

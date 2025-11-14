@@ -1,18 +1,18 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import type { StrengthLevel } from "@/lib/types/strength-standards"
 import {
-  getExerciseById,
-  getStandardForWeight,
   determineStrengthLevel,
-  getProgressToNextLevel,
-  getLevelLabel,
+  getExerciseById,
   getLevelColor,
-} from "@/lib/utils/strength-standards";
-import type { StrengthLevel } from "@/lib/types/strength-standards";
+  getLevelLabel,
+  getProgressToNextLevel,
+  getStandardForWeight,
+} from "@/lib/utils/strength-standards"
 
 interface StrengthStandardsCardProps {
-  exerciseId: string;
-  bodyWeight: number;
-  liftedWeight?: number;
+  exerciseId: string
+  bodyWeight: number
+  liftedWeight?: number
 }
 
 export function StrengthStandardsCard({
@@ -20,8 +20,8 @@ export function StrengthStandardsCard({
   bodyWeight,
   liftedWeight,
 }: StrengthStandardsCardProps) {
-  const exercise = getExerciseById(exerciseId);
-  const standard = getStandardForWeight(exerciseId, bodyWeight);
+  const exercise = getExerciseById(exerciseId)
+  const standard = getStandardForWeight(exerciseId, bodyWeight)
 
   if (!exercise || !standard) {
     return (
@@ -31,25 +31,23 @@ export function StrengthStandardsCard({
           <CardDescription>Exercice non trouvé</CardDescription>
         </CardHeader>
       </Card>
-    );
+    )
   }
 
   const currentLevel = liftedWeight
     ? determineStrengthLevel(exerciseId, bodyWeight, liftedWeight)
-    : null;
+    : null
   const progress = liftedWeight
     ? getProgressToNextLevel(exerciseId, bodyWeight, liftedWeight)
-    : null;
+    : null
 
-  const levels: StrengthLevel[] = ["debutant", "novice", "intermediaire", "avance", "elite"];
+  const levels: StrengthLevel[] = ["debutant", "novice", "intermediaire", "avance", "elite"]
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>{exercise.name}</CardTitle>
-        <CardDescription>
-          Standards pour {bodyWeight} kg de poids de corps
-        </CardDescription>
+        <CardDescription>Standards pour {bodyWeight} kg de poids de corps</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Affichage du niveau actuel */}
@@ -58,24 +56,17 @@ export function StrengthStandardsCard({
             <div className="mb-2 text-sm text-muted-foreground">Votre niveau actuel</div>
             <div className="flex items-center justify-between">
               <div>
-                <div
-                  className="text-2xl font-bold"
-                  style={{ color: getLevelColor(currentLevel) }}
-                >
+                <div className="text-2xl font-bold" style={{ color: getLevelColor(currentLevel) }}>
                   {getLevelLabel(currentLevel)}
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  {liftedWeight} kg soulevés
-                </div>
+                <div className="text-sm text-muted-foreground">{liftedWeight} kg soulevés</div>
               </div>
               {progress && progress.nextLevel && (
                 <div className="text-right">
                   <div className="text-sm text-muted-foreground">
                     Vers {getLevelLabel(progress.nextLevel)}
                   </div>
-                  <div className="text-lg font-semibold">
-                    {Math.round(progress.progress)}%
-                  </div>
+                  <div className="text-lg font-semibold">{Math.round(progress.progress)}%</div>
                 </div>
               )}
             </div>
@@ -117,5 +108,5 @@ export function StrengthStandardsCard({
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

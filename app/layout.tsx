@@ -1,14 +1,14 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { AppHeader } from "@/components/app-header"
-import { Toaster } from "@/components/ui/sonner"
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister"
-import { createClient } from "@/utils/supabase/server"
+import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider } from "@/lib/providers/ThemeProvider"
+import { createClient } from "@/utils/supabase/server"
 import "./globals.css"
 
+import { Award, Dumbbell, GitCompare, Library, User } from "lucide-react"
 import Link from "next/link"
-import { Dumbbell, User, Library, GitCompare, Award } from "lucide-react"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

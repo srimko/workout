@@ -1,25 +1,25 @@
 "use client"
 
+import { Check, Minus, Moon, Pencil, Plus, Sun, X } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { Check, Pencil, X, Plus, Minus, Moon, Sun } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { TagsInput } from "@/components/ui/tags-input"
+import { toast } from "sonner"
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { toast } from "sonner"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { TagsInput } from "@/components/ui/tags-input"
 import { updateProfile } from "@/lib/actions/profiles"
+import { useTheme } from "@/lib/providers/ThemeProvider"
 import type { Profile } from "@/lib/types"
 import { createClient } from "@/utils/supabase/client"
-import { useTheme } from "@/lib/providers/ThemeProvider"
 
 type EditableField = keyof Omit<Profile, "id" | "auth_id" | "created_at" | "updated_at">
 
@@ -523,9 +523,7 @@ export default function UserPage() {
                               <Check className="h-5 w-5 text-primary" />
                             )}
                           </div>
-                          <CardDescription className="text-sm">
-                            {theme.description}
-                          </CardDescription>
+                          <CardDescription className="text-sm">{theme.description}</CardDescription>
                         </CardHeader>
                       </Card>
                     ))}

@@ -29,11 +29,7 @@ async function getCurrentProfileId(): Promise<string | null> {
 export async function getProfileById(profileId: string): Promise<Profile | null> {
   const supabase = await createClient()
 
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", profileId)
-    .single()
+  const { data, error } = await supabase.from("profiles").select("*").eq("id", profileId).single()
 
   if (error) {
     console.error("Error fetching profile:", error)

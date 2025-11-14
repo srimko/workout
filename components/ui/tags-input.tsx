@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, KeyboardEvent } from "react"
 import { X } from "lucide-react"
+import { type KeyboardEvent, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
@@ -13,7 +13,12 @@ interface TagsInputProps {
   className?: string
 }
 
-export function TagsInput({ value, onChange, placeholder = "Ajouter un tag...", className }: TagsInputProps) {
+export function TagsInput({
+  value,
+  onChange,
+  placeholder = "Ajouter un tag...",
+  className,
+}: TagsInputProps) {
   const [inputValue, setInputValue] = useState("")
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {

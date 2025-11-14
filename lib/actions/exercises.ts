@@ -3,11 +3,11 @@
 import {
   getCategories as getCategoriesAPI,
   getCategoryById as getCategoryByIdAPI,
-  getExercises as getExercisesAPI,
-  getExercisesWithCategory as getExercisesWithCategoryAPI,
-  getExercisesByCategory as getExercisesByCategoryAPI,
   getExerciseById as getExerciseByIdAPI,
   getExerciseByIdWithCategory as getExerciseByIdWithCategoryAPI,
+  getExercises as getExercisesAPI,
+  getExercisesByCategory as getExercisesByCategoryAPI,
+  getExercisesWithCategory as getExercisesWithCategoryAPI,
   getExercisesWithSetsByWorkout as getExercisesWithSetsByWorkoutAPI,
 } from "@/lib/api/exercises"
 

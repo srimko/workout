@@ -1,10 +1,10 @@
 "use client"
 
-import { memo, useState, useCallback } from "react"
+import { Minus, Plus } from "lucide-react"
+import { memo, useCallback, useState } from "react"
 import { DrawerWeight } from "@/components/Drawers/components/DrawerWeight"
-import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, Minus } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
 
 const MIN_SERIES = 1
 const MAX_SERIES = 4

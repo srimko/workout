@@ -1,15 +1,16 @@
 "use client"
 
-import { useEffect, useState, useMemo, useRef } from "react"
-import { getAllWorkoutsWithSets } from "@/lib/actions/workouts"
-import type { WorkoutWithSets, SetWithExercise } from "@/lib/types"
-import { Badge } from "@/components/ui/badge"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Calendar } from "@/components/Calendar"
+import { Badge } from "@/components/ui/badge"
+import { getAllWorkoutsWithSets } from "@/lib/actions/workouts"
+import type { SetWithExercise, WorkoutWithSets } from "@/lib/types"
+
 interface DayInfo {
   day: number
   dayName: string // Nom du jour (lundi, mardi, etc.)
   isActive: boolean // true si c'est aujourd'hui
-  date: String
+  date: string
 }
 
 interface ExerciseGroup {

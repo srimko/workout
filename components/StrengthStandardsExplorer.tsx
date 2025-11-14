@@ -1,14 +1,14 @@
 import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import type { ExerciseCategory, StrengthLevel } from "@/lib/types/strength-standards"
 import {
   getAllCategories,
-  getExercisesByCategory,
   getCategoryLabel,
-  getLevelLabel,
+  getExercisesByCategory,
   getLevelColor,
+  getLevelLabel,
 } from "@/lib/utils/strength-standards"
-import type { ExerciseCategory, StrengthLevel } from "@/lib/types/strength-standards"
 
 interface StrengthStandardsExplorerProps {
   bodyWeight: number

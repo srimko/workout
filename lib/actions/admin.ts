@@ -1,15 +1,15 @@
 "use server"
 
 import {
-  getAllUsers as getAllUsersAPI,
-  getUserWithWorkouts as getUserWithWorkoutsAPI,
   createSet as createSetAPI,
-  updateSet as updateSetAPI,
   deleteSet as deleteSetAPI,
-  updateWorkout as updateWorkoutAPI,
-  deleteWorkout as deleteWorkoutAPI,
   deleteUser as deleteUserAPI,
+  deleteWorkout as deleteWorkoutAPI,
+  getAllUsers as getAllUsersAPI,
   getGlobalStats as getGlobalStatsAPI,
+  getUserWithWorkouts as getUserWithWorkoutsAPI,
+  updateSet as updateSetAPI,
+  updateWorkout as updateWorkoutAPI,
 } from "@/lib/api/admin"
 
 /**

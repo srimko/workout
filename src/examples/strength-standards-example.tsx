@@ -5,29 +5,29 @@
  * dans votre application de musculation.
  */
 
-import { useState } from "react";
-import { StrengthStandardsCard } from "@/components/StrengthStandardsCard";
-import { StrengthStandardsExplorer } from "@/components/StrengthStandardsExplorer";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import { useState } from "react"
+import { StrengthStandardsCard } from "@/components/StrengthStandardsCard"
+import { StrengthStandardsExplorer } from "@/components/StrengthStandardsExplorer"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { getAllExercises, getLevelLabel, getLevelColor } from "@/lib/utils/strength-standards";
-import type { Exercise } from "@/lib/types/strength-standards";
+} from "@/components/ui/select"
+import type { Exercise } from "@/lib/types/strength-standards"
+import { getAllExercises, getLevelColor, getLevelLabel } from "@/lib/utils/strength-standards"
 
 export default function StrengthStandardsExample() {
-  const [bodyWeight, setBodyWeight] = useState(75);
-  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
-  const [liftedWeight, setLiftedWeight] = useState<number | undefined>(undefined);
+  const [bodyWeight, setBodyWeight] = useState(75)
+  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null)
+  const [liftedWeight, setLiftedWeight] = useState<number | undefined>(undefined)
 
-  const exercises = getAllExercises();
+  const exercises = getAllExercises()
 
   return (
     <div className="container mx-auto space-y-8 p-6">
@@ -95,8 +95,8 @@ export default function StrengthStandardsExample() {
 
           <Button
             onClick={() => {
-              setLiftedWeight(undefined);
-              setSelectedExercise(null);
+              setLiftedWeight(undefined)
+              setSelectedExercise(null)
             }}
             variant="outline"
           >
@@ -121,9 +121,7 @@ export default function StrengthStandardsExample() {
       <Card>
         <CardHeader>
           <CardTitle>Comprendre les niveaux</CardTitle>
-          <CardDescription>
-            Voici ce que signifie chaque niveau de force
-          </CardDescription>
+          <CardDescription>Voici ce que signifie chaque niveau de force</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
@@ -190,5 +188,5 @@ export default function StrengthStandardsExample() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

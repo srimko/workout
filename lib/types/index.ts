@@ -87,5 +87,5 @@ export interface DayInfo {
   day: number
   dayName: string
   isActive: boolean
-  date: String
+  date: string
 }

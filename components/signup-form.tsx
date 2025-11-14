@@ -53,7 +53,7 @@ export function SignUp({ className, ...props }: React.ComponentProps<"div">) {
     // Vérifier si l'email doit être confirmé
     if (data?.user && !data.session) {
       setError(
-        "Inscription réussie ! Veuillez vérifier votre email pour confirmer votre compte. (En mode local, vous pouvez vous connecter directement)"
+        "Inscription réussie ! Veuillez vérifier votre email pour confirmer votre compte. (En mode local, vous pouvez vous connecter directement)",
       )
       setLoading(false)
       // En local, rediriger vers login après 3 secondes

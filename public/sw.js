@@ -4,17 +4,14 @@ const RUNTIME_CACHE = "muscu-tracker-runtime"
 const IMAGE_CACHE = "muscu-tracker-images"
 
 // Assets to cache immediately on install
-const PRECACHE_ASSETS = [
-  "/",
-  "/offline",
-]
+const PRECACHE_ASSETS = ["/", "/offline"]
 
 // Install event - precache essential assets
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(PRECACHE_ASSETS)
-    })
+    }),
   )
   // Force the waiting service worker to become the active service worker
   self.skipWaiting()
@@ -27,13 +24,13 @@ self.addEventListener("activate", (event) => {
       return Promise.all(
         cacheNames
           .filter((cacheName) => {
-            return cacheName !== CACHE_NAME &&
-                   cacheName !== RUNTIME_CACHE &&
-                   cacheName !== IMAGE_CACHE
+            return (
+              cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE && cacheName !== IMAGE_CACHE
+            )
           })
-          .map((cacheName) => caches.delete(cacheName))
+          .map((cacheName) => caches.delete(cacheName)),
       )
-    })
+    }),
   )
   // Take control of all pages immediately
   return self.clients.claim()
@@ -57,44 +54,51 @@ self.addEventListener("fetch", (event) => {
   // Strategy 1: Cache-first for exercise images
   if (url.pathname.startsWith("/exercises/")) {
     event.respondWith(
-      caches.match(request).then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse
-        }
-        return caches.open(IMAGE_CACHE).then((cache) => {
-          return fetch(request).then((response) => {
-            // Cache the fetched image for future use
-            cache.put(request, response.clone())
-            return response
+      caches
+        .match(request)
+        .then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse
+          }
+          return caches.open(IMAGE_CACHE).then((cache) => {
+            return fetch(request).then((response) => {
+              // Cache the fetched image for future use
+              cache.put(request, response.clone())
+              return response
+            })
           })
         })
-      }).catch(() => {
-        // Return a fallback if offline and not cached
-        return new Response("Image not available offline", { status: 503 })
-      })
+        .catch(() => {
+          // Return a fallback if offline and not cached
+          return new Response("Image not available offline", { status: 503 })
+        }),
     )
     return
   }
 
   // Strategy 2: Cache-first for static assets (icons, fonts)
-  if (url.pathname.startsWith("/icons/") ||
-      url.pathname.match(/\.(png|jpg|jpeg|svg|gif|webp|woff|woff2|ttf)$/)) {
+  if (
+    url.pathname.startsWith("/icons/") ||
+    url.pathname.match(/\.(png|jpg|jpeg|svg|gif|webp|woff|woff2|ttf)$/)
+  ) {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
-        return cachedResponse || fetch(request).then((response) => {
-          return caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, response.clone())
-            return response
+        return (
+          cachedResponse ||
+          fetch(request).then((response) => {
+            return caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, response.clone())
+              return response
+            })
           })
-        })
-      })
+        )
+      }),
     )
     return
   }
 
   // Strategy 3: Network-first for API calls (Supabase, etc.)
-  if (url.hostname.includes("supabase") ||
-      url.pathname.startsWith("/api/")) {
+  if (url.hostname.includes("supabase") || url.pathname.startsWith("/api/")) {
     event.respondWith(
       fetch(request)
         .then((response) => {
@@ -110,15 +114,15 @@ self.addEventListener("fetch", (event) => {
         .catch(() => {
           // If network fails, try to return cached version
           return caches.match(request).then((cachedResponse) => {
-            return cachedResponse || new Response(
-              JSON.stringify({ error: "Offline" }),
-              {
+            return (
+              cachedResponse ||
+              new Response(JSON.stringify({ error: "Offline" }), {
                 status: 503,
-                headers: { "Content-Type": "application/json" }
-              }
+                headers: { "Content-Type": "application/json" },
+              })
             )
           })
-        })
+        }),
     )
     return
   }
@@ -138,7 +142,7 @@ self.addEventListener("fetch", (event) => {
           return caches.match(request).then((cachedResponse) => {
             return cachedResponse || caches.match("/offline")
           })
-        })
+        }),
     )
     return
   }
@@ -155,7 +159,7 @@ self.addEventListener("fetch", (event) => {
       })
       .catch(() => {
         return caches.match(request)
-      })
+      }),
   )
 })
 
@@ -178,9 +182,7 @@ self.addEventListener("push", (event) => {
     },
   }
 
-  event.waitUntil(
-    self.registration.showNotification(data.title || "Muscu Tracker", options)
-  )
+  event.waitUntil(self.registration.showNotification(data.title || "Muscu Tracker", options))
 })
 
 // Notification click handling
@@ -201,6 +203,6 @@ self.addEventListener("notificationclick", (event) => {
       if (clients.openWindow) {
         return clients.openWindow(urlToOpen)
       }
-    })
+    }),
   )
 })
