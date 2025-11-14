@@ -9,6 +9,7 @@ import {
   resumeWorkout as resumeWorkoutAPI,
   getAllWorkouts as getAllWorkoutsAPI,
   getAllWorkoutsWithSets as getAllWorkoutsWithSetsAPI,
+  autoCloseOldWorkouts as autoCloseOldWorkoutsAPI,
 } from "@/lib/api/workouts"
 
 /**
@@ -66,4 +67,11 @@ export async function getAllWorkouts() {
  */
 export async function getAllWorkoutsWithSets() {
   return await getAllWorkoutsWithSetsAPI()
+}
+
+/**
+ * Auto-close old unfinished workouts (not from today)
+ */
+export async function autoCloseOldWorkouts() {
+  return await autoCloseOldWorkoutsAPI()
 }
