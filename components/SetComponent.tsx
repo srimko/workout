@@ -48,11 +48,7 @@ export function SetComponent<T extends SetWithExerciseInfo | Serie>({
       {onEdit === id && (onEditSet || onDeleteSet) && (
         <div className="my-4 flex justify-between gap-2">
           {onEditSet && (
-            <Button
-              variant="outline"
-              className="flex-1 flex gap-2"
-              onClick={() => onEditSet(set)}
-            >
+            <Button variant="outline" className="flex-1 flex gap-2" onClick={() => onEditSet(set)}>
               <Pencil className="h-4 w-4" /> Modifier
             </Button>
           )}
