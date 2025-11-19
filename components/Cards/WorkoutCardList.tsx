@@ -1,8 +1,7 @@
 "use client"
 
-import { Pen, Pencil, Trash } from "lucide-react"
 import { memo, useMemo, useState } from "react"
-import { type SetWithExerciseInfo, WorkoutCard } from "@/components/Cards/WorkoutCard"
+import { type SetWithExerciseInfo } from "@/components/Cards/WorkoutCard"
 import {
   Accordion,
   AccordionContent,
@@ -11,7 +10,7 @@ import {
 } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "../ui/button"
+import { SetComponent } from "../SetComponent"
 
 interface WorkoutCardListProps {
   sets?: SetWithExerciseInfo[]
@@ -139,37 +138,16 @@ export const WorkoutCardList = memo(function WorkoutCardList({
                           <h3 className="font-semibold text-base leading-tight truncate mb-2">
                             {set.exercise_name}
                           </h3>
-                          <div
-                            className="flex items-center justify-between text-sm bg-background rounded px-3 py-2"
-                            onClick={() => handleClick(set.id)}
-                          >
-                            <span className="text-muted-foreground font-medium">
-                              Série {index + 1}
-                            </span>
-                            <span className="flex items-center gap-4 font-semibold">
-                              {set.weight}kg × {set.repetition} reps
-                              <Pen className="size-2" />
-                            </span>
-                          </div>
-                          {onEdit === set.id && (
-                            <div className="my-4 flex justify-between">
-                              <Button
-                                className="p-0 flex-shrink-0 active:bg-accent"
-                                onClick={() => onEditSet?.(set)}
-                              >
-                                <Pencil className="h-4 w-4" /> Modifier
-                                <span className="sr-only">Modifier</span>
-                              </Button>
 
-                              <Button
-                                variant="destructive"
-                                className="p-0 flex-shrink-0 active:bg-accent"
-                                onClick={() => onDeleteSet?.(set)}
-                              >
-                                <Trash className="h-4 w-4" /> Supprimer
-                                <span className="sr-only">Supprimer</span>
-                              </Button>
-                            </div>
+                          {set && (
+                            <SetComponent
+                              set={set}
+                              index={index}
+                              onSetClick={handleClick}
+                              onEditSet={onEditSet}
+                              onDeleteSet={onDeleteSet}
+                              onEdit={onEdit}
+                            />
                           )}
                         </div>
                       ))}
