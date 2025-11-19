@@ -5,6 +5,7 @@ import { memo, useCallback, useState } from "react"
 import { DrawerWeight } from "@/components/Drawers/components/DrawerWeight"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { SetComponent } from "@/components/SetComponent"
 
 const MIN_SERIES = 1
 const MAX_SERIES = 4
@@ -34,6 +35,7 @@ export const DrawerAddSerie = memo(function DrawerAddSerie({
 }: DrawerAddSerieProps) {
   const [rep, setRepChange] = useState<number>(1)
   const [serie, setSerieChange] = useState<number>(1)
+  const [onEdit, setOnEdit] = useState<string | null>(null)
 
   const handleSerieChange = useCallback(
     (adjustment: number) => {
@@ -61,6 +63,29 @@ export const DrawerAddSerie = memo(function DrawerAddSerie({
     onSeriesChange([...allSeries, ...newSeries])
   }
 
+  const handleClick = (id: string) => {
+    if (id === onEdit) {
+      setOnEdit(null)
+      return
+    }
+    setOnEdit(id)
+  }
+
+  const handleDeleteSerie = useCallback(
+    (serieToDelete: Serie) => {
+      // Filtrer la série à supprimer
+      const updatedSeries = allSeries.filter((s) => s.title !== serieToDelete.title)
+      // Réindexer les titres des séries restantes
+      const reindexedSeries = updatedSeries.map((s, idx) => ({
+        ...s,
+        title: `Série ${idx + 1}`,
+      }))
+      onSeriesChange(reindexedSeries)
+      setOnEdit(null)
+    },
+    [allSeries, onSeriesChange],
+  )
+
   const canAddMore = allSeries.length + serie <= MAX_SERIES && weight > 0 && rep > 0
   const buttonLabel = serie === 1 ? "Ajouter une série" : `Ajouter ${serie} séries`
 
@@ -77,15 +102,14 @@ export const DrawerAddSerie = memo(function DrawerAddSerie({
               </span>
             </div>
             {allSeries.map((serie, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between text-sm bg-background rounded px-3 py-2 mb-2"
-              >
-                <span className="text-muted-foreground font-medium">{serie.title}</span>
-                <span className="flex items-center gap-4 font-semibold">
-                  {serie.weight}kg × {serie.rep} reps
-                </span>
-              </div>
+              <SetComponent
+                key={serie.title}
+                set={serie}
+                index={index}
+                onSetClick={handleClick}
+                onEdit={onEdit}
+                onDeleteSet={handleDeleteSerie}
+              />
             ))}
           </CardContent>
         </Card>
