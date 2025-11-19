@@ -26,6 +26,11 @@ interface CategoryGroup {
   totalVolume: number
 }
 
+interface ExerciseGroup {
+  exerciseName: string
+  sets: SetWithExerciseInfo[]
+}
+
 export const WorkoutCardList = memo(function WorkoutCardList({
   sets,
   onEditSet,
@@ -86,6 +91,24 @@ export const WorkoutCardList = memo(function WorkoutCardList({
     setOnEdit(id)
   }
 
+  // Fonction pour regrouper les sets par exercice
+  const groupSetsByExercise = (sets: SetWithExerciseInfo[]): ExerciseGroup[] => {
+    const exerciseMap = new Map<string, SetWithExerciseInfo[]>()
+
+    sets.forEach((set) => {
+      const exerciseName = set.exercise_name
+      if (!exerciseMap.has(exerciseName)) {
+        exerciseMap.set(exerciseName, [])
+      }
+      exerciseMap.get(exerciseName)!.push(set)
+    })
+
+    return Array.from(exerciseMap.entries()).map(([exerciseName, sets]) => ({
+      exerciseName,
+      sets,
+    }))
+  }
+
   return (
     <div className="space-y-4 pb-20">
       {/* Stats Card */}
@@ -132,23 +155,25 @@ export const WorkoutCardList = memo(function WorkoutCardList({
                     <Badge>{group.categoryName}</Badge>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-1.5">
-                      {group.sets.map((set, index) => (
-                        <div key={set.id}>
-                          <h3 className="font-semibold text-base leading-tight truncate mb-2">
-                            {set.exercise_name}
+                    <div className="space-y-4">
+                      {groupSetsByExercise(group.sets).map((exerciseGroup) => (
+                        <div key={exerciseGroup.exerciseName} className="space-y-2">
+                          <h3 className="font-semibold text-base leading-tight truncate">
+                            {exerciseGroup.exerciseName}
                           </h3>
-
-                          {set && (
-                            <SetComponent
-                              set={set}
-                              index={index}
-                              onSetClick={handleClick}
-                              onEditSet={onEditSet}
-                              onDeleteSet={onDeleteSet}
-                              onEdit={onEdit}
-                            />
-                          )}
+                          <div className="space-y-1.5">
+                            {exerciseGroup.sets.map((set, index) => (
+                              <SetComponent
+                                key={set.id}
+                                set={set}
+                                index={index}
+                                onSetClick={handleClick}
+                                onEditSet={onEditSet}
+                                onDeleteSet={onDeleteSet}
+                                onEdit={onEdit}
+                              />
+                            ))}
+                          </div>
                         </div>
                       ))}
                     </div>
