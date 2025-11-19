@@ -18,7 +18,6 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer"
 import { useCreateSet, useUpdateSet } from "@/lib/hooks/useSets"
-import type { Set } from "@/lib/types"
 
 interface Serie {
   title: string

@@ -3,10 +3,10 @@
 import {
   createSet as createSetAPI,
   createSetByExerciseTitle as createSetByExerciseTitleAPI,
+  deleteSet as deleteSetAPI,
+  getSetsByExercise as getSetsByExerciseAPI,
   getSetsByWorkout as getSetsByWorkoutAPI,
   getSetsByWorkoutWithExercises as getSetsByWorkoutWithExercisesAPI,
-  getSetsByExercise as getSetsByExerciseAPI,
-  deleteSet as deleteSetAPI,
   updateSet as updateSetAPI,
 } from "@/lib/api/sets"
 
@@ -65,9 +65,6 @@ export async function deleteSet(setId: string) {
 /**
  * Update a set
  */
-export async function updateSet(
-  setId: string,
-  updates: { weight?: number; repetition?: number },
-) {
+export async function updateSet(setId: string, updates: { weight?: number; repetition?: number }) {
   return await updateSetAPI(setId, updates)
 }
