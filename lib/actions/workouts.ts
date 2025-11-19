@@ -1,15 +1,17 @@
 "use server"
 
 import {
-  getTodayWorkout as getTodayWorkoutAPI,
-  getActiveWorkout as getActiveWorkoutAPI,
+  autoCloseOldWorkouts as autoCloseOldWorkoutsAPI,
   createTodayWorkout as createTodayWorkoutAPI,
-  getOrCreateTodayWorkout as getOrCreateTodayWorkoutAPI,
   endWorkout as endWorkoutAPI,
-  resumeWorkout as resumeWorkoutAPI,
+  getActiveWorkout as getActiveWorkoutAPI,
   getAllWorkouts as getAllWorkoutsAPI,
   getAllWorkoutsWithSets as getAllWorkoutsWithSetsAPI,
-  autoCloseOldWorkouts as autoCloseOldWorkoutsAPI,
+  getLastWorkout as getLastWorkoutAPI,
+  getOrCreateTodayWorkout as getOrCreateTodayWorkoutAPI,
+  getPrevWorkoutWithSets as getPrevWorkoutWithSetsAPI,
+  getTodayWorkout as getTodayWorkoutAPI,
+  resumeWorkout as resumeWorkoutAPI,
 } from "@/lib/api/workouts"
 
 /**
@@ -17,6 +19,20 @@ import {
  */
 export async function getTodayWorkout() {
   return await getTodayWorkoutAPI()
+}
+
+/**
+ * Get last
+ */
+export async function getPrevWorkoutWithSets() {
+  return await getPrevWorkoutWithSetsAPI()
+}
+
+/**
+ * Get last
+ */
+export async function getLastWorkout() {
+  return await getLastWorkoutAPI()
 }
 
 /**

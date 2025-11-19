@@ -53,6 +53,29 @@ export async function getTodayWorkout(): Promise<Workout | null> {
   return data
 }
 
+export async function getLastWorkout(): Promise<Workout | null> {
+  const profileId = await getCurrentProfileId()
+  if (!profileId) return null
+
+  const supabase = await createClient()
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const { data, error } = await supabase
+    .from("workouts")
+    .select("*")
+    .eq("profile_id", profileId)
+    .order("started_at", { ascending: false })
+
+  if (error) {
+    console.error("Error fetching workout:", error)
+    return null
+  }
+
+  return data[1]
+}
+
 /**
  * Get the active workout (unfinished workout)
  */
@@ -158,10 +181,7 @@ export async function endWorkout(workoutId: string): Promise<boolean> {
 export async function resumeWorkout(workoutId: string): Promise<boolean> {
   const supabase = await createClient()
 
-  const { error } = await supabase
-    .from("workouts")
-    .update({ ended_at: null })
-    .eq("id", workoutId)
+  const { error } = await supabase.from("workouts").update({ ended_at: null }).eq("id", workoutId)
 
   if (error) {
     console.error("Error resuming workout:", error)
@@ -230,6 +250,51 @@ export async function getAllWorkoutsWithSets(): Promise<WorkoutWithSets[]> {
   }
 
   return data || []
+}
+
+/**
+ * Get the previous workout (last workout before today) with its sets
+ */
+export async function getPrevWorkoutWithSets(): Promise<WorkoutWithSets | null> {
+  const profileId = await getCurrentProfileId()
+  if (!profileId) return null
+
+  const supabase = await createClient()
+
+  // Get today's date at midnight
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const { data, error } = await supabase
+    .from("workouts")
+    .select(`
+      *,
+      sets:sets(
+        id,
+        weight,
+        repetition,
+        created_at,
+        updated_at,
+        exercise:exercises(
+          id,
+          title,
+          image,
+          category:categories(*)
+        )
+      )
+    `)
+    .eq("profile_id", profileId)
+    .lt("started_at", today.toISOString())
+    .order("started_at", { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (error) {
+    console.error("Error fetching previous workout with sets:", error)
+    return null
+  }
+
+  return data
 }
 
 /**

@@ -1,12 +1,20 @@
 "use client"
 
+import { Dumbbell, X } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
+import { toast } from "sonner"
+import { WorkoutCardList } from "@/components/Cards/WorkoutCardList"
 import { DrawerExercise } from "@/components/Drawers/components/DrawerExercise"
 import { AlertModal } from "@/components/modals/AlertModal"
 import { ConfirmModal } from "@/components/modals/ConfirmModal"
-import { WorkoutCardList } from "@/components/Cards/WorkoutCardList"
-import { Button } from "@/components/ui/button"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   Empty,
   EmptyContent,
@@ -15,14 +23,16 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
-import { useModal } from "@/lib/hooks/useModal"
-import { useFetchSetsWithExercises, useDeleteSet } from "@/lib/hooks/useSets"
-import { toast } from "sonner"
-import type { Profile, Workout } from "@/lib/types"
-import { createClient } from "@/utils/supabase/client"
-import { getTodayWorkout, autoCloseOldWorkouts } from "@/lib/actions/workouts"
 import { getSetsByWorkoutWithExercises } from "@/lib/actions/sets"
-import { Dumbbell, Plus, X } from "lucide-react"
+import {
+  autoCloseOldWorkouts,
+  getPrevWorkoutWithSets,
+  getTodayWorkout,
+} from "@/lib/actions/workouts"
+import { useModal } from "@/lib/hooks/useModal"
+import { useDeleteSet, useFetchSetsWithExercises } from "@/lib/hooks/useSets"
+import type { Profile, Workout, WorkoutWithSets } from "@/lib/types"
+import { createClient } from "@/utils/supabase/client"
 
 interface SetWithExerciseInfo {
   id: string
@@ -39,15 +49,69 @@ interface SetWithExerciseInfo {
 
 type WorkoutStatus = "none" | "created" | "in_progress" | "completed"
 
+interface ExerciseStats {
+  title: string
+  weights: number[]
+  reps: number[]
+}
+
+/**
+ * Regroupe les sets d'un workout par exercice
+ */
+function groupSetsByExercise(workout: WorkoutWithSets | undefined): ExerciseStats[] {
+  if (!workout?.sets) return []
+
+  const exerciseStats = workout.sets.reduce(
+    (acc, set) => {
+      const exerciseTitle = set.exercise.title
+
+      if (!acc[exerciseTitle]) {
+        acc[exerciseTitle] = {
+          title: exerciseTitle,
+          weights: [],
+          reps: [],
+        }
+      }
+
+      acc[exerciseTitle].weights.push(set.weight)
+      acc[exerciseTitle].reps.push(set.repetition)
+
+      return acc
+    },
+    {} as Record<string, ExerciseStats>,
+  )
+
+  return Object.values(exerciseStats)
+}
+
+/**
+ * Affiche les statistiques d'un exercice avec toutes ses séries
+ */
+function renderExerciseStats(exercises: ExerciseStats[]) {
+  return exercises.map((exercise) => (
+    <div key={exercise.title} className="mb-4 p-3 bg-muted rounded-lg">
+      <h4 className="font-semibold mb-2">{exercise.title}</h4>
+      <div className="space-y-1 text-sm">
+        {exercise.weights.map((weight, idx) => (
+          <p key={`${exercise.title}-${idx}`} className="text-muted-foreground">
+            Série {idx + 1}: {weight}kg × {exercise.reps[idx]} reps
+          </p>
+        ))}
+      </div>
+    </div>
+  ))
+}
+
 export default function Home() {
   const supabase = createClient()
   const alertModal = useModal()
   const confirmDeleteModal = useModal()
   const { fetchSets } = useFetchSetsWithExercises()
-  const { deleteSet, loading: isDeleting } = useDeleteSet()
+  const { deleteSet } = useDeleteSet()
 
   const [workoutStatus, setWorkoutStatus] = useState<WorkoutStatus>("none")
   const [currentSets, setCurrentSets] = useState<SetWithExerciseInfo[] | undefined>()
+  const [lastWorkout, setLastWorkout] = useState<WorkoutWithSets | undefined>()
   const [currentWorkout, setCurrentWorkout] = useState<Workout | null>(null)
   const [currentProfile, setCurrentProfile] = useState<Profile | null>(null)
   const [editingSet, setEditingSet] = useState<SetWithExerciseInfo | null>(null)
@@ -55,6 +119,7 @@ export default function Home() {
   const [setToDelete, setSetToDelete] = useState<SetWithExerciseInfo | null>(null)
 
   // Charger automatiquement le workout du jour au démarrage
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Run only once on mount
   useEffect(() => {
     async function initializeTodayWorkout() {
       try {
@@ -95,6 +160,8 @@ export default function Home() {
 
         // Récupérer le workout du jour (requête optimisée)
         const workout = await getTodayWorkout()
+        const lastWorkout = await getPrevWorkoutWithSets()
+        if (lastWorkout) setLastWorkout(lastWorkout)
 
         if (!workout) {
           // Aucun workout du jour
@@ -123,7 +190,6 @@ export default function Home() {
     }
 
     initializeTodayWorkout()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Fonction pour rafraîchir les sets d'un workout avec les infos d'exercice
@@ -381,6 +447,17 @@ export default function Home() {
               <Badge variant="outline">En cours</Badge>
             </div>
           </div>
+
+          <Accordion type="single" collapsible>
+            <AccordionItem value="previous-workout">
+              <AccordionTrigger>
+                Séance précédente {lastWorkout?.created_at.split("T")[0] || ""}
+              </AccordionTrigger>
+              <AccordionContent>
+                {renderExerciseStats(groupSetsByExercise(lastWorkout))}
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
 
           {/* Contenu principal - cartes */}
           <div className="">
