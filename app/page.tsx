@@ -413,6 +413,26 @@ export default function Home() {
           </EmptyContent>
         </Empty>
 
+        <div className="fixed bottom-20 right-4 z-50">
+          <DrawerExercise
+            onSetCreated={handleSetCreated}
+            editMode={!!editingSet}
+            setToEdit={editingSet || undefined}
+            onSetUpdated={handleSetUpdated}
+            open={drawerOpen}
+            onOpenChange={handleDrawerOpenChange}
+          />
+        </div>
+
+        <div className="flex gap-4 fixed bottom-1/12 left-0 right-0 z-40 p-4 bg-background border-t border-border/50 backdrop-blur-sm safe-area-inset-bottom">
+          <Button variant="destructive" className="basis-1/5 h-12 text-base" onClick={endWorkout}>
+            <X />
+          </Button>
+          <Button className="flex-1 h-12 text-base" onClick={() => setDrawerOpen(true)}>
+            Ajouter un exercice
+          </Button>
+        </div>
+
         <AlertModal
           {...alertModal}
           title="Erreur"
