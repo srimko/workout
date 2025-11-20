@@ -3,9 +3,9 @@
 import { Minus, Plus } from "lucide-react"
 import { memo, useCallback, useState } from "react"
 import { DrawerWeight } from "@/components/Drawers/components/DrawerWeight"
+import { SetComponent } from "@/components/SetComponent"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { SetComponent } from "@/components/SetComponent"
 
 const MIN_SERIES = 1
 const MAX_SERIES = 4

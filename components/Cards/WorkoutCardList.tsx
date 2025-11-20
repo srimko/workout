@@ -1,7 +1,7 @@
 "use client"
 
 import { memo, useMemo, useState } from "react"
-import { type SetWithExerciseInfo } from "@/components/Cards/WorkoutCard"
+import type { SetWithExerciseInfo } from "@/components/Cards/WorkoutCard"
 import {
   Accordion,
   AccordionContent,

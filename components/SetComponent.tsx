@@ -1,5 +1,5 @@
-import { type SetWithExerciseInfo } from "@/components/Cards/WorkoutCard"
 import { Pen, Pencil, Trash } from "lucide-react"
+import type { SetWithExerciseInfo } from "@/components/Cards/WorkoutCard"
 import { Button } from "@/components/ui/button"
 
 // Type pour les séries en création (DrawerAddSerie)
