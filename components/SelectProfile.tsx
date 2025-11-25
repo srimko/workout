@@ -25,7 +25,7 @@ export function SelectProfile({ profiles, onSubmit, onValueChange }: SelectProfi
             <SelectValue placeholder="Select an profile" />
           </SelectTrigger>
           <SelectContent>
-            {profiles.map((profile, index) => (
+            {profiles.map((profile, _index) => (
               <SelectGroup key={profile.id}>
                 <SelectItem key={profile.id} value={JSON.stringify(profile)}>
                   {profile.display_name}

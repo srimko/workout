@@ -1,14 +1,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { getAllWorkouts } from "@/lib/actions/workouts"
 
 export default function WorkoutPage() {
-  const [workouts, setWorkouts] = useState({})
+  const [_workouts, _setWorkouts] = useState({})
 
   useEffect(() => {
     async function getAllWorkouts() {
-      const workouts = await getAllWorkouts()
+      const _workouts = await getAllWorkouts()
 
       //   setWorkouts(workouts)
     }

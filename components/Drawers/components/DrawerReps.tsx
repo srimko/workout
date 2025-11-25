@@ -100,8 +100,6 @@ export function DrawerReps({ repetition, onRepetitionChange }: DrawerRepsProsp) 
                   handleEditClick()
                 }
               }}
-              role="button"
-              tabIndex={0}
             >
               {repetition}
             </output>

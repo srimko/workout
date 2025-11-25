@@ -112,8 +112,6 @@ export const DrawerWeight = memo(function DrawerWeight({
                   handleEditClick()
                 }
               }}
-              role="button"
-              tabIndex={0}
             >
               {weight}
             </output>

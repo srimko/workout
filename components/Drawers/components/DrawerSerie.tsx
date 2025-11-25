@@ -101,8 +101,6 @@ export function DrawerSerie({ serie, onSerieChange }: DrawerSerieProps) {
                   handleEditClick()
                 }
               }}
-              role="button"
-              tabIndex={0}
             >
               {serie}
             </output>

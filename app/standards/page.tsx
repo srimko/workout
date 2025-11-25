@@ -1,9 +1,8 @@
 "use client"
 
-import { Award, Dumbbell, Target, TrendingUp } from "lucide-react"
+import { Award } from "lucide-react"
 import { useState } from "react"
 import { StrengthStandardsCard } from "@/components/StrengthStandardsCard"
-import { StrengthStandardsExplorer } from "@/components/StrengthStandardsExplorer"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"

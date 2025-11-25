@@ -42,7 +42,7 @@ export function DrawerWorkoutDetails({ workout, trigger }: DrawerWorkoutDetailsP
           sets: [],
         })
       }
-      groupMap.get(exerciseId)!.sets.push(set)
+      groupMap.get(exerciseId)?.sets.push(set)
     })
 
     // Retourner dans l'ordre d'apparition (ordre chronologique de création)

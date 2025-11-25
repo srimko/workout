@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react"
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { ChartContainer, ChartTooltip } from "@/components/ui/chart"
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { Label } from "@/components/ui/label"
 import {
@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { getAllWorkoutsWithSets } from "@/lib/actions/workouts"
-import type { SetWithExercise, WorkoutWithSets } from "@/lib/types"
+import type { WorkoutWithSets } from "@/lib/types"
 
 interface ExerciseInfo {
   exerciseId: number

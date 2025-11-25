@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Calendar } from "@/components/Calendar"
 import { Badge } from "@/components/ui/badge"
 import { getAllWorkoutsWithSets } from "@/lib/actions/workouts"
@@ -43,12 +43,12 @@ export default function WorkoutPage() {
 
   useEffect(() => {
     setCalendar(getCurrentMonthDays())
-  }, [])
+  }, [getCurrentMonthDays])
 
   useEffect(() => {
     const now = new Date().toISOString()
-    const dayWorkout = workouts.find((w) => w.created_at.split("T")[0] === now.split("T")[0])
-  }, [workouts, loading])
+    const _dayWorkout = workouts.find((w) => w.created_at.split("T")[0] === now.split("T")[0])
+  }, [workouts])
 
   const groupedExercises = useMemo(() => {
     const groupMap = new Map<number, ExerciseGroup>()
@@ -66,7 +66,7 @@ export default function WorkoutPage() {
           sets: [],
         })
       }
-      groupMap.get(exerciseId)!.sets.push(set)
+      groupMap.get(exerciseId)?.sets.push(set)
     })
 
     // Retourner dans l'ordre d'apparition (ordre chronologique de création)
@@ -109,7 +109,7 @@ export default function WorkoutPage() {
 
     const currentDay = workout?.created_at.split("T")[0].split("-")[2]
     const newCalendar = calendar.map((c) => {
-      if (currentDay && c.day === parseInt(currentDay)) {
+      if (currentDay && c.day === parseInt(currentDay, 10)) {
         c.isActive = true
         return c
       }

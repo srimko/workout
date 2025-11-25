@@ -223,9 +223,9 @@ export function WorkoutSetsModal({
 
       const result = await createSet(
         workoutId,
-        parseInt(newSet.exercise_id),
+        parseInt(newSet.exercise_id, 10),
         parseFloat(newSet.weight),
-        parseInt(newSet.repetition),
+        parseInt(newSet.repetition, 10),
         createdAt,
       )
 
@@ -427,7 +427,7 @@ export function WorkoutSetsModal({
                                   handleSetChange(
                                     set.id,
                                     "repetition",
-                                    parseInt(e.target.value) || 0,
+                                    parseInt(e.target.value, 10) || 0,
                                   )
                                 }
                                 className="mt-1"

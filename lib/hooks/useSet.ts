@@ -1,5 +1,5 @@
 import { useState } from "react"
 
 export function useSet() {
-  const [sets, setSets] = useState<number>(0)
+  const [_sets, _setSets] = useState<number>(0)
 }

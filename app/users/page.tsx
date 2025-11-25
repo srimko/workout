@@ -22,7 +22,7 @@ export default function UsersPage() {
     }
 
     fetchProfiles()
-  }, [])
+  }, [supabase.from])
 
   return (
     <section className="py-32">

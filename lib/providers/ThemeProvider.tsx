@@ -87,7 +87,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
 
     setIsLoading(false)
-  }, [])
+  }, [
+    applyColorMode, // Charger le thème par défaut au premier chargement
+    loadTheme,
+  ])
 
   const loadTheme = (themeName: ThemeName) => {
     // Retirer l'ancien link de thème s'il existe

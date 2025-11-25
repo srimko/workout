@@ -40,7 +40,7 @@ export const WorkoutCard = memo(function WorkoutCard({
             <span className="flex justify-between gap-4">
               <Badge variant="secondary">#{index + 1}</Badge>
               <h3 className="font-semibold text-base leading-tight truncate">
-                {set.exercise_name.slice(0, 20) + "..."}
+                {`${set.exercise_name.slice(0, 20)}...`}
               </h3>
             </span>
             <Badge variant="outline" className="text-xs">

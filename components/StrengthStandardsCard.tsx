@@ -61,7 +61,7 @@ export function StrengthStandardsCard({
                 </div>
                 <div className="text-sm text-muted-foreground">{liftedWeight} kg soulevés</div>
               </div>
-              {progress && progress.nextLevel && (
+              {progress?.nextLevel && (
                 <div className="text-right">
                   <div className="text-sm text-muted-foreground">
                     Vers {getLevelLabel(progress.nextLevel)}
@@ -70,7 +70,7 @@ export function StrengthStandardsCard({
                 </div>
               )}
             </div>
-            {progress && progress.nextLevel && (
+            {progress?.nextLevel && (
               <div className="mt-3">
                 <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
                   <div

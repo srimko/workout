@@ -652,7 +652,7 @@ function StepperInput({ value, onChange, min, max, step, unit }: StepperInputPro
           value={value}
           onChange={(e) => {
             const newValue = parseFloat(e.target.value)
-            if (!isNaN(newValue) && newValue >= min && newValue <= max) {
+            if (!Number.isNaN(newValue) && newValue >= min && newValue <= max) {
               onChange(newValue)
             }
           }}
