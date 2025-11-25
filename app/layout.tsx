@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { AppHeader } from "@/components/app-header"
-import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister"
 import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider } from "@/lib/providers/ThemeProvider"
 import { createClient } from "@/utils/supabase/server"
@@ -101,8 +100,7 @@ export default async function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider>
-          <ServiceWorkerRegister />
-          <div className="flex flex-col min-h-screen">
+          <div className="flex flex-col min-h-screen pb-[120px]">
             {user && <AppHeader />}
             <main className="flex-1 p-4 pb-20">{children}</main>
           </div>
