@@ -22,6 +22,18 @@ export interface Category {
   updated_at: string
 }
 
+export interface ExerciseStats {
+  title: string
+  weights: number[]
+  reps: number[]
+}
+
+export interface ExerciseGroup {
+  id: string
+  title: string
+  sets: SetWithExercise[]
+}
+
 export interface Exercise {
   id: number
   title: string
@@ -46,7 +58,7 @@ export interface SetWithExercise extends Omit<Set, "exercise_id"> {
     id: number
     title: string
     image: string
-    category: Category
+    category: Pick<Category, "name">
   }
 }
 
@@ -74,6 +86,12 @@ export interface Set {
   updated_at: string
 }
 
+export interface Serie {
+  title: string
+  weight: number
+  rep: number
+}
+
 export interface PersonalRecord {
   id: number
   user_id: string
@@ -88,4 +106,17 @@ export interface DayInfo {
   dayName: string
   isActive: boolean
   date: string
+}
+
+export interface SetWithExerciseInfo extends Set {
+  exercise_name: string
+  exercise_image: string
+  category_name: string
+}
+
+export interface CategoryGroup {
+  categoryName: string
+  sets: SetWithExercise[]
+  totalWeight: number
+  totalVolume: number
 }
