@@ -9,7 +9,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { SetComponent } from "../SetComponent"
 
 interface WorkoutCardListProps {
@@ -44,10 +44,10 @@ export const WorkoutCardList = memo(function WorkoutCardList({
   const [onEdit, setOnEdit] = useState<string | null>(null)
 
   // Calculer les stats globales
-  const totalSets = sets.length
-  const totalWeight = sets.reduce((sum, set) => sum + set.weight, 0)
-  const totalReps = sets.reduce((sum, set) => sum + set.repetition, 0)
-  const avgWeight = (totalWeight / totalSets).toFixed(1)
+  // const totalSets = sets.length
+  // const totalWeight = sets.reduce((sum, set) => sum + set.weight, 0)
+  // const totalReps = sets.reduce((sum, set) => sum + set.repetition, 0)
+  // const avgWeight = (totalWeight / totalSets).toFixed(1)
 
   // Regrouper les sets par catégorie musculaire
   const groupedByCategory = useMemo(() => {
@@ -100,7 +100,7 @@ export const WorkoutCardList = memo(function WorkoutCardList({
       if (!exerciseMap.has(exerciseName)) {
         exerciseMap.set(exerciseName, [])
       }
-      exerciseMap.get(exerciseName)!.push(set)
+      exerciseMap.get(exerciseName)?.push(set)
     })
 
     return Array.from(exerciseMap.entries()).map(([exerciseName, sets]) => ({
@@ -112,7 +112,7 @@ export const WorkoutCardList = memo(function WorkoutCardList({
   return (
     <div className="space-y-4 pb-20">
       {/* Stats Card */}
-      <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 gap-2">
+      {/* <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 gap-2">
         <CardHeader>
           <CardTitle className="text-lg">Résumé de la séance</CardTitle>
         </CardHeader>
@@ -132,10 +132,10 @@ export const WorkoutCardList = memo(function WorkoutCardList({
             </div>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Workout Title */}
-      {workoutTitle && <h2 className="text-lg font-semibold">{workoutTitle}</h2>}
+      {/* {workoutTitle && <h2 className="text-lg font-semibold">{workoutTitle}</h2>} */}
 
       <div>
         <Accordion type="multiple" defaultValue={defaultOpenCategories} className="w-full">
