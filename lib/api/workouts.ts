@@ -53,6 +53,56 @@ export async function getTodayWorkout(): Promise<Workout | null> {
   return data
 }
 
+/**
+ * Get today's workout (or the most recent unfinished workout)
+ */
+export async function getTodayWorkoutWithSets(): Promise<WorkoutWithSets | null> {
+  const profileId = await getCurrentProfileId()
+  if (!profileId) return null
+
+  const supabase = await createClient()
+
+  // Get today's date at midnight
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const { data, error } = await supabase
+    .from("workouts")
+    .select(`
+      *,
+      sets:sets(
+        id,
+        weight,
+        repetition,
+        created_at,
+        updated_at,
+        exercise:exercises(
+          id,
+          title,
+          image,
+          category:categories(
+            name
+          )
+        )
+      )
+    `)
+    .eq("profile_id", profileId)
+    .gte("started_at", today.toISOString())
+    .order("started_at", { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (error) {
+    console.error("Error fetching today workout with sets:", error)
+    return null
+  }
+
+  return data
+}
+
+/*
+ * Get last workout
+ */
 export async function getLastWorkout(): Promise<Workout | null> {
   const profileId = await getCurrentProfileId()
   if (!profileId) return null

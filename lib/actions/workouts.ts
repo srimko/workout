@@ -1,5 +1,7 @@
 "use server"
 
+import { revalidatePath } from "next/cache"
+
 import {
   autoCloseOldWorkouts as autoCloseOldWorkoutsAPI,
   createTodayWorkout as createTodayWorkoutAPI,
@@ -11,6 +13,7 @@ import {
   getOrCreateTodayWorkout as getOrCreateTodayWorkoutAPI,
   getPrevWorkoutWithSets as getPrevWorkoutWithSetsAPI,
   getTodayWorkout as getTodayWorkoutAPI,
+  getTodayWorkoutWithSets as getTodayWorkoutWithSetsAPI,
   resumeWorkout as resumeWorkoutAPI,
 } from "@/lib/api/workouts"
 
@@ -19,6 +22,13 @@ import {
  */
 export async function getTodayWorkout() {
   return await getTodayWorkoutAPI()
+}
+
+/**
+ * Get today's workout with sets (or the most recent unfinished workout)
+ */
+export async function getTodayWorkoutWithSets() {
+  return await getTodayWorkoutWithSetsAPI()
 }
 
 /**
@@ -46,7 +56,9 @@ export async function getActiveWorkout() {
  * Create a new workout for today
  */
 export async function createTodayWorkout(title?: string) {
-  return await createTodayWorkoutAPI(title)
+  const result = await createTodayWorkoutAPI(title)
+  revalidatePath("/")
+  return result
 }
 
 /**
@@ -61,14 +73,18 @@ export async function getOrCreateTodayWorkout() {
  * End a workout
  */
 export async function endWorkout(workoutId: string) {
-  return await endWorkoutAPI(workoutId)
+  const result = await endWorkoutAPI(workoutId)
+  revalidatePath("/")
+  return result
 }
 
 /**
  * Resume a completed workout
  */
 export async function resumeWorkout(workoutId: string) {
-  return await resumeWorkoutAPI(workoutId)
+  const result = await resumeWorkoutAPI(workoutId)
+  revalidatePath("/")
+  return result
 }
 
 /**
@@ -89,5 +105,6 @@ export async function getAllWorkoutsWithSets() {
  * Auto-close old unfinished workouts (not from today)
  */
 export async function autoCloseOldWorkouts() {
+  console.log("autoCloseOldWorkouts")
   return await autoCloseOldWorkoutsAPI()
 }
