@@ -34,6 +34,20 @@ export const updateSession = async (request: NextRequest) => {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // 🔍 DEBUG : Afficher les infos du token
+  // const {
+  //   data: { session },
+  // } = await supabase.auth.getSession()
+  // if (session) {
+  //   const expiresAt = new Date(session.expires_at! * 1000)
+  //   const expiresIn = session.expires_in // En secondes
+
+  //   console.log("🔑 Token d'accès :")
+  //   console.log("  - Expire dans:", expiresIn, "secondes")
+  //   console.log("  - Expire le:", expiresAt.toLocaleString())
+  //   console.log("  - Créé le:", new Date(Date.now() - (3600 - expiresIn!) * 1000).toLocaleString())
+  // }
+
   // Routes publiques (pas besoin d'auth)
   const publicRoutes = ["/login", "/signup"]
   const isPublicRoute = publicRoutes.some((route) => request.nextUrl.pathname.startsWith(route))
