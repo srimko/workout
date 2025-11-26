@@ -50,15 +50,14 @@ export function SetComponent<T extends SetWithExerciseInfo | Serie | SetWithExer
         className="flex items-center justify-between text-sm bg-background rounded px-3 py-2 mb-2 cursor-pointer hover:bg-muted/50 transition-colors"
         onClick={() => onSetClick?.(id)}
       >
-        <span className="text-muted-foreground font-medium">Série {label}</span>
+        <span className="text-muted-foreground font-medium">{label}</span>
         <span className="flex items-center gap-4 font-semibold">
           {set.weight}kg × {reps} reps
           {onSetClick && <Pen className="size-3" />}
         </span>
-        <span></span>
       </div>
       {onEdit === id && (onEditSet || onDeleteSet) && (
-        <div className="my-4 flex justify-between gap-2">
+        <div className="my-4 flex justify-between gap-2 ml-auto">
           {onEditSet && (
             <Button variant="outline" className="flex-1 flex gap-2" onClick={() => onEditSet(set)}>
               <Pencil className="h-4 w-4" /> Modifier
