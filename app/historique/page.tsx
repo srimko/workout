@@ -20,11 +20,38 @@ interface ExerciseGroup {
   sets: SetWithExercise[]
 }
 
+function getCurrentMonthDays(): DayInfo[] {
+  const now = new Date()
+  const currentDay = now.getDate()
+  const currentMonth = now.getMonth()
+  const currentYear = now.getFullYear()
+
+  // Obtenir le nombre de jours dans le mois actuel
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
+
+  const days: DayInfo[] = []
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(Date.UTC(currentYear, currentMonth, day))
+
+    // Obtenir le nom du jour en français
+    const dayName = date.toLocaleDateString("fr-FR", { weekday: "long" })
+
+    days.push({
+      day,
+      dayName,
+      isActive: day === currentDay,
+      date: date.toISOString(),
+    })
+  }
+  return days
+}
+
 export default function WorkoutPage() {
   const [workouts, setWorkouts] = useState<WorkoutWithSets[]>([])
   const [currentWorkout, setCurrentWorkout] = useState<WorkoutWithSets | null>()
   const [loading, setLoading] = useState(true)
-  const [calendar, setCalendar] = useState<DayInfo[]>([])
+  const [calendar, setCalendar] = useState<DayInfo[]>(getCurrentMonthDays())
 
   useEffect(() => {
     async function loadWorkouts() {
@@ -40,15 +67,6 @@ export default function WorkoutPage() {
 
     loadWorkouts()
   }, [])
-
-  useEffect(() => {
-    setCalendar(getCurrentMonthDays())
-  }, [getCurrentMonthDays])
-
-  useEffect(() => {
-    const now = new Date().toISOString()
-    const _dayWorkout = workouts.find((w) => w.created_at.split("T")[0] === now.split("T")[0])
-  }, [workouts])
 
   const groupedExercises = useMemo(() => {
     const groupMap = new Map<number, ExerciseGroup>()
@@ -73,33 +91,6 @@ export default function WorkoutPage() {
     return Array.from(groupMap.values())
   }, [currentWorkout])
 
-  function getCurrentMonthDays(): DayInfo[] {
-    const now = new Date()
-    const currentDay = now.getDate()
-    const currentMonth = now.getMonth()
-    const currentYear = now.getFullYear()
-
-    // Obtenir le nombre de jours dans le mois actuel
-    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
-
-    const days: DayInfo[] = []
-
-    for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(Date.UTC(currentYear, currentMonth, day))
-
-      // Obtenir le nom du jour en français
-      const dayName = date.toLocaleDateString("fr-FR", { weekday: "long" })
-
-      days.push({
-        day,
-        dayName,
-        isActive: day === currentDay,
-        date: date.toISOString(),
-      })
-    }
-    return days
-  }
-
   function handleClick(id: string | undefined) {
     if (!id) {
       setCurrentWorkout(null)
@@ -110,11 +101,9 @@ export default function WorkoutPage() {
     const currentDay = workout?.created_at.split("T")[0].split("-")[2]
     const newCalendar = calendar.map((c) => {
       if (currentDay && c.day === parseInt(currentDay, 10)) {
-        c.isActive = true
-        return c
+        return { ...c, isActive: true }
       }
-      c.isActive = false
-      return c
+      return { ...c, isActive: false }
     })
 
     setCalendar(newCalendar)
@@ -151,7 +140,6 @@ export default function WorkoutPage() {
             <h2 className="text-2xl font-bold mb-6">Workouts</h2>
             {groupedExercises.map((group) => (
               <div key={group.exerciseId} className="border rounded-lg p-3 bg-muted/30">
-                {/* En-tête de l'exercice */}
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <h4 className="font-semibold text-sm">{group.exerciseName}</h4>
                   <Badge variant="secondary" className="text-xs">
@@ -159,7 +147,6 @@ export default function WorkoutPage() {
                   </Badge>
                 </div>
 
-                {/* Liste des séries */}
                 <div className="space-y-1.5">
                   {group.sets.map((set, index) => (
                     <div

@@ -24,16 +24,7 @@ export function Calendar({ calendar, workouts, onCardClick }: CalendarProps) {
     }, 100)
 
     return () => clearTimeout(timer)
-  }, [])
-
-  useEffect(() => {
-    const activeDay: DayInfo | undefined = calendar.find((c) => {
-      return c.isActive
-    })
-    if (activeDay) {
-      handleWorkoutClick(activeDay)
-    }
-  }, [calendar.find, handleWorkoutClick])
+  }, [calendar])
 
   function handleWorkoutClick(day: DayInfo) {
     if (!day) {
