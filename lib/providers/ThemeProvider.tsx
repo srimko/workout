@@ -68,30 +68,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [colorMode, setColorMode] = useState<ColorMode>("light")
   const [isLoading, setIsLoading] = useState(true)
 
-  // Charger le thème et le mode couleur au montage
-  useEffect(() => {
-    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as ThemeName | null
-    const savedColorMode = localStorage.getItem(COLOR_MODE_STORAGE_KEY) as ColorMode | null
-
-    if (savedTheme && themes.some((t) => t.name === savedTheme)) {
-      setCurrentTheme(savedTheme)
-      loadTheme(savedTheme)
-    } else {
-      // Charger le thème par défaut au premier chargement
-      loadTheme("default")
-    }
-
-    if (savedColorMode && colorModes.some((m) => m.mode === savedColorMode)) {
-      setColorMode(savedColorMode)
-      applyColorMode(savedColorMode)
-    }
-
-    setIsLoading(false)
-  }, [
-    applyColorMode, // Charger le thème par défaut au premier chargement
-    loadTheme,
-  ])
-
   const loadTheme = (themeName: ThemeName) => {
     // Retirer l'ancien link de thème s'il existe
     const existingLink = document.querySelector("link[data-theme]")
@@ -117,6 +93,28 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       html.classList.remove("dark")
     }
   }
+
+  // Charger le thème et le mode couleur au montage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as ThemeName | null
+    const savedColorMode = localStorage.getItem(COLOR_MODE_STORAGE_KEY) as ColorMode | null
+
+    if (savedTheme && themes.some((t) => t.name === savedTheme)) {
+      setCurrentTheme(savedTheme)
+      loadTheme(savedTheme)
+    } else {
+      // Charger le thème par défaut au premier chargement
+      loadTheme("default")
+    }
+
+    if (savedColorMode && colorModes.some((m) => m.mode === savedColorMode)) {
+      setColorMode(savedColorMode)
+      applyColorMode(savedColorMode)
+    }
+
+    setIsLoading(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const changeTheme = (themeName: ThemeName) => {
     setCurrentTheme(themeName)
