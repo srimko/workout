@@ -32,7 +32,7 @@ export function FooterAction({ footerType, onDrawerOpen, workoutId }: FooterActi
           >
             <X />
           </Button>
-          <Button className="flex-1 h-12 text-base" onClick={() => onDrawerOpen(true)}>
+          <Button className="flex-1 h-12 text-base" onClick={() => onDrawerOpen?.(true)}>
             Ajouter un exercice
           </Button>
         </>
