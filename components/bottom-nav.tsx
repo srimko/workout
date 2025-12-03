@@ -66,9 +66,7 @@ export function BottomNav({ profileId }: BottomNavProps) {
               href={item.url}
               className={cn(
                 "flex flex-col items-center gap-1 transition-colors",
-                active
-                  ? "text-primary font-semibold"
-                  : "text-muted-foreground hover:text-primary",
+                active ? "text-primary font-semibold" : "text-muted-foreground hover:text-primary",
               )}
             >
               <Icon className={cn("h-5 w-5", active && "stroke-[2.5px]")} />
