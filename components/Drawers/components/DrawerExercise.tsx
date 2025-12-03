@@ -19,13 +19,28 @@ import {
 import { useCreateSet, useUpdateSet } from "@/lib/hooks/useSets"
 import type { Serie } from "@/lib/types"
 
+interface DrawerExerciseProps {
+  drawerOpen?: boolean
+  onDrawerClose?: (isOpen: boolean) => void
+  onSetCreated?: () => void | Promise<void>
+  onSetUpdated?: () => void | Promise<void>
+  editMode?: boolean
+  setToEdit?: any
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+}
+
 export function DrawerExercise({
   drawerOpen,
   onDrawerClose,
-}: {
-  drawerOpen: boolean
-  onDrawerClose: (isOPen: boolean) => void
-}) {
+  onSetCreated,
+  onSetUpdated,
+  editMode = false,
+  setToEdit,
+  open,
+  onOpenChange,
+}: DrawerExerciseProps) {
+  const isOpen = open ?? drawerOpen ?? false
   const router = useRouter()
   const [formData, setFormData] = useState({
     exercise: "",
@@ -71,7 +86,10 @@ export function DrawerExercise({
   const currentProps = steps[step].props as any
 
   function handleCancel() {
-    if (drawerOpen) {
+    if (onOpenChange) {
+      onOpenChange(false)
+    }
+    if (onDrawerClose) {
       onDrawerClose(false)
     }
   }
@@ -108,6 +126,9 @@ export function DrawerExercise({
       router.refresh()
       handleCancel()
       // Appeler le callback pour rafraîchir les données
+      if (onSetCreated) {
+        await onSetCreated()
+      }
     } else {
       // Check for error details
       const errorMsg = error?.message || "Certains sets n'ont pas pu être créés"
@@ -117,7 +138,7 @@ export function DrawerExercise({
   }
 
   return (
-    <Drawer open={drawerOpen} modal={true}>
+    <Drawer open={isOpen} onOpenChange={onOpenChange} modal={true}>
       <DrawerContent className="h-[95vh]">
         <div className="mx-auto w-full max-w-sm">
           <DrawerHeader>
