@@ -1,13 +1,11 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { AppHeader } from "@/components/app-header"
+import { BottomNav } from "@/components/bottom-nav"
 import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider } from "@/lib/providers/ThemeProvider"
 import { createClient } from "@/utils/supabase/server"
 import "./globals.css"
-
-import { Award, Dumbbell, GitCompare, Library, User } from "lucide-react"
-import Link from "next/link"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,34 +55,6 @@ export default async function RootLayout({
     }
   }
 
-  const items = [
-    {
-      title: "Home",
-      url: "/",
-      icon: Dumbbell,
-    },
-    {
-      title: "Historique",
-      url: "/historique",
-      icon: Library,
-    },
-    {
-      title: "Comparaison",
-      url: "/comparaison",
-      icon: GitCompare,
-    },
-    {
-      title: "Standards",
-      url: "/standards",
-      icon: Award,
-    },
-    {
-      title: "Profile",
-      url: profileId ? `/users/${profileId}` : "/",
-      icon: User,
-    },
-  ]
-
   return (
     <html lang="en">
       <head>
@@ -106,23 +76,7 @@ export default async function RootLayout({
           </div>
 
           {/* Bottom Navigation Bar */}
-          <nav className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-background border-t border-border/50 backdrop-blur-sm safe-area-inset-bottom">
-            <div className="flex justify-between">
-              {items.map((item) => {
-                const Icon = item.icon
-                return (
-                  <Link
-                    key={item.title}
-                    href={item.url}
-                    className="flex flex-col items-center gap-1 hover:text-primary transition-colors"
-                  >
-                    <Icon className="h-5 w-5" />
-                    <span className="text-xs">{item.title}</span>
-                  </Link>
-                )
-              })}
-            </div>
-          </nav>
+          <BottomNav profileId={profileId} />
           <Toaster />
         </ThemeProvider>
       </body>
