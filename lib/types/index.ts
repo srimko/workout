@@ -58,7 +58,7 @@ export interface SetWithExercise extends Omit<Set, "exercise_id"> {
     id: number
     title: string
     image: string
-    category: Pick<Category, "name">
+    category: Pick<Category, "id" | "name">
   }
 }
 
