@@ -85,13 +85,17 @@ export function DrawerExercise({
   const CurrentComponent = steps[step].component as any
   const currentProps = steps[step].props as any
 
-  function handleCancel() {
+  function handleOpenChange(open: boolean) {
     if (onOpenChange) {
-      onOpenChange(false)
+      onOpenChange(open)
     }
     if (onDrawerClose) {
-      onDrawerClose(false)
+      onDrawerClose(open)
     }
+  }
+
+  function handleCancel() {
+    handleOpenChange(false)
   }
 
   function handleExerciseChange(exercise: string) {
@@ -138,7 +142,7 @@ export function DrawerExercise({
   }
 
   return (
-    <Drawer open={isOpen} onOpenChange={onOpenChange} modal={true}>
+    <Drawer open={isOpen} onOpenChange={handleOpenChange} modal={true}>
       <DrawerContent className="h-[95vh]">
         <div className="mx-auto w-full max-w-sm">
           <DrawerHeader>
