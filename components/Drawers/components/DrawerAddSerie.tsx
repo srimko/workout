@@ -1,186 +1,110 @@
 "use client"
 
+import Image from "next/image"
 import { Minus, Plus } from "lucide-react"
-import { memo, useCallback, useState } from "react"
+import { memo, useCallback } from "react"
+import { DrawerReps } from "@/components/Drawers/components/DrawerReps"
 import { DrawerWeight } from "@/components/Drawers/components/DrawerWeight"
-import { SetComponent } from "@/components/SetComponent"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 
 const MIN_SERIES = 1
 const MAX_SERIES = 4
-const MIN_REPS = 1
-const MAX_REPS = 15
 
 interface DrawerAddSerieProps {
   exerciseName: string
+  exerciseImage?: string
   weight: number
   onWeightChange: (weight: number) => void
-  allSeries: Serie[]
-  onSeriesChange: (series: Serie[]) => void
-}
-
-interface Serie {
-  title: string
-  weight: number
-  rep: number
+  reps: number
+  onRepsChange: (reps: number) => void
+  serieCount: number
+  onSerieCountChange: (count: number) => void
 }
 
 export const DrawerAddSerie = memo(function DrawerAddSerie({
   exerciseName,
+  exerciseImage,
   weight,
   onWeightChange,
-  allSeries,
-  onSeriesChange,
+  reps,
+  onRepsChange,
+  serieCount,
+  onSerieCountChange,
 }: DrawerAddSerieProps) {
-  const [rep, setRepChange] = useState<number>(1)
-  const [serie, setSerieChange] = useState<number>(1)
-  const [onEdit, setOnEdit] = useState<string | null>(null)
-
   const handleSerieChange = useCallback(
     (adjustment: number) => {
-      const newSerie = Math.max(MIN_SERIES, Math.min(MAX_SERIES, serie + adjustment))
-      setSerieChange(newSerie)
+      const newSerie = Math.max(MIN_SERIES, Math.min(MAX_SERIES, serieCount + adjustment))
+      onSerieCountChange(newSerie)
     },
-    [serie],
+    [serieCount, onSerieCountChange],
   )
-  const handleRepChange = useCallback(
-    (adjustment: number) => {
-      const newRep = Math.max(MIN_REPS, Math.min(MAX_REPS, rep + adjustment))
-      setRepChange(newRep)
-    },
-    [rep],
-  )
-
-  function handleAddSerieClick() {
-    const newSeries = [...Array(serie)].map((_, index) => {
-      return {
-        title: `Série ${allSeries.length + index + 1}`,
-        weight,
-        rep,
-      }
-    })
-    onSeriesChange([...allSeries, ...newSeries])
-  }
-
-  const handleClick = (id: string) => {
-    if (id === onEdit) {
-      setOnEdit(null)
-      return
-    }
-    setOnEdit(id)
-  }
-
-  const handleDeleteSerie = useCallback(
-    (serieToDelete: Serie) => {
-      // Filtrer la série à supprimer
-      const updatedSeries = allSeries.filter((s) => s.title !== serieToDelete.title)
-      // Réindexer les titres des séries restantes
-      const reindexedSeries = updatedSeries.map((s, idx) => ({
-        ...s,
-        title: `Série ${idx + 1}`,
-      }))
-      onSeriesChange(reindexedSeries)
-      setOnEdit(null)
-    },
-    [allSeries, onSeriesChange],
-  )
-
-  const canAddMore = allSeries.length + serie <= MAX_SERIES && weight > 0 && rep > 0
-  const buttonLabel = serie === 1 ? "Ajouter une série" : `Ajouter ${serie} séries`
 
   return (
-    <div>
-      <DrawerWeight weight={weight} onWeightChange={onWeightChange} />
-      <div className="px-4 mb-6">
-        <Card>
-          <CardContent>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm">{exerciseName}</h3>
-              <span className="text-xs text-muted-foreground">
-                {allSeries.length}/{MAX_SERIES} séries
-              </span>
-            </div>
-            {allSeries.map((serie, index) => (
-              <SetComponent
-                key={serie.title}
-                set={serie}
-                index={index}
-                onSetClick={handleClick}
-                onEdit={onEdit}
-                onDeleteSet={handleDeleteSerie}
-              />
-            ))}
-          </CardContent>
-        </Card>
+    <div className="flex flex-col px-4">
+      {/* Exercice sélectionné */}
+      {exerciseImage && (
+        <div className="flex items-center gap-3 py-3">
+          <div className="relative h-10 w-10 flex-shrink-0">
+            <Image
+              src={`/exercises/${exerciseImage}`}
+              alt={exerciseName}
+              fill
+              className="object-cover rounded-md"
+            />
+          </div>
+          <p className="text-sm font-medium truncate">{exerciseName}</p>
+        </div>
+      )}
+
+      <div className="h-px bg-border" />
+
+      {/* Section Poids */}
+      <div className="py-6">
+        <DrawerWeight weight={weight} onWeightChange={onWeightChange} />
       </div>
-      <div className="flex justify-center">
-        <div className="flex basis-1/2 items-center justify-center gap-4">
-          <div className="flex flex-col items-center mb-6">
-            <h3 className="mb-3">Répéitions</h3>
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8 shrink-0 rounded-full"
-                onClick={() => handleRepChange(-1)}
-                disabled={rep <= MIN_REPS}
-              >
-                <Minus />
-                <span className="sr-only">Decrease</span>
-              </Button>
-              <span>{rep}</span>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8 shrink-0 rounded-full"
-                onClick={() => handleRepChange(1)}
-                disabled={rep >= MAX_REPS}
-              >
-                <Plus />
-                <span className="sr-only">Increase</span>
-              </Button>
-            </div>
+
+      <div className="h-px bg-border" />
+
+      {/* Section Répétitions + Séries */}
+      <div className="grid grid-cols-2 gap-6 py-6">
+        {/* Répétitions */}
+        <div className="flex flex-col items-center gap-3">
+          <span className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
+            Répétitions
+          </span>
+          <DrawerReps repetition={reps} onRepetitionChange={onRepsChange} compact />
+        </div>
+
+        {/* Séries avec séparation verticale */}
+        <div className="relative flex flex-col items-center gap-3">
+          <div className="absolute left-0 top-2 bottom-2 w-px bg-border" />
+          <span className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
+            Séries
+          </span>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-12 w-12 rounded-full"
+              onClick={() => handleSerieChange(-1)}
+              disabled={serieCount <= MIN_SERIES}
+              aria-label="Diminuer les séries"
+            >
+              <Minus className="h-5 w-5" />
+            </Button>
+            <span className="text-4xl font-bold text-center tabular-nums">{serieCount}</span>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-12 w-12 rounded-full"
+              onClick={() => handleSerieChange(1)}
+              disabled={serieCount >= MAX_SERIES}
+              aria-label="Augmenter les séries"
+            >
+              <Plus className="h-5 w-5" />
+            </Button>
           </div>
         </div>
-        <div className="flex basis-1/2 items-center justify-center gap-4">
-          <div className="flex flex-col items-center mb-6">
-            <h3 className="mb-3">Séries</h3>
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8 shrink-0 rounded-full"
-                onClick={() => handleSerieChange(-1)}
-                disabled={serie <= MIN_SERIES}
-              >
-                <Minus />
-                <span className="sr-only">Decrease</span>
-              </Button>
-              <span>{serie}</span>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8 shrink-0 rounded-full"
-                onClick={() => handleSerieChange(1)}
-                disabled={serie >= MAX_SERIES}
-              >
-                <Plus />
-                <span className="sr-only">Increase</span>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="flex px-4">
-        <Button
-          variant="outline"
-          className="w-full"
-          onClick={handleAddSerieClick}
-          disabled={!canAddMore}
-        >
-          {buttonLabel}
-        </Button>
       </div>
     </div>
   )

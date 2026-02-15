@@ -5,24 +5,23 @@ import { Button } from "@/components/ui/button"
 const MIN_REPS = 1
 const MAX_REPS = 15
 
-interface DrawerRepsProsp {
+interface DrawerRepsProps {
   repetition: number
   onRepetitionChange: (repetition: number) => void
+  compact?: boolean
 }
 
-export function DrawerReps({ repetition, onRepetitionChange }: DrawerRepsProsp) {
+export function DrawerReps({ repetition, onRepetitionChange, compact = false }: DrawerRepsProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [inputValue, setInputValue] = useState(repetition.toString())
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // Synchroniser inputValue avec repetition quand repetition change de l'extérieur
   useEffect(() => {
     if (!isEditing) {
       setInputValue(repetition.toString())
     }
   }, [repetition, isEditing])
 
-  // Auto-focus sur l'input quand on passe en mode édition
   useEffect(() => {
     if (isEditing && inputRef.current) {
       inputRef.current.focus()
@@ -61,18 +60,21 @@ export function DrawerReps({ repetition, onRepetitionChange }: DrawerRepsProsp) 
     }
   }, [])
 
+  const textSize = compact ? "text-4xl" : "text-7xl"
+  const buttonSize = compact ? "h-12 w-12" : "h-14 w-14"
+
   return (
-    <div className="p-4 pb-0 mb-10">
-      <div className="flex items-center justify-center space-x-2">
+    <div className={compact ? "" : "p-4 pb-0 mb-10"}>
+      <div className="flex items-center justify-center gap-3">
         <Button
           variant="outline"
           size="icon"
-          className="h-8 w-8 shrink-0 rounded-full"
+          className={`${buttonSize} shrink-0 rounded-full`}
           onClick={() => onClick(-1)}
           disabled={repetition <= MIN_REPS}
+          aria-label="Diminuer les répétitions"
         >
-          <Minus />
-          <span className="sr-only">Decrease</span>
+          <Minus className="h-5 w-5" />
         </Button>
         <div className="flex-1 text-center">
           {isEditing ? (
@@ -84,7 +86,7 @@ export function DrawerReps({ repetition, onRepetitionChange }: DrawerRepsProsp) 
               onChange={handleInputChange}
               onBlur={handleInputBlur}
               onKeyDown={handleInputKeyDown}
-              className="text-7xl font-bold tracking-tighter bg-transparent border-none outline-none text-center w-full focus:ring-2 focus:ring-primary rounded-md"
+              className={`${textSize} font-bold tracking-tighter bg-transparent border-none outline-none text-center w-full focus:ring-2 focus:ring-primary rounded-md`}
               aria-label="Modifier les répétitions"
               min={MIN_REPS}
               max={MAX_REPS}
@@ -92,8 +94,11 @@ export function DrawerReps({ repetition, onRepetitionChange }: DrawerRepsProsp) 
             />
           ) : (
             <output
-              className="text-7xl font-bold tracking-tighter cursor-pointer hover:text-primary transition-colors"
+              role="button"
+              tabIndex={0}
+              className={`${textSize} font-bold tracking-tighter cursor-pointer hover:text-primary active:text-primary/80 transition-colors px-3 py-1 rounded-lg hover:bg-muted/50 active:bg-muted/70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none`}
               aria-live="polite"
+              aria-label="Modifier les répétitions au clavier"
               onClick={handleEditClick}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
@@ -104,19 +109,21 @@ export function DrawerReps({ repetition, onRepetitionChange }: DrawerRepsProsp) 
               {repetition}
             </output>
           )}
-          <div className="text-muted-foreground text-[0.70rem] uppercase">
-            Répétition{repetition > 1 ? "s" : ""}
-          </div>
+          {!compact && (
+            <div className="text-muted-foreground text-xs uppercase">
+              Répétition{repetition > 1 ? "s" : ""}
+            </div>
+          )}
         </div>
         <Button
           variant="outline"
           size="icon"
-          className="h-8 w-8 shrink-0 rounded-full"
+          className={`${buttonSize} shrink-0 rounded-full`}
           onClick={() => onClick(1)}
           disabled={repetition >= MAX_REPS}
+          aria-label="Augmenter les répétitions"
         >
-          <Plus />
-          <span className="sr-only">Increase</span>
+          <Plus className="h-5 w-5" />
         </Button>
       </div>
     </div>
