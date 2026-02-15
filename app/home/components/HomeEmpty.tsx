@@ -1,6 +1,8 @@
 "use client"
 
 import { Dumbbell } from "lucide-react"
+import { useState } from "react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
   Empty,
@@ -14,10 +16,14 @@ import {
 import { createTodayWorkout } from "@/lib/actions/workouts"
 
 export function HomeEmpty() {
+  const [isLoading, setIsLoading] = useState(false)
+
   const startWorkout = async () => {
+    setIsLoading(true)
     const data = await createTodayWorkout()
     if (!data) {
-      return
+      toast.error("Impossible de créer la séance")
+      setIsLoading(false)
     }
   }
   return (
@@ -32,7 +38,9 @@ export function HomeEmpty() {
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <Button onClick={startWorkout}>Commencer le workout</Button>
+        <Button onClick={startWorkout} disabled={isLoading}>
+          {isLoading ? "Création..." : "Commencer le workout"}
+        </Button>
       </EmptyContent>
     </Empty>
   )

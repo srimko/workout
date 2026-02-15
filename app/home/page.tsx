@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { WorkoutCardList } from "@/components/Cards/WorkoutCardList"
 import { DrawerExercise } from "@/components/Drawers/components/DrawerExercise"
-import { AlertModal } from "@/components/modals/AlertModal"
 import { ConfirmModal } from "@/components/modals/ConfirmModal"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -25,87 +24,20 @@ import {
 } from "@/lib/actions/workouts"
 import { useModal } from "@/lib/hooks/useModal"
 import { useDeleteSet, useFetchSetsWithExercises } from "@/lib/hooks/useSets"
-import type { Profile, Workout, WorkoutWithSets } from "@/lib/types"
+import type { Profile, SetWithExerciseInfo, Workout, WorkoutWithSets } from "@/lib/types"
 import { createClient } from "@/utils/supabase/client"
-
-interface SetWithExerciseInfo {
-  id: string
-  workout_id: string
-  exercise_id: number
-  weight: number
-  repetition: number
-  created_at: string
-  updated_at: string
-  exercise_name: string
-  exercise_image: string
-  category_name: string
-}
 
 type WorkoutStatus = "none" | "created" | "in_progress" | "completed"
 
-interface ExerciseStats {
-  title: string
-  weights: number[]
-  reps: number[]
-}
-
-/**
- * Regroupe les sets d'un workout par exercice
- */
-function _groupSetsByExercise(workout: WorkoutWithSets | undefined): ExerciseStats[] {
-  if (!workout?.sets) return []
-
-  const exerciseStats = workout.sets.reduce(
-    (acc, set) => {
-      const exerciseTitle = set.exercise.title
-
-      if (!acc[exerciseTitle]) {
-        acc[exerciseTitle] = {
-          title: exerciseTitle,
-          weights: [],
-          reps: [],
-        }
-      }
-
-      acc[exerciseTitle].weights.push(set.weight)
-      acc[exerciseTitle].reps.push(set.repetition)
-
-      return acc
-    },
-    {} as Record<string, ExerciseStats>,
-  )
-
-  return Object.values(exerciseStats)
-}
-
-/**
- * Affiche les statistiques d'un exercice avec toutes ses séries
- */
-function _renderExerciseStats(exercises: ExerciseStats[]) {
-  return exercises.map((exercise) => (
-    <div key={exercise.title} className="mb-4 p-3 bg-muted rounded-lg">
-      <h4 className="font-semibold mb-2">{exercise.title}</h4>
-      <div className="space-y-1 text-sm">
-        {exercise.weights.map((weight, idx) => (
-          <p key={`${exercise.title}-${idx}`} className="text-muted-foreground">
-            Série {idx + 1}: {weight}kg × {exercise.reps[idx]} reps
-          </p>
-        ))}
-      </div>
-    </div>
-  ))
-}
-
 export default function HomePage() {
   const supabase = createClient()
-  const alertModal = useModal()
   const confirmDeleteModal = useModal()
   const { fetchSets } = useFetchSetsWithExercises()
   const { deleteSet } = useDeleteSet()
 
   const [workoutStatus, setWorkoutStatus] = useState<WorkoutStatus>("none")
   const [currentSets, setCurrentSets] = useState<SetWithExerciseInfo[] | undefined>()
-  const [_lastWorkout, setLastWorkout] = useState<WorkoutWithSets | undefined>()
+  const [, setLastWorkout] = useState<WorkoutWithSets | undefined>()
   const [currentWorkout, setCurrentWorkout] = useState<Workout | null>(null)
   const [currentProfile, setCurrentProfile] = useState<Profile | null>(null)
   const [editingSet, setEditingSet] = useState<SetWithExerciseInfo | null>(null)
@@ -116,7 +48,6 @@ export default function HomePage() {
   // biome-ignore lint/correctness/useExhaustiveDependencies: Run only once on mount
   useEffect(() => {
     async function initializeTodayWorkout() {
-      console.log("initializeTodayWorkout")
       try {
         // Auto-clôture des vieux workouts (UNE fois par jour avec localStorage guard)
         const lastAutoClose = localStorage.getItem("lastAutoCloseDate")
@@ -125,19 +56,17 @@ export default function HomePage() {
         if (lastAutoClose !== today) {
           const closedCount = await autoCloseOldWorkouts()
           if (closedCount > 0) {
-            console.log(`${closedCount} workout(s) auto-clôturé(s)`)
+            toast.success(`${closedCount} séance(s) terminée(s) automatiquement`)
           }
           localStorage.setItem("lastAutoCloseDate", today)
         }
-
-        // await autoCloseOldWorkouts()
 
         // Récupérer l'utilisateur connecté
         const {
           data: { user },
         } = await supabase.auth.getUser()
         if (!user) {
-          console.log("Aucun utilisateur connecté")
+          toast.error("Aucun utilisateur connecté")
           return
         }
 
@@ -149,7 +78,7 @@ export default function HomePage() {
           .single()
 
         if (!profile) {
-          console.log("Profil non trouvé")
+          toast.error("Profil non trouvé")
           return
         }
 
@@ -182,7 +111,7 @@ export default function HomePage() {
 
         await refreshWorkoutSets(workout.id)
       } catch (error) {
-        console.error("Erreur lors de l'initialisation du workout du jour:", error)
+        toast.error("Erreur lors du chargement de la séance")
       }
     }
 
@@ -201,7 +130,7 @@ export default function HomePage() {
         }
         return []
       } catch (error) {
-        console.error("Erreur lors du rafraîchissement des sets:", error)
+        toast.error("Erreur lors du rafraîchissement des séries")
         return []
       }
     },
@@ -229,7 +158,7 @@ export default function HomePage() {
       setCurrentSets([])
       setWorkoutStatus("created")
     } catch (error) {
-      console.error("Erreur lors de la création du workout:", error)
+      toast.error("Erreur lors de la création de la séance")
     }
   }, [currentProfile, supabase])
 
@@ -248,7 +177,7 @@ export default function HomePage() {
       setWorkoutStatus("completed")
       setCurrentWorkout({ ...currentWorkout, ended_at: new Date().toISOString() })
     } catch (error) {
-      console.error("Erreur lors de la clôture du workout:", error)
+      toast.error("Erreur lors de la clôture de la séance")
     }
   }, [currentWorkout, supabase])
 
@@ -268,14 +197,14 @@ export default function HomePage() {
       setCurrentWorkout({ ...currentWorkout, ended_at: null })
 
       // Show success toast
-      toast.success("Workout repris !", {
+      toast.success("Séance reprise !", {
         description: "Vous pouvez continuer votre séance",
         duration: 1000,
       })
     } catch (error) {
-      console.error("Erreur lors de la reprise du workout:", error)
+      toast.error("Erreur lors de la reprise de la séance")
       toast.error("Erreur", {
-        description: "Impossible de reprendre le workout",
+        description: "Impossible de reprendre la séance",
         duration: 1000,
       })
     }
@@ -348,7 +277,7 @@ export default function HomePage() {
         })
       }
     } catch (error) {
-      console.error("Erreur lors de la suppression du set:", error)
+      toast.error("Erreur lors de la suppression")
       toast.error("Erreur", {
         description: "Une erreur est survenue lors de la suppression",
         duration: 2000,
@@ -373,15 +302,11 @@ export default function HomePage() {
             </EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
-            <Button onClick={startWorkout}>Commencer le workout</Button>
+            <Button onClick={startWorkout}>Commencer la séance</Button>
           </EmptyContent>
         </Empty>
 
-        <AlertModal
-          {...alertModal}
-          title="Erreur"
-          description="Veuillez remplir tous les champs du formulaire avant de soumettre."
-        />
+
       </>
     )
   }
@@ -401,12 +326,7 @@ export default function HomePage() {
             </EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
-            <div className="flex flex-col gap-3">
-              <DrawerExercise onSetCreated={handleSetCreated} />
-              <Button variant="outline" onClick={endWorkout}>
-                Terminer le workout
-              </Button>
-            </div>
+            <Button onClick={() => setDrawerOpen(true)}>Ajouter un exercice</Button>
           </EmptyContent>
         </Empty>
 
@@ -430,11 +350,7 @@ export default function HomePage() {
           </Button>
         </div>
 
-        <AlertModal
-          {...alertModal}
-          title="Erreur"
-          description="Veuillez remplir tous les champs du formulaire avant de soumettre."
-        />
+
         <ConfirmModal
           {...confirmDeleteModal}
           title="Supprimer cette série ?"
@@ -465,18 +381,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* <Accordion type="single" collapsible>
-            <AccordionItem value="previous-workout">
-              <AccordionTrigger>
-                Séance précédente {lastWorkout?.created_at.split("T")[0] || ""}
-              </AccordionTrigger>
-              <AccordionContent>
-                {renderExerciseStats(groupSetsByExercise(lastWorkout))}
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion> */}
-
-          {/* Contenu principal - cartes */}
+          {/* Contenu principal */}
           <div className="">
             <WorkoutCardList
               sets={currentSets}
@@ -509,11 +414,7 @@ export default function HomePage() {
           </Button>
         </div>
 
-        <AlertModal
-          {...alertModal}
-          title="Erreur"
-          description="Veuillez remplir tous les champs du formulaire avant de soumettre."
-        />
+
         <ConfirmModal
           {...confirmDeleteModal}
           title="Supprimer cette série ?"
@@ -540,7 +441,7 @@ export default function HomePage() {
           <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm pt-4 pb-3 px-4 border-b border-border/50">
             <div className="flex items-center justify-between gap-3">
               <h1 className="text-2xl font-bold">Séance terminée</h1>
-              <Badge className="bg-green-100 text-green-800">Complété</Badge>
+              <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Complété</Badge>
             </div>
           </div>
 
@@ -557,15 +458,11 @@ export default function HomePage() {
         </div>
         <div className="fixed bottom-1/12 left-0 right-0 z-40 p-4 bg-background border-t border-border/50 backdrop-blur-sm safe-area-inset-bottom">
           <Button variant="default" className="w-full h-12 text-base" onClick={resumeWorkoutFn}>
-            Reprendre le workout
+            Reprendre la séance
           </Button>
         </div>
 
-        <AlertModal
-          {...alertModal}
-          title="Erreur"
-          description="Veuillez remplir tous les champs du formulaire avant de soumettre."
-        />
+
         <ConfirmModal
           {...confirmDeleteModal}
           title="Supprimer cette série ?"

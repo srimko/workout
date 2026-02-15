@@ -7,6 +7,7 @@ import { FooterAction } from "@/app/home/components/FooterAction"
 import { TodayWorkoutDetails } from "@/app/home/components/TodayWorkoutDetails"
 import { DrawerExercise } from "@/components/Drawers/components/DrawerExercise"
 import { ConfirmModal } from "@/components/modals/ConfirmModal"
+import { endWorkout } from "@/lib/actions/workouts"
 import { useModal } from "@/lib/hooks/useModal"
 import { useDeleteSet } from "@/lib/hooks/useSets"
 import type { SetWithExercise, WorkoutWithSets } from "@/lib/types"
@@ -17,14 +18,13 @@ export function WorkoutSession({ todayWorkout }: { todayWorkout: WorkoutWithSets
   const [setToDelete, setSetToDelete] = useState<SetWithExercise | null>(null)
 
   const confirmDeleteModal = useModal()
+  const confirmEndWorkoutModal = useModal()
   const { deleteSet } = useDeleteSet()
 
   const openDrawer = () => setDrawerOpen(true)
   const closeDrawer = () => setDrawerOpen(false)
 
   const handleEditSet = useCallback((set: SetWithExercise) => {
-    // TODO: Implémenter l'édition avec DrawerExercise
-    console.log("Édition du set:", set)
     toast.info("Fonctionnalité d'édition à venir")
   }, [])
 
@@ -52,6 +52,21 @@ export function WorkoutSession({ todayWorkout }: { todayWorkout: WorkoutWithSets
     }
     setSetToDelete(null)
   }, [setToDelete, deleteSet, router])
+
+  const handleEndWorkout = useCallback(() => {
+    confirmEndWorkoutModal.open()
+  }, [confirmEndWorkoutModal])
+
+  const confirmEndWorkout = useCallback(async () => {
+    const success = await endWorkout(todayWorkout.id)
+    if (success) {
+      toast.success("Séance terminée !", { duration: 2000 })
+      router.refresh()
+    } else {
+      toast.error("Erreur lors de la terminaison")
+    }
+  }, [todayWorkout.id, router])
+
   return (
     <>
       <TodayWorkoutDetails
@@ -63,6 +78,7 @@ export function WorkoutSession({ todayWorkout }: { todayWorkout: WorkoutWithSets
       <FooterAction
         footerType="in_progress"
         onDrawerOpen={openDrawer}
+        onEndWorkout={handleEndWorkout}
         workoutId={todayWorkout.id}
       />
       <ConfirmModal
@@ -77,6 +93,15 @@ export function WorkoutSession({ todayWorkout }: { todayWorkout: WorkoutWithSets
         onConfirm={confirmDeleteSet}
         confirmText="Supprimer"
         cancelText="Annuler"
+        variant="destructive"
+      />
+      <ConfirmModal
+        {...confirmEndWorkoutModal}
+        title="Terminer la séance ?"
+        description="Vous pourrez reprendre le workout plus tard si besoin."
+        onConfirm={confirmEndWorkout}
+        confirmText="Terminer"
+        cancelText="Continuer"
         variant="destructive"
       />
     </>
