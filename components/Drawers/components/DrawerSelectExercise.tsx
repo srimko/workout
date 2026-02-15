@@ -3,7 +3,7 @@
 import Image from "next/image"
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { useCategories, useExercisesByCategory } from "@/lib/hooks/useExercises"
+import { useCategories, useExercises } from "@/lib/hooks/useExercises"
 
 interface DrawerSelectExerciseProps {
   repetition: number
@@ -13,7 +13,11 @@ interface DrawerSelectExerciseProps {
 export function DrawerSelectExercise({ repetition, onSelectExercise }: DrawerSelectExerciseProps) {
   const [currentCategoryId, setCurrentCategoryId] = useState<string | null>(null)
   const { categories, loading: categoriesLoading } = useCategories()
-  const { exercises, loading: exercisesLoading } = useExercisesByCategory(currentCategoryId, true)
+  const { exercises: allExercises, loading: exercisesLoading } = useExercises(true)
+
+  const exercises = currentCategoryId
+    ? allExercises.filter((e) => e.category_id === currentCategoryId)
+    : []
 
   function handleSelectCategory(categoryId: string) {
     setCurrentCategoryId(categoryId)
@@ -37,8 +41,8 @@ export function DrawerSelectExercise({ repetition, onSelectExercise }: DrawerSel
     const currentCategory = categories.find((cat) => cat.id === currentCategoryId)
 
     return (
-      <div>
-        <div className="flex gap-4 justify-between p-4 border-b">
+      <div className="flex flex-col h-full overflow-hidden">
+        <div className="flex-shrink-0 flex gap-4 justify-between p-4 border-b bg-background">
           <button
             type="button"
             onClick={handleBackToCategories}
@@ -54,30 +58,31 @@ export function DrawerSelectExercise({ repetition, onSelectExercise }: DrawerSel
             <p>Chargement des exercices...</p>
           </div>
         ) : (
-          <div className="grid gap-4 p-4 overflow-auto">
+          <div className="grid grid-cols-3 gap-3 p-4 flex-1 overflow-auto">
             {exercises.length === 0 ? (
-              <p className="col-span-2 text-center text-gray-500">
+              <p className="col-span-3 text-center text-gray-500">
                 Aucun exercice actif dans cette catégorie
               </p>
             ) : (
               exercises.map((exercise) => (
-                <Card
+                <button
+                  type="button"
                   key={exercise.id}
                   onClick={() => onSelectExercise(exercise.title)}
-                  className="cursor-pointer hover:shadow-md transition-shadow"
+                  className="flex flex-col items-center gap-1 rounded-lg p-2 transition-colors hover:bg-muted active:bg-muted/80"
                 >
-                  <CardContent className="flex gap-4">
-                    <div className="relative h-12 w-12">
-                      <Image
-                        src={`/exercises/${exercise.image}`}
-                        alt={exercise.title}
-                        fill
-                        className="object-cover rounded"
-                      />
-                    </div>
-                    <p className="text-sm mt-2 font-medium">{exercise.title}</p>
-                  </CardContent>
-                </Card>
+                  <div className="relative h-16 w-16">
+                    <Image
+                      src={`/exercises/${exercise.image}`}
+                      alt={exercise.title}
+                      fill
+                      className="object-cover rounded-md"
+                    />
+                  </div>
+                  <p className="w-full text-center text-xs text-muted-foreground truncate">
+                    {exercise.title}
+                  </p>
+                </button>
               ))
             )}
           </div>
