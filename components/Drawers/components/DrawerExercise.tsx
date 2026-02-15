@@ -144,13 +144,15 @@ export function DrawerExercise({
   return (
     <Drawer open={isOpen} onOpenChange={handleOpenChange} modal={true}>
       <DrawerContent className="h-[95vh]">
-        <div className="mx-auto w-full max-w-sm">
+        <div className="mx-auto w-full max-w-sm flex flex-col h-full overflow-hidden">
           <DrawerHeader>
             <DrawerTitle>{steps[step].title}</DrawerTitle>
             <DrawerDescription>{steps[step].description}</DrawerDescription>
           </DrawerHeader>
-          {CurrentComponent && <CurrentComponent {...currentProps} />}
-          <DrawerFooter className="absolute bottom-0 w-full">
+          <div className="flex-1 overflow-auto">
+            {CurrentComponent && <CurrentComponent {...currentProps} />}
+          </div>
+          <DrawerFooter>
             <div className="grid grid-cols-2 gap-4">
               <Button onClick={() => setStep(step - 1)} disabled={step === 0}>
                 Précédent
