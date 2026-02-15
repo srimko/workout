@@ -140,6 +140,30 @@ export async function getSetsByWorkoutWithExercises(workoutId: string): Promise<
 }
 
 /**
+ * Get the last set logged for an exercise (most recent by created_at)
+ */
+export async function getLastSetForExercise(
+  exerciseId: number,
+): Promise<Pick<Set, "weight" | "repetition"> | null> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from("sets")
+    .select("weight, repetition")
+    .eq("exercise_id", exerciseId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (error) {
+    console.error("Error fetching last set for exercise:", error)
+    return null
+  }
+
+  return data
+}
+
+/**
  * Get all sets for an exercise
  */
 export async function getSetsByExercise(exerciseId: number): Promise<Set[]> {

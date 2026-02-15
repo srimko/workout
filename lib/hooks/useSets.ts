@@ -1,8 +1,47 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import type { Set } from "@/lib/types"
 import { createClient } from "@/utils/supabase/client"
+
+/**
+ * Hook to fetch the last set for an exercise (client-side)
+ */
+export function useLastSet() {
+  const [isLoading, setIsLoading] = useState(false)
+
+  const fetchLastSet = useCallback(
+    async (exerciseId: number): Promise<Pick<Set, "weight" | "repetition"> | null> => {
+      setIsLoading(true)
+      try {
+        const supabase = createClient()
+
+        const { data, error } = await supabase
+          .from("sets")
+          .select("weight, repetition")
+          .eq("exercise_id", exerciseId)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle()
+
+        if (error) {
+          console.error("[useLastSet] Error:", error)
+          return null
+        }
+
+        return data
+      } catch (err) {
+        console.error("[useLastSet] Error:", err)
+        return null
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [],
+  )
+
+  return { fetchLastSet, loading: isLoading }
+}
 
 /**
  * Hook to create a set (client-side)
