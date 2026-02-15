@@ -1,21 +1,29 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import type { DayInfo, WorkoutWithSets } from "@/lib/types"
 
 interface CalendarProps {
   calendar: DayInfo[]
   workouts: WorkoutWithSets[]
-  onCardClick: (id: string | undefined) => void
+  selectedDay: number | null
+  onDayClick: (day: DayInfo) => void
 }
 
-export function Calendar({ calendar, workouts, onCardClick }: CalendarProps) {
+export function Calendar({ calendar, workouts, selectedDay, onDayClick }: CalendarProps) {
   const scrollContainerRef = useRef<HTMLUListElement>(null)
-  const activeCardRef = useRef<HTMLDivElement>(null)
+  const targetCardRef = useRef<HTMLDivElement>(null)
+
+  // Pre-compute workout dates for O(1) lookup
+  const workoutDates = useMemo(() => {
+    const dates = new Set<string>()
+    workouts.forEach((w) => dates.add(w.created_at.split("T")[0]))
+    return dates
+  }, [workouts])
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (activeCardRef.current && scrollContainerRef.current) {
-        activeCardRef.current.scrollIntoView({
+      if (targetCardRef.current && scrollContainerRef.current) {
+        targetCardRef.current.scrollIntoView({
           behavior: "smooth",
           block: "nearest",
           inline: "center",
@@ -24,46 +32,56 @@ export function Calendar({ calendar, workouts, onCardClick }: CalendarProps) {
     }, 100)
 
     return () => clearTimeout(timer)
-  }, [calendar])
-
-  function handleWorkoutClick(day: DayInfo) {
-    if (!day) {
-      return false
-    }
-
-    const dayWorkout = workouts.find((w) => w.created_at.split("T")[0] === day.date.split("T")[0])
-    onCardClick(dayWorkout?.id)
-  }
+  }, [calendar, selectedDay])
 
   return (
-    <ul ref={scrollContainerRef} className="flex gap-3 mb-4 overflow-auto">
-      {calendar.map((day) => (
-        <li key={day.day}>
-          <Card
-            ref={day.isActive ? activeCardRef : null}
-            className={`py-4 px-1 ${day.isActive ? "bg-stone-200 text-black" : ""}`}
-            onClick={() => {
-              handleWorkoutClick(day)
-            }}
-          >
-            <CardContent className="flex flex-col items-center relative">
-              <span>{day.day}</span>
-              <span>{day.dayName.slice(0, 3)}</span>
-              {workouts.map((workout, index) => {
-                if (workout.created_at.split("T")[0] !== day.date.split("T")[0]) {
-                  return false
+    <ul
+      ref={scrollContainerRef}
+      className="flex gap-2 mb-4 overflow-x-auto overflow-y-hidden scrollbar-hide"
+    >
+      {calendar.map((day) => {
+        const dayDate = day.date.split("T")[0]
+        const hasWorkout = workoutDates.has(dayDate)
+        const isSelected = selectedDay === day.day
+        const isToday = day.isActive
+        const isScrollTarget = isSelected || (!selectedDay && isToday)
+
+        return (
+          <li key={day.day}>
+            <Card
+              ref={isScrollTarget ? targetCardRef : null}
+              className={`py-3 px-2 min-w-14 cursor-pointer transition-colors ${
+                isSelected
+                  ? "bg-primary text-primary-foreground"
+                  : isToday
+                    ? "ring-1 ring-primary"
+                    : "hover:bg-muted/50"
+              }`}
+              role="button"
+              tabIndex={0}
+              onClick={() => onDayClick(day)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault()
+                  onDayClick(day)
                 }
-                return (
+              }}
+            >
+              <CardContent className="flex flex-col items-center relative p-0">
+                <span className="text-sm font-medium">{day.day}</span>
+                <span className="text-xs">{day.dayName.slice(0, 3)}</span>
+                {hasWorkout && (
                   <span
-                    key={index}
-                    className="bg-green-400 h-1 w-1 rounded-2xl absolute -top-2"
-                  ></span>
-                )
-              })}
-            </CardContent>
-          </Card>
-        </li>
-      ))}
+                    className={`h-1.5 w-1.5 rounded-full absolute -top-1.5 ${
+                      isSelected ? "bg-primary-foreground" : "bg-primary"
+                    }`}
+                  />
+                )}
+              </CardContent>
+            </Card>
+          </li>
+        )
+      })}
     </ul>
   )
 }
