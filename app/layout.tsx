@@ -56,8 +56,13 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en">
+    <html lang="fr" suppressHydrationWarning>
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var m=localStorage.getItem('app-color-mode');if(m==='dark')document.documentElement.classList.add('dark')}catch(e){}})()`,
+          }}
+        />
         <meta charSet="UTF-8" />
         <meta
           name="viewport"
@@ -70,9 +75,9 @@ export default async function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider>
-          <div className="flex flex-col min-h-screen pb-[120px]">
+          <div className="flex flex-col min-h-screen">
             {user && <AppHeader />}
-            <main className="flex-1 p-4 pb-20">{children}</main>
+            <main className="flex-1 pb-20">{children}</main>
           </div>
 
           {/* Bottom Navigation Bar */}

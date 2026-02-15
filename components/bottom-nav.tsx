@@ -20,7 +20,7 @@ export function BottomNav({ profileId }: BottomNavProps) {
 
   const items: NavItem[] = [
     {
-      title: "Home",
+      title: "Accueil",
       url: "/",
       icon: Dumbbell,
     },
@@ -40,7 +40,7 @@ export function BottomNav({ profileId }: BottomNavProps) {
       icon: Award,
     },
     {
-      title: "Profile",
+      title: "Profil",
       url: profileId ? `/users/${profileId}` : "/",
       icon: User,
     },
@@ -65,7 +65,7 @@ export function BottomNav({ profileId }: BottomNavProps) {
               key={item.title}
               href={item.url}
               className={cn(
-                "flex flex-col items-center gap-1 transition-colors",
+                "flex flex-col items-center justify-center gap-1 min-h-12 py-1 px-2 transition-colors",
                 active ? "text-primary font-semibold" : "text-muted-foreground hover:text-primary",
               )}
             >

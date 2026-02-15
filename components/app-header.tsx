@@ -18,10 +18,15 @@ export function AppHeader() {
     <header className="flex justify-between items-center border-b px-4 py-3">
       <div className="flex-1 text-center">
         <Link href="/">
-          <h1 className="text-xl font-semibold">Workout App</h1>
+          <h1 className="text-xl font-semibold">Muscu Tracker</h1>
         </Link>
       </div>
-      <button type="button" onClick={handleLogout} className="hover:text-primary transition-colors">
+      <button
+        type="button"
+        onClick={handleLogout}
+        aria-label="Se déconnecter"
+        className="p-2 -mr-2 hover:text-primary transition-colors"
+      >
         <LogOut className="h-5 w-5" />
       </button>
     </header>
